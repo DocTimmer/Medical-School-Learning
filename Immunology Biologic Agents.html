@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biologic Agents USMLE Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .rationale {
+            display: none;              /* stays hidden until answer is clicked */
+            border-left: 4px solid;
+            white-space: pre-wrap;      /* preserves \n line breaks */
+            min-height: 3rem;           /* ensures a visible box even for short text */
+            padding: 1rem;              /* adds breathing room for longer text */
+        }
+        .rationale.correct-border { border-color: #10B981; }
+        .rationale.incorrect-border { border-color: #EF4444; }
+        .option-btn { transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        .correct { background-color: #10B981 !important; color: white !important; border-color: #059669 !important; }
+        .incorrect { background-color: #EF4444 !important; color: white !important; border-color: #DC2626 !important; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+    <header class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Biologic Agents USMLE-Style Quiz</h1>
+        <p class="text-md text-gray-600 mt-2">Test your knowledge of biologic nomenclature, mechanisms, and side effects.</p>
+    </header>
+
+    <div id="quiz-container" class="space-y-8"></div>
+</div>
+
+<script>
+const quizData = [
+    {
+        question: "1. Biologic agents are primarily derived from which of the following sources?",
+        options: ["Chemical synthesis in a laboratory", "Living culture systems or blood", "Plant extracts and botanicals", "Inorganic mineral compounds"],
+        correctAnswer: "Living culture systems or blood",
+        rationale: "• Why: Biologics are complex molecules produced by or derived from living organisms, such as bacteria, yeast, or mammalian cells.\n• This is in contrast to conventional, small-molecule drugs, which are chemically synthesized."
+    },
+    {
+        question: "2. A monoclonal antibody with a name ending in '-omab' is most likely derived from what source?",
+        options: ["Human", "Humanized", "Chimeric", "Murine"],
+        correctAnswer: "Murine",
+        rationale: "• Why: The suffix '-omab' indicates the antibody is derived entirely from a mouse (murine) source.\n• This is the earliest and most immunogenic type of monoclonal antibody."
+    },
+    {
+        question: "3. Which of the following biologic agents works by directly targeting and inhibiting TNF-α?",
+        options: ["Abatacept", "Anakinra", "Infliximab", "Omalizumab"],
+        correctAnswer: "Infliximab",
+        rationale: "• Why: Infliximab is a monoclonal antibody that specifically binds to TNF-α, preventing it from binding to its receptors.\n• Abatacept blocks T-cell co-stimulation, Anakinra is an IL-1 receptor antagonist, and Omalizumab targets IgE."
+    },
+    {
+        question: "4. A major disadvantage of monoclonal antibody therapy is the inability to be administered by which route?",
+        options: ["Intravenous", "Subcutaneous", "Intramuscular", "Oral"],
+        correctAnswer: "Oral",
+        rationale: "• Why: Monoclonal antibodies are proteins that would be denatured and inactivated by the acid and enzymes in the GI tract.\n• Therefore, they must be administered via injection or infusion."
+    },
+    {
+        question: "5. Which type of monoclonal antibody is considered the least immunogenic?",
+        options: ["Murine mAbs", "Chimeric mAbs", "Humanized mAbs", "Human mAbs"],
+        correctAnswer: "Human mAbs",
+        rationale: "• Why: Because they are composed of 100% human protein sequences, these antibodies (ending in -umab) are the least likely to be recognized as foreign by the immune system.\n• Immunogenicity decreases as the percentage of human protein increases."
+    },
+    {
+        question: "6. What is the primary mechanism of action for Abatacept?",
+        options: ["Inhibiting the IL-1 receptor", "Binding to TNF-α to prevent receptor activation", "Blocking T-cell activation by binding to B7 on APCs", "Depleting B-cells from circulation"],
+        correctAnswer: "Blocking T-cell activation by binding to B7 on APCs",
+        rationale: "• Why: Abatacept prevents the co-stimulatory 'second signal' required for T-cell activation by blocking the CD28-B7 interaction."
+    },
+    {
+        question: "7. Before initiating therapy with a TNF-α inhibitor like infliximab, screening for which latent infection is crucial?",
+        options: ["Cytomegalovirus (CMV)", "Tuberculosis (TB)", "Varicella-Zoster Virus (VZV)", "Epstein-Barr Virus (EBV)"],
+        correctAnswer: "Tuberculosis (TB)",
+        rationale: "• Why: TNF-α is critical for maintaining the granulomas that contain latent TB; inhibiting it can lead to reactivation of the disease."
+    },
+    {
+        question: "8. A biologic drug with the name Ustekinumab most likely targets what?",
+        options: ["A tumor", "A virus", "An interleukin", "Bone"],
+        correctAnswer: "An interleukin",
+        rationale: "• Why: The substem '-ki-' indicates the drug targets an interleukin. The suffix '-umab' indicates it is a human monoclonal antibody."
+    },
+    {
+        question: "9. Receptor fusion proteins like etanercept are composed of an extracellular receptor domain and what other component?",
+        options: ["The Fab region of an IgM antibody", "The Fc region of an IgG antibody", "A viral protein for cell entry", "A bacterial toxin to induce apoptosis"],
+        correctAnswer: "The Fc region of an IgG antibody",
+        rationale: "• Why: The Fc region of IgG is fused to the receptor domain to prolong the molecule's half-life in the bloodstream by engaging with the neonatal Fc receptor (FcRn)."
+    },
+    {
+        question: "10. Which of the following side effects is specifically associated with anti-TNF biologics, often prompting baseline ANA level assessment?",
+        options: ["Hypersensitivity reactions", "Drug-induced lupus-like syndrome", "Reactivation of hepatitis B", "Bone marrow suppression"],
+        correctAnswer: "Drug-induced lupus-like syndrome",
+        rationale: "• Why: Anti-TNF agents are known to have a risk of inducing autoantibodies and a lupus-like syndrome, making a baseline ANA important to assess for pre-existing autoimmunity."
+    },
+    {
+        question: "11. Trastuzumab is a humanized monoclonal antibody. What suffix would you expect its name to end with?",
+        options: ["-omab", "-ximab", "-zumab", "-umab"],
+        correctAnswer: "-zumab",
+        rationale: "• Why: The suffix '-zumab' is the specific naming convention for humanized monoclonal antibodies, which are approximately 95% human."
+    },
+    {
+        question: "12. What is the mechanism of action of Omalizumab?",
+        options: ["It binds to IgE, preventing it from binding to mast cells.", "It competitively inhibits the IL-1 receptor.", "It targets TNF-α to reduce inflammation.", "It blocks B7 on antigen-presenting cells."],
+        correctAnswer: "It binds to IgE, preventing it from binding to mast cells.",
+        rationale: "• Why: Omalizumab is an anti-IgE therapy used for allergic conditions like asthma by preventing the first step in the allergic cascade."
+    },
+    {
+        question: "13. A key advantage of biologics over older immunosuppressants like corticosteroids is their:",
+        options: ["Low cost of manufacturing", "Ability to be administered orally", "Lack of any side effects", "High specificity for a single target"],
+        correctAnswer: "High specificity for a single target",
+        rationale: "• Why: Biologics are designed to hit a specific molecular target, minimizing the broad, off-target effects seen with drugs like corticosteroids."
+    },
+    {
+        question: "14. Anakinra is unique among IL-1 inhibitors because it can:",
+        options: ["Be administered orally", "Cross the blood-brain barrier", "Target both IL-1 and TNF-α", "Be used without any risk of infection"],
+        correctAnswer: "Cross the blood-brain barrier",
+        rationale: "• Why: This property makes Anakinra useful for treating diseases with inflammation of the central nervous system."
+    },
+    {
+        question: "15. Which of the following tests is an appropriate way to screen for latent TB?",
+        options: ["A chest X-ray", "A sputum smear for acid-fast bacilli", "An interferon-γ release assay (IGRA)", "A complete blood count (CBC)"],
+        correctAnswer: "An interferon-γ release assay (IGRA)",
+        rationale: "• Why: IGRA tests (like QuantiFERON-TB Gold) and the tuberculin skin test (TST) are the standard methods for screening for latent TB infection."
+    },
+    {
+        question: "16. A patient is to be started on Denosumab. Based on the nomenclature, what is the likely target of this drug?",
+        options: ["A toxin", "An interleukin", "Bone", "A virus"],
+        correctAnswer: "Bone",
+        rationale: "• Why: The substem '-so-' indicates a bone target. Denosumab targets RANKL and is used for conditions like osteoporosis."
+    },
+    {
+        question: "17. How does Etanercept differ from Infliximab?",
+        options: ["Etanercept targets IL-1 while Infliximab targets TNF-α.", "Etanercept is a monoclonal antibody, while Infliximab is a fusion protein.", "Etanercept is a fusion protein, while Infliximab is a monoclonal antibody.", "Etanercept can be taken orally, while Infliximab cannot."],
+        correctAnswer: "Etanercept is a fusion protein, while Infliximab is a monoclonal antibody.",
+        rationale: "• Why: Although both target TNF-α, they belong to different structural classes of biologic agents. Etanercept is a 'decoy receptor' fusion protein, while Infliximab is a chimeric mAb."
+    },
+    {
+        question: "18. The composition of a humanized monoclonal antibody is approximately:",
+        options: ["100% human protein", "95% human protein", "65% human protein", "0% human protein"],
+        correctAnswer: "95% human protein",
+        rationale: "• Why: Humanized antibodies (-zumab) are mostly human, with only the small hypervariable regions derived from a murine source."
+    },
+    {
+        question: "19. Which of the following is NOT a common pre-screening or mitigation strategy before starting biologic therapy?",
+        options: ["Vaccination for pneumococcal disease", "A baseline complete blood count and liver function tests", "Starting a course of prophylactic antibiotics", "Screening for Hepatitis B and C"],
+        correctAnswer: "Starting a course of prophylactic antibiotics",
+        rationale: "• Why: Routine prophylactic antibiotics are not a standard practice; the focus is on screening for and treating latent infections, and ensuring vaccinations are up to date."
+    },
+    {
+        question: "20. A chimeric mAb fuses the murine ______ regions with the human ______ regions.",
+        options: ["constant; variable", "variable; constant", "hypervariable; constant", "constant; hypervariable"],
+        correctAnswer: "variable; constant",
+        rationale: "• Why: In a chimeric mAb, the antigen-binding (variable) regions from the mouse are attached to the structural (constant) regions from a human."
+    },
+    {
+        question: "21. Tocilizumab is a biologic agent used for giant cell arteritis and rheumatoid arthritis. What is its mechanism of action?",
+        options: ["Inhibits the IL-6 receptor", "Inhibits the IL-1 receptor", "Targets IgE", "Targets TNF-α"],
+        correctAnswer: "Inhibits the IL-6 receptor",
+        rationale: "• Why: Tocilizumab is a humanized monoclonal antibody that blocks the IL-6 receptor, interrupting a key inflammatory pathway."
+    },
+    {
+        question: "22. What is the primary function of the Fc region in a receptor fusion protein like Abatacept?",
+        options: ["To bind to the target antigen (B7)", "To increase the immunogenicity of the drug", "To prolong the drug's half-life in circulation", "To facilitate oral absorption"],
+        correctAnswer: "To prolong the drug's half-life in circulation",
+        rationale: "• Why: The Fc region is recognized by the neonatal Fc receptor (FcRn), which protects it from degradation and extends its lifespan."
+    },
+    {
+        question: "23. A patient on a biologic agent develops a new facial rash and joint pain. A blood test reveals newly positive ANA and anti-dsDNA antibodies. What is the most likely diagnosis?",
+        options: ["A hypersensitivity reaction", "Reactivation of a latent viral infection", "Drug-induced lupus-like syndrome", "Serum sickness"],
+        correctAnswer: "Drug-induced lupus-like syndrome",
+        rationale: "• Why: This condition is a known side effect of some biologics (especially anti-TNFs) and presents with lupus-like symptoms and autoantibodies."
+    },
+    {
+        question: "24. Secukinumab is a monoclonal antibody effective for psoriasis and ankylosing spondylitis. What cytokine does it target?",
+        options: ["IL-1β", "IL-6", "IL-17a", "TNF-α"],
+        correctAnswer: "IL-17a",
+        rationale: "• Why: Secukinumab specifically targets IL-17a, a key cytokine in the pathogenesis of psoriasis and other inflammatory conditions."
+    },
+    {
+        question: "25. Compared to a chimeric mAb, a humanized mAb incorporates only the murine:",
+        options: ["Constant regions", "Variable regions", "Hypervariable regions", "Fc region"],
+        correctAnswer: "Hypervariable regions",
+        rationale: "• Why: Humanized antibodies are more refined, transferring only the small antigen-binding loops (hypervariable regions) onto a human framework."
+    },
+    {
+        question: "26. What is a 'biosimilar'?",
+        options: ["A conventional drug that has similar effects to a biologic", "A nearly identical copy of a biologic agent that becomes available after the patent expires", "A biologic agent derived from a different animal species", "A synthetic version of a biologic made without using living cells"],
+        correctAnswer: "A nearly identical copy of a biologic agent that becomes available after the patent expires",
+        rationale: "• Why: Biosimilars are highly similar to an already-approved biologic and, like generic drugs, offer a more affordable alternative."
+    },
+    {
+        question: "27. A patient with a history of multiple sclerosis should use which class of biologics with caution due to the risk of demyelinating disorders?",
+        options: ["Anti-IgE agents", "Anti-TNF agents", "IL-1 receptor antagonists", "CTLA4-Ig fusion proteins"],
+        correctAnswer: "Anti-TNF agents",
+        rationale: "• Why: Anti-TNF therapies have been associated with rare cases of new-onset or exacerbation of demyelinating diseases like MS."
+    },
+    {
+        question: "28. What is the rationale for mass production of biologics becoming feasible in the 20th century?",
+        options: ["The invention of the microscope", "The discovery of penicillin", "The rise of genetic engineering", "The development of sterile surgical techniques"],
+        correctAnswer: "The rise of genetic engineering",
+        rationale: "• Why: Advancements in genetic engineering in the 1970s allowed scientists to program cells to produce specific proteins on a large scale."
+    },
+    {
+        question: "29. Which biologic agent would be most appropriate for a patient with a severe IgE-mediated food allergy?",
+        options: ["Infliximab", "Abatacept", "Anakinra", "Omalizumab"],
+        correctAnswer: "Omalizumab",
+        rationale: "• Why: Omalizumab is an anti-IgE antibody, making it the correct choice for treating conditions driven by IgE."
+    },
+    {
+        question: "30. The name of a monoclonal antibody designed to treat a resistant Staphylococcus infection might contain which substem?",
+        options: ["-vi-", "-ki-", "-toxa-", "-tu-"],
+        correctAnswer: "-toxa-",
+        rationale: "• Why: This substem indicates the drug targets a toxin, such as the one produced by Staphylococcus aureus."
+    },
+    {
+        question: "31. What is the primary cell type inhibited by Abatacept?",
+        options: ["B cells", "Neutrophils", "T cells", "Mast cells"],
+        correctAnswer: "T cells",
+        rationale: "• Why: Abatacept works by preventing the co-stimulation required for T cell activation and proliferation."
+    },
+    {
+        question: "32. From least to most immunogenic, what is the correct order for monoclonal antibodies?",
+        options: ["Murine, Chimeric, Humanized, Human", "Human, Humanized, Chimeric, Murine", "Human, Chimeric, Humanized, Murine", "Murine, Humanized, Chimeric, Human"],
+        correctAnswer: "Human, Humanized, Chimeric, Murine",
+        rationale: "• Why: This order correctly ranks the antibodies from least immunogenic (100% human) to most immunogenic (100% murine)."
+    },
+    {
+        question: "33. Canakinumab is a monoclonal antibody that targets IL-1β. What would be the expected suffix and a key substem in its name?",
+        options: ["-ximab and -ki-", "-umab and -ki-", "-zumab and -tu-", "-omab and -so-"],
+        correctAnswer: "-umab and -ki-",
+        rationale: "• Why: The suffix '-umab' indicates a human mAb, and the substem '-ki-' indicates it targets an interleukin."
+    },
+    {
+        question: "34. Which component of a humanized mAb is derived from a non-human (usually murine) source?",
+        options: ["The entire variable region", "The constant region", "The hypervariable region", "The Fc portion"],
+        correctAnswer: "The hypervariable region",
+        rationale: "• Why: Only the small antigen-binding loops, or hypervariable regions, are transferred from the murine antibody."
+    },
+    {
+        question: "35. A patient taking a biologic develops symptoms of a demyelinating disorder. This adverse effect is most classically associated with which class of biologics?",
+        options: ["IL-1 receptor antagonists", "TNF-α inhibitors", "Anti-IgE monoclonal antibodies", "T-cell co-stimulation modulators"],
+        correctAnswer: "TNF-α inhibitors",
+        rationale: "• Why: Rare but serious cases of demyelinating events have been reported in patients taking TNF-α inhibitors."
+    },
+    {
+        question: "36. How does Anakinra work to reduce inflammation?",
+        options: ["It binds to soluble IL-1, neutralizing it before it can reach the receptor.", "It competitively binds to the IL-1 receptor, blocking IL-1 from binding.", "It signals for the destruction of cells that produce IL-1.", "It prevents the transcription of the IL-1 gene."],
+        correctAnswer: "It competitively binds to the IL-1 receptor, blocking IL-1 from binding.",
+        rationale: "• Why: Anakinra is a recombinant form of the human IL-1 receptor antagonist, so it works by blocking the receptor, as shown in Figure 4."
+    },
+    {
+        question: "37. Which of these biologics is NOT a monoclonal antibody?",
+        options: ["Infliximab", "Etanercept", "Omalizumab", "Secukinumab"],
+        correctAnswer: "Etanercept",
+        rationale: "• Why: Etanercept is a fusion protein, composed of a TNF receptor fused to the Fc portion of IgG. The others are all monoclonal antibodies."
+    },
+    {
+        question: "38. A patient with rheumatoid arthritis is not responding to methotrexate. Her physician suggests adding a biologic that prevents T-cell proliferation by blocking CD28-B7 interaction. Which drug is the physician considering?",
+        options: ["Tocilizumab", "Etanercept", "Abatacept", "Omalizumab"],
+        correctAnswer: "Abatacept",
+        rationale: "• Why: Abatacept is a CTLA4-Ig fusion protein that specifically blocks this T-cell co-stimulatory pathway."
+    },
+    {
+        question: "39. All of the following are important baseline assessments before starting a biologic EXCEPT:",
+        options: ["Complete blood count", "Tuberculin skin test or IGRA", "Hepatitis B and C antibody panels", "Thyroid stimulating hormone (TSH)"],
+        correctAnswer: "Thyroid stimulating hormone (TSH)",
+        rationale: "• Why: While important for general health, routine TSH screening is not a standard requirement specifically for initiating biologic therapy based on the common side effect profile."
+    },
+    {
+        question: "40. The development of a chimeric monoclonal antibody involves fusing which two components?",
+        options: ["Murine hypervariable regions and a human framework", "A human receptor domain and a murine Fc region", "Murine variable regions and human constant regions", "A human variable region and a murine constant region"],
+        correctAnswer: "Murine variable regions and human constant regions",
+        rationale: "• Why: This is the correct definition of a chimeric antibody, combining the antigen-binding parts from a mouse with the structural parts from a human, as shown in Figure 1."
+    },
+    {
+        question: "41. According to Figure 1, what percentage of a chimeric mAb is derived from a murine source?",
+        options: ["100%", "33%", "10%", "0%"],
+        correctAnswer: "33%",
+        rationale: "• Why: Figure 1 explicitly states that the murine part of a chimerized antibody is approximately 33%."
+    },
+    {
+        question: "42. Based on the diagram of its mechanism of action, Infliximab is shown to inhibit which form(s) of TNF-α?",
+        options: ["Only soluble TNF-α", "Only membrane-bound TNF-α", "Both soluble and membrane-bound TNF-α", "Neither form; it blocks the TNF receptor directly"],
+        correctAnswer: "Both soluble and membrane-bound TNF-α",
+        rationale: "• Why: Figure 2 clearly depicts Infliximab binding to the free, soluble form of TNF-α and the form that is still attached to the cell membrane."
+    },
+    {
+        question: "43. A key difference between Etanercept and other TNF-α inhibitors is its ability to also bind and neutralize which other cytokine?",
+        options: ["IL-1β", "IL-6", "TNF-β (lymphotoxin α)", "IFN-γ"],
+        correctAnswer: "TNF-β (lymphotoxin α)",
+        rationale: "• Why: The text explicitly states that Etanercept binds to both soluble TNF-α and TNF-β with high affinity."
+    },
+    {
+        question: "44. A patient who initially responded well to a biologic agent finds that it is no longer effective. The development of which of the following is a common reason for this loss of efficacy?",
+        options: ["Drug-induced lupus", "Mutation of the target protein", "Antibodies against the biologic agent", "Bone marrow suppression"],
+        correctAnswer: "Antibodies against the biologic agent",
+        rationale: "• Why: The patient's immune system can generate anti-drug antibodies that bind to the biologic, neutralizing it and clearing it from circulation, which leads to a loss of efficacy."
+    },
+    {
+        question: "45. Some biologic agents are associated with increases in LDL and triglyceride levels. This necessitates which baseline and periodic lab assessment?",
+        options: ["Complete blood count (CBC)", "Liver function testing", "Lipid/cholesterol panel", "Antinuclear antibody (ANA) panel"],
+        correctAnswer: "Lipid/cholesterol panel",
+        rationale: "• Why: The text mentions that a baseline lipid/cholesterol panel is part of the thorough evaluation process to monitor for this potential side effect."
+    },
+    {
+        question: "46. Canakinumab is indicated for rare autoinflammatory conditions like Familial Mediterranean Fever (FMF) and Cryopyrin-Associated Periodic Syndromes (CAPS). What is its molecular target?",
+        options: ["TNF-α", "Interleukin-1β (IL-1β)", "IgE", "B7 (CD80/CD86)"],
+        correctAnswer: "Interleukin-1β (IL-1β)",
+        rationale: "• Why: Canakinumab is a monoclonal antibody that targets IL-1β, a key cytokine in the inflammatory cascade of these periodic fever syndromes."
+    },
+    {
+        question: "47. Which statement best distinguishes the primary mechanism of a receptor fusion protein (e.g., Etanercept) from a monoclonal antibody (e.g., Infliximab)?",
+        options: ["Fusion proteins are always less immunogenic than monoclonal antibodies.", "Monoclonal antibodies can be taken orally, while fusion proteins cannot.", "Fusion proteins act as soluble 'decoy receptors', while monoclonal antibodies directly bind the target.", "Monoclonal antibodies inhibit T-cells, while fusion proteins inhibit B-cells."],
+        correctAnswer: "Fusion proteins act as soluble 'decoy receptors', while monoclonal antibodies directly bind the target.",
+        rationale: "• Why: This is the core mechanistic difference. Etanercept is essentially a free-floating TNF receptor that traps TNF-α, while Infliximab is an antibody that binds to TNF-α to neutralize it."
+    }
+];
+
+const quizContainer = document.getElementById('quiz-container');
+
+function buildQuiz() {
+    quizData.forEach((item, index) => {
+        const questionCard = document.createElement('div');
+        questionCard.className = 'bg-white p-6 rounded-lg shadow-md';
+
+        const questionText = document.createElement('p');
+        questionText.className = 'text-lg font-semibold mb-4 text-gray-900';
+        questionText.textContent = item.question;
+        questionCard.appendChild(questionText);
+
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'grid grid-cols-1 gap-3';
+        optionsContainer.id = `options-${index}`;
+
+        item.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'option-btn w-full text-left p-3 bg-gray-50 border border-gray-300 rounded-md hover:bg-indigo-100 hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500';
+            button.textContent = option;
+            button.onclick = () => checkAnswer(index, option, button);
+            optionsContainer.appendChild(button);
+        });
+        questionCard.appendChild(optionsContainer);
+
+        const rationaleDiv = document.createElement('div');
+        rationaleDiv.id = `rationale-${index}`;
+        rationaleDiv.className = 'rationale mt-4 bg-gray-50 rounded-md';
+        const rationaleText = document.createElement('p');
+        rationaleText.className = 'text-gray-700';
+        const formattedRationale = item.rationale.replace(/\n/g, '<br>');
+        rationaleText.innerHTML = `<strong class='font-semibold text-gray-900'>Rationale:</strong><br>${formattedRationale}`;
+        rationaleDiv.appendChild(rationaleText);
+        questionCard.appendChild(rationaleDiv);
+
+        quizContainer.appendChild(questionCard);
+    });
+}
+
+function checkAnswer(questionIndex, selectedAnswer, button) {
+    const item = quizData[questionIndex];
+    const rationaleDiv = document.getElementById(`rationale-${questionIndex}`);
+    const optionsContainer = document.getElementById(`options-${questionIndex}`);
+    const allButtons = optionsContainer.getElementsByTagName('button');
+    
+    const isCorrect = selectedAnswer === item.correctAnswer;
+
+    for (let btn of allButtons) {
+        btn.disabled = true;
+        if (btn.textContent === item.correctAnswer) {
+            btn.classList.add('correct');
+        }
+    }
+
+    if (!isCorrect) {
+        button.classList.add('incorrect');
+        rationaleDiv.classList.add('incorrect-border');
+    } else {
+        rationaleDiv.classList.add('correct-border');
+    }
+
+    rationaleDiv.style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', buildQuiz);
+</script>
+
+</body>
+</html>
