@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaccines USMLE-Style Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .rationale {
+            display: none;              /* stays hidden until answer is clicked */
+            border-left: 4px solid;
+            white-space: pre-wrap;      /* preserves \n line breaks */
+            min-height: 3rem;           /* ensures a visible box even for short text */
+            padding: 1rem;              /* adds breathing room for longer text */
+        }
+        .rationale.correct-border { border-color: #10B981; }
+        .rationale.incorrect-border { border-color: #EF4444; }
+        .option-btn { transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        .correct { background-color: #10B981 !important; color: white !important; border-color: #059669 !important; }
+        .incorrect { background-color: #EF4444 !important; color: white !important; border-color: #DC2626 !important; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+    <header class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Vaccines USMLE-Style Quiz</h1>
+        <p class="text-md text-gray-600 mt-2">Test your knowledge of vaccine principles, types, and clinical applications.</p>
+    </header>
+
+    <div id="quiz-container" class="space-y-8"></div>
+</div>
+
+<script>
+const quizData = [
+    {
+        question: "1. A 6-month-old infant receives a vaccine that consists of a bacterial capsular polysaccharide covalently linked to a diphtheria toxoid protein. What is the primary reason for this conjugation?",
+        options: ["To convert a T-cell independent antigen into a T-cell dependent antigen, allowing for a memory response.", "To inactivate the polysaccharide, making it safe for administration in an infant.", "To allow the vaccine to be administered orally instead of via injection.", "To combine two different vaccines into a single shot for convenience."],
+        correctAnswer: "To convert a T-cell independent antigen into a T-cell dependent antigen, allowing for a memory response.",
+        rationale: "• **Why it's correct:** Infants <2 years old have a poor T-cell independent immune response, meaning they don't respond well to pure polysaccharide antigens.\n• **Mechanism:** Covalently linking the polysaccharide to a carrier protein (like a toxoid) allows it to be processed as a T-cell dependent antigen. This engages T-helper cells, which is crucial for generating a high-affinity, long-lasting immune response with immunological memory.\n• **Key USMLE hook:** Conjugation turns a T-independent antigen into a T-dependent one."
+    },
+    {
+        question: "2. A patient with AIDS (CD4+ count of 150 cells/mm³) is due for routine vaccinations. Which of the following vaccines is strictly contraindicated?",
+        options: ["Inactivated (Salk) polio vaccine", "Toxoid vaccine for tetanus and diphtheria (Td)", "Live attenuated vaccine for measles, mumps, and rubella (MMR)", "Recombinant subunit vaccine for Hepatitis B"],
+        correctAnswer: "Live attenuated vaccine for measles, mumps, and rubella (MMR)",
+        rationale: "• **Why it's correct:** Live attenuated vaccines (LAVs) contain a weakened but still replicating pathogen.\n• **Mechanism:** In a person with severe immunodeficiency (like a CD4+ count <200 cells/mm³), the immune system cannot control the replication of the weakened pathogen. This can lead to a disseminated, severe, and potentially fatal infection from the vaccine itself.\n• **Key USMLE hook:** LAVs are contraindicated in patients with severe immunodeficiency and in pregnancy."
+    },
+    {
+        question: "3. A scientist is developing a new vaccine against an intracellular virus. To be most effective, the vaccine should generate a strong cell-mediated immune response. Which vaccine type is most likely to achieve this?",
+        options: ["Pure polysaccharide vaccine", "mRNA vaccine", "Toxoid vaccine", "Inactivated (killed) vaccine"],
+        correctAnswer: "mRNA vaccine",
+        rationale: "• **Why it's correct:** A cell-mediated response, driven by cytotoxic T-lymphocytes (CTLs), is essential for killing virus-infected cells.\n• **Mechanism:** mRNA vaccines instruct the host's own cells to produce viral proteins. These endogenous proteins are presented on MHC class I molecules, which is the primary pathway for activating CTLs. Live attenuated and viral vector vaccines work similarly.\n• **Why others are wrong:** Inactivated, toxoid, and polysaccharide vaccines present exogenous antigens, which are primarily presented on MHC class II, leading to a humoral (antibody) response, not a strong CTL response."
+    },
+    {
+        question: "4. Which of the following describes the acquisition of natural, passive immunity?",
+        options: ["A child recovers from a chickenpox infection and is now immune.", "A healthcare worker receives a Hepatitis B vaccine.", "An infant is protected from RSV because their mother was vaccinated during pregnancy.", "A patient exposed to tetanus receives an injection of tetanus immunoglobulin."],
+        correctAnswer: "An infant is protected from RSV because their mother was vaccinated during pregnancy.",
+        rationale: "• **Natural:** The transfer occurs via a natural process (across the placenta).\n• **Passive:** The infant receives pre-formed antibodies (IgG) and did not produce them, providing immediate but temporary protection.\n• **Distractors:** Recovering from infection is natural active immunity. Vaccination is artificial active immunity. Receiving immunoglobulin is artificial passive immunity."
+    },
+    {
+        question: "5. The secondary immune response to a booster vaccine dose is characterized by:",
+        options: ["A slower onset and a lower quantity of antibodies compared to the primary response.", "The production of primarily low-affinity IgM antibodies.", "A more rapid onset and a higher quantity of higher-affinity antibodies.", "Activation of only naive B and T cells."],
+        correctAnswer: "A more rapid onset and a higher quantity of higher-affinity antibodies.",
+        rationale: "• **Why it's correct:** The secondary (anamnestic) response is mediated by long-lived memory B and T cells.\n• **Characteristics:** It is faster (shorter lag phase), greater (higher antibody titers), and better (higher-affinity antibodies, primarily IgG, due to affinity maturation that occurred after the primary response)."
+    },
+    {
+        question: "6. What is the primary function of an adjuvant, such as alum, in a vaccine?",
+        options: ["To directly neutralize the pathogen before it can cause infection.", "To amplify the immune response by activating dendritic cells.", "To act as the primary antigen that the immune system responds to.", "To serve as a preservative, extending the shelf life of the vaccine."],
+        correctAnswer: "To amplify the immune response by activating dendritic cells.",
+        rationale: "• **Why it's correct:** Many purified antigens (like in subunit vaccines) are not strongly immunogenic on their own.\n• **Mechanism:** Adjuvants act as a 'danger signal' to the innate immune system. They stimulate and activate antigen-presenting cells (APCs) like dendritic cells at the site of injection, leading to enhanced antigen uptake, processing, and presentation to T-cells. This results in a much stronger adaptive immune response."
+    },
+    {
+        question: "7. The Sabin oral polio vaccine has a rare but significant risk that has led to its discontinuation in many countries. What is this risk?",
+        options: ["It frequently causes severe allergic reactions (anaphylaxis).", "It can revert to a virulent form and cause vaccine-derived polio.", "It is ineffective at generating a mucosal IgA response.", "It must be administered annually to remain effective."],
+        correctAnswer: "It can revert to a virulent form and cause vaccine-derived polio.",
+        rationale: "• **Why it's correct:** The Sabin vaccine is a live attenuated vaccine. The weakened virus can, on rare occasions, undergo mutations as it replicates in the gut, reverting to a neurovirulent form.\n• **Clinical Significance:** This can cause paralytic polio in the vaccine recipient or their close contacts. This risk, though small, is greater than the risk from wild-type polio in many parts of the world, leading to a switch to the inactivated (Salk) vaccine."
+    },
+    {
+        question: "8. Which of the following is an example of a toxoid vaccine?",
+        options: ["Human papillomavirus (HPV) vaccine", "Measles, mumps, rubella (MMR) vaccine", "Tetanus vaccine (as in DTaP)", "Influenza vaccine (injected)"],
+        correctAnswer: "Tetanus vaccine (as in DTaP)",
+        rationale: "• **Why it's correct:** Tetanus is a toxin-mediated disease. The pathology is caused by the tetanus neurotoxin, not the bacteria itself.\n• **Mechanism:** A toxoid is an inactivated toxin. The vaccine stimulates the production of neutralizing antibodies against the toxin, preventing it from ever reaching its target in the nervous system.\n• **Distractors:** HPV is a virus-like particle (VLP) vaccine, MMR is a live attenuated vaccine, and influenza is an inactivated vaccine."
+    },
+    {
+        question: "9. Herd immunity is critical for protecting vulnerable populations. What does this concept describe?",
+        options: ["The resistance to disease spread within a population due to a high proportion of immune individuals.", "The process by which a vaccine strengthens an individual's immune system over time.", "A type of immunity that is only acquired by living in a large, dense population.", "The transfer of antibodies from a mother to her entire family."],
+        correctAnswer: "The resistance to disease spread within a population due to a high proportion of immune individuals.",
+        rationale: "• **Why it's correct:** When a high percentage (e.g., 70-95%) of a population is immune, the chains of infection are disrupted. An infected individual is less likely to encounter a susceptible person, which protects those who cannot be vaccinated (e.g., the immunocompromised, infants) or in whom the vaccine is not effective.\n• **Key Concept:** It is a population-level effect, not an individual type of immunity."
+    },
+    {
+        question: "10. A 28-year-old pregnant woman is concerned about her 4-year-old son receiving the varicella (chickenpox) vaccine, a live attenuated vaccine. What is the correct advice?",
+        options: ["Her son should not receive the vaccine until after she has given birth.", "She should receive the varicella vaccine at the same time as her son to protect herself.", "Her son can receive the vaccine, and she should avoid contact with him if he develops a rash.", "The varicella vaccine is an inactivated vaccine and poses no risk to anyone."],
+        correctAnswer: "Her son can receive the vaccine, and she should avoid contact with him if he develops a rash.",
+        rationale: "• **Why it's correct:** While LAVs like varicella are contraindicated for the pregnant person herself, they are NOT contraindicated for household contacts.\n• **Risk:** The risk of transmission from a vaccinated person is extremely low. In very rare cases, a blister-like rash can occur after vaccination. The virus could theoretically be transmitted from contact with these lesions. Therefore, the only precaution needed is for the mother to avoid contact with the rash if it appears."
+    },
+    {
+        question: "11. A patient had a documented anaphylactic reaction to a previous dose of a vaccine containing gelatin. The next dose of this vaccine is due. What is the appropriate action?",
+        options: ["Administer the vaccine with a dose of antihistamines to prevent a reaction.", "Administer a half-dose of the vaccine to reduce the risk.", "The vaccine is contraindicated due to the severe allergic reaction.", "Administer the vaccine, but monitor the patient for 2 hours afterward."],
+        correctAnswer: "The vaccine is contraindicated due to the severe allergic reaction.",
+        rationale: "• **Why it's correct:** A history of a severe allergic reaction (anaphylaxis) to a vaccine component is an absolute contraindication to re-administration.\n• **Anaphylaxis:** This is a life-threatening Type I hypersensitivity reaction. The risk of a subsequent, potentially more severe, reaction upon re-exposure is unacceptably high."
+    },
+    {
+        question: "12. Compared to the original whole-cell pertussis vaccine, the modern acellular pertussis vaccine (the 'aP' in DTaP):",
+        options: ["Provides a stronger, more durable cell-mediated immune response.", "Is less reactogenic and causes fewer adverse effects.", "Is a live attenuated vaccine.", "Must be given orally."],
+        correctAnswer: "Is less reactogenic and causes fewer adverse effects.",
+        rationale: "• **Why it's correct:** The whole-cell pertussis vaccine contained the entire killed bacterium and was associated with a high rate of local and systemic side effects (fever, swelling, pain).\n• **Acellular Vaccine:** The 'aP' vaccine is a subunit vaccine containing only a few purified, antigenic proteins from the bacteria. This purification makes it much less reactogenic (causes fewer side effects) while still being effective."
+    },
+    {
+        question: "13. Which antibody isotype is primarily responsible for providing passive immunity to a fetus across the placenta?",
+        options: ["IgA", "IgM", "IgE", "IgG"],
+        correctAnswer: "IgG",
+        rationale: "• **Why it's correct:** IgG is the only antibody isotype that is actively transported across the placenta.\n• **Mechanism:** This process is mediated by the neonatal Fc receptor (FcRn) on placental cells, which binds the Fc portion of IgG and shuttles it to the fetal circulation.\n• **Other Isotypes:** IgA is transferred via breast milk for mucosal immunity. IgM is too large to cross the placenta. IgE is primarily involved in allergic reactions."
+    },
+    {
+        question: "14. A viral vector vaccine for Ebola uses a harmless adenovirus to deliver Ebola virus genetic material into the host's cells. This vaccine strategy is effective because it:",
+        options: ["Primarily generates antibodies against the adenovirus vector.", "Mimics a natural viral infection, stimulating both cell-mediated and humoral immunity.", "Provides passive immunity by injecting pre-formed Ebola antibodies.", "Contains inactivated Ebola toxins."],
+        correctAnswer: "Mimics a natural viral infection, stimulating both cell-mediated and humoral immunity.",
+        rationale: "• **Why it's correct:** The viral vector acts as a delivery vehicle for a gene.\n• **Mechanism:** Once the gene is inside the host's cells, those cells produce the Ebola antigen. This endogenous production allows the antigen to be presented on both MHC class I (activating CTLs) and MHC class II (activating T-helper cells for antibody production), resulting in a comprehensive immune response similar to that of a live vaccine."
+    },
+    {
+        question: "15. A group of travelers is given pooled human immunoglobulin before a trip to a region where Hepatitis A is endemic. This intervention provides:",
+        options: ["Long-lasting, active immunity against Hepatitis A.", "Rapid, passive immunity against Hepatitis A.", "Cell-mediated immunity against Hepatitis A.", "Antigen-specific memory B cells against Hepatitis A."],
+        correctAnswer: "Rapid, passive immunity against Hepatitis A.",
+        rationale: "• **Why it's correct:** This is a form of artificial passive immunization.\n• **Mechanism:** The travelers are directly given pre-formed antibodies (immunoglobulin) from immune donors. This provides immediate ('rapid') protection. However, because their own immune systems were not stimulated, no memory is generated, and the protection is temporary ('passive'), lasting only as long as the antibodies circulate (a few weeks to months)."
+    },
+    {
+        question: "16. Immunological memory is antigen-specific. If a person receives a booster for tetanus and a primary dose for Hepatitis A at the same time, what would be the expected response?",
+        options: ["A rapid, secondary response to both tetanus and Hepatitis A.", "A primary response to both tetanus and Hepatitis A.", "A rapid, secondary response to tetanus and a slower, primary response to Hepatitis A.", "The response to Hepatitis A would be enhanced by the simultaneous tetanus booster."],
+        correctAnswer: "A rapid, secondary response to tetanus and a slower, primary response to Hepatitis A.",
+        rationale: "• **Why it's correct:** Immunological memory is highly specific.\n• **Tetanus Response:** The immune system has memory cells for the tetanus antigen, so it will mount a rapid and robust secondary response.\n• **Hepatitis A Response:** The Hepatitis A antigen is new to the immune system. Therefore, it will mount a slower, less robust primary response, as naive lymphocytes must be activated. The two responses are independent."
+    },
+    {
+        question: "17. Vaccines against encapsulated bacteria like *Haemophilus influenzae* type B are crucial for preventing meningitis in children. These are typically what type of vaccine?",
+        options: ["Live attenuated vaccine", "Toxoid vaccine", "Conjugate vaccine", "Inactivated whole-cell vaccine"],
+        correctAnswer: "Conjugate vaccine",
+        rationale: "• **Why it's correct:** The polysaccharide capsule of these bacteria is their main virulence factor but is a T-cell independent antigen, which is poorly immunogenic in children under 2.\n• **Solution:** A conjugate vaccine covalently links the polysaccharide to a carrier protein. This converts the immune response to T-cell dependent, generating a strong, long-lasting antibody response with memory, even in infants."
+    },
+    {
+        question: "18. The Human Papillomavirus (HPV) vaccine is composed of the viral capsid proteins which self-assemble, but it contains no genetic material. This is an example of a:",
+        options: ["Viral vector vaccine", "Virus-like particle (VLP) vaccine", "Live attenuated vaccine", "Inactivated vaccine"],
+        correctAnswer: "Virus-like particle (VLP) vaccine",
+        rationale: "• **Why it's correct:** A VLP is a type of recombinant subunit vaccine.\n• **Mechanism:** It consists of viral structural proteins that self-assemble into a particle that looks like the real virus to the immune system. However, it is completely non-infectious because it lacks any viral genetic material (DNA or RNA). This structure is highly immunogenic."
+    },
+    {
+        question: "19. Why should vaccination generally be deferred for a patient with a severe acute illness (e.g., high fever, pneumonia)?",
+        options: ["To avoid confounding potential vaccine side effects with the symptoms of the illness.", "The patient's immune system is too weak to respond to the vaccine.", "All vaccines are ineffective when administered during an active infection.", "The illness could cause the vaccine to become infectious."],
+        correctAnswer: "To avoid confounding potential vaccine side effects with the symptoms of the illness.",
+        rationale: "• **Why it's correct:** This is a clinical precaution.\n• **Reasoning:** If a patient with pneumonia develops a high fever the day after a vaccine, it would be difficult to determine if the fever is from the worsening illness or a reaction to the vaccine. Deferring the vaccine until the patient is stable allows for clear assessment of both the illness and any potential vaccine reactions. Mild illness (e.g., common cold) is not a reason to defer."
+    },
+    {
+        question: "20. Which two vaccine types are most effective at generating a cytotoxic T lymphocyte (CTL) response against virus-infected cells?",
+        options: ["Inactivated and Toxoid", "Polysaccharide and Conjugate", "Live attenuated and Viral vector", "Toxoid and Subunit"],
+        correctAnswer: "Live attenuated and Viral vector",
+        rationale: "• **Why it's correct:** A CTL response requires antigen presentation on MHC class I.\n• **Mechanism:** This occurs when proteins are synthesized endogenously (inside the cell). Both live attenuated vaccines (which infect cells) and viral vector vaccines (which deliver genes for intracellular production) lead to this endogenous protein synthesis. mRNA vaccines also achieve this.\n• **Why others are wrong:** The other vaccine types present exogenous antigens, leading primarily to an MHC class II response and antibody production."
+    },
+    {
+        question: "21. The Salk polio vaccine differs from the Sabin polio vaccine in that the Salk vaccine is:",
+        options: ["A live attenuated virus administered orally.", "An inactivated (killed) virus administered by injection.", "A subunit vaccine containing only the polio capsid protein.", "No longer used due to its risk of causing polio."],
+        correctAnswer: "An inactivated (killed) virus administered by injection.",
+        rationale: "• **Salk Vaccine:** Contains inactivated (killed) poliovirus and is administered via intramuscular injection. It poses no risk of causing polio. This is the only polio vaccine used in the US.\n• **Sabin Vaccine:** Contains a live attenuated (weakened) poliovirus and is administered orally. It has a rare risk of reverting to a virulent form."
+    },
+    {
+        question: "22. Why is the recombinant RSV vaccine recommended for administration during pregnancy?",
+        options: ["To provide the mother with active immunity against RSV.", "To allow protective maternal IgG antibodies to cross the placenta, protecting the newborn.", "To prevent the mother from transmitting RSV to the fetus in utero.", "It is a live vaccine that immunizes the fetus directly."],
+        correctAnswer: "To allow protective maternal IgG antibodies to cross the placenta, protecting the newborn.",
+        rationale: "• **Why it's correct:** This is a key strategy of maternal vaccination.\n• **Mechanism:** Vaccinating the mother stimulates her to produce a high titer of anti-RSV IgG antibodies. These antibodies are actively transported across the placenta, providing the newborn with high levels of passive immunity. This is crucial for protection during the first few months of life when infants are most vulnerable to severe RSV disease."
+    },
+    {
+        question: "23. Which of these is NOT a characteristic of a pure polysaccharide vaccine?",
+        options: ["Induces a T-cell independent response.", "Generates long-lived, high-affinity antibody production.", "Results in no production of memory B cells.", "Poorly immunogenic in infants younger than 2 years."],
+        correctAnswer: "Generates long-lived, high-affinity antibody production.",
+        rationale: "• **Why it's NOT a characteristic:** The response to a T-independent antigen like a pure polysaccharide is short-lived, consists of low-affinity antibodies (mostly IgM), and does not involve affinity maturation or the generation of significant memory. All the other options are classic features of pure polysaccharide vaccines."
+    },
+    {
+        question: "24. A vaccine contains only the Hepatitis B surface antigen, produced by yeast cells that have been engineered with the viral gene. This is an example of what type of vaccine?",
+        options: ["Inactivated vaccine", "Recombinant subunit vaccine", "Viral vector vaccine", "Live attenuated vaccine"],
+        correctAnswer: "Recombinant subunit vaccine",
+        rationale: "• **Why it's correct:** This is the definition of a recombinant vaccine.\n• **Mechanism:** The gene for a desired antigen (Hepatitis B surface antigen) is inserted into a producer cell (like yeast). The yeast then produces large quantities of the purified antigen, which is used as the vaccine. It is a type of subunit vaccine because only a part ('sub-unit') of the pathogen is used."
+    },
+    {
+        question: "25. All of the following are components of active immunization EXCEPT:",
+        options: ["Stimulation of the individual's own immune system.", "The generation of memory B and T cells.", "The administration of monoclonal antibodies.", "A lag time of several weeks to develop protection."],
+        correctAnswer: "The administration of monoclonal antibodies.",
+        rationale: "• **Why it's the exception:** The administration of pre-formed antibodies (monoclonal or polyclonal) is the definition of passive immunization. It provides immediate protection but does not stimulate the recipient's immune system and generates no memory. All other options are hallmark features of active immunization."
+    },
+    {
+        question: "26. The protection generated by an inactivated (killed) vaccine is primarily mediated by:",
+        options: ["Cytotoxic T lymphocytes (CTLs)", "Humoral immunity (antibodies)", "Natural Killer (NK) cells", "The transfer of memory T cells"],
+        correctAnswer: "Humoral immunity (antibodies)",
+        rationale: "• **Why it's correct:** Inactivated vaccines contain killed pathogens, which are taken up by APCs as exogenous antigens. This leads to presentation on MHC class II, activation of T-helper cells, and a strong B-cell response.\n• **Outcome:** The result is humoral immunity—the production of antibodies that can neutralize or opsonize the pathogen if a real infection occurs. These vaccines are poor at generating a CTL response."
+    },
+    {
+        question: "27. Which of the following vaccine types is considered safe for administration to a pregnant person?",
+        options: ["Varicella (chickenpox) vaccine", "Sabin (oral) polio vaccine", "Measles, mumps, rubella (MMR) vaccine", "Inactivated influenza vaccine (flu shot)"],
+        correctAnswer: "Inactivated influenza vaccine (flu shot)",
+        rationale: "• **Why it's correct:** Inactivated vaccines are safe during pregnancy because they contain killed pathogens that cannot replicate.\n• **Rule:** The general rule is to avoid all live attenuated vaccines during pregnancy due to a theoretical risk to the fetus. The inactivated flu shot is not only safe but highly recommended to protect both the mother and the infant from influenza."
+    },
+    {
+        question: "28. The process by which B cells produce progressively higher-affinity antibodies during an immune response, particularly after a booster, is known as:",
+        options: ["Class switching", "Affinity maturation", "Clonal selection", "Adjuvant activity"],
+        correctAnswer: "Affinity maturation",
+        rationale: "• **Why it's correct:** Affinity maturation is a key process of the adaptive immune response.\n• **Mechanism:** It occurs in the germinal centers of lymph nodes and involves somatic hypermutation (random point mutations in the antibody-variable-region genes) followed by the selection of B cells that bind the antigen most tightly. This ensures that the quality and effectiveness of the antibody response improve over time and with subsequent exposures."
+    },
+    {
+        question: "29. A key difference between active and passive immunity is the generation of:",
+        options: ["A rapid protective effect", "Immunological memory", "Antibodies", "Antigen-presenting cells"],
+        correctAnswer: "Immunological memory",
+        rationale: "• **Why it's the key difference:** Active immunity (from infection or vaccination) is the only process that results in the formation of long-lived memory B and T cells. This immunological memory is what provides durable, long-term protection. Passive immunity is temporary because no memory is generated."
+    },
+    {
+        question: "30. The tetanus vaccine is effective because it generates an immune response against what?",
+        options: ["The bacterial capsule of *Clostridium tetani*", "A surface protein on the *Clostridium tetani* bacterium.", "The tetanus toxin produced by the bacteria.", "The bacterial DNA."],
+        correctAnswer: "The tetanus toxin produced by the bacteria.",
+        rationale: "• **Why it's correct:** Tetanus is a toxin-mediated disease. The severe muscle spasms are caused by the tetanus neurotoxin.\n• **Vaccine Strategy:** The vaccine is a toxoid (inactivated toxin). It stimulates the production of neutralizing antibodies. If a person is later infected, these antibodies will bind to any toxin produced by the bacteria and neutralize it before it can cause harm."
+    },
+    {
+        question: "31. According to the module, what is the specific receptor responsible for the transfer of IgG antibodies across the placenta from mother to fetus?",
+        options: ["T-cell receptor (TCR)", "Neonatal Fc receptor (FcRn)", "B-cell receptor (BCR)", "Pattern-recognition receptor (PRR)"],
+        correctAnswer: "Neonatal Fc receptor (FcRn)",
+        rationale: "• **Why it's correct:** The FcRn is expressed on placental cells and is specifically designed to bind the Fc (constant) region of IgG antibodies.\n• **Mechanism:** It actively transports maternal IgG from the mother's circulation across the placental barrier into the fetal circulation. This is a highly specific and crucial mechanism for providing passive immunity to the newborn."
+    },
+    {
+        question: "32. The text mentions that some adjuvants are PAMPs (pathogen-associated molecular patterns). Which of the following is an example of a PAMP-based adjuvant used in vaccines?",
+        options: ["Alum (aluminum salts)", "Tetanus toxoid", "Monophosphoryl lipid A", "Gelatin"],
+        correctAnswer: "Monophosphoryl lipid A",
+        rationale: "• **Why it's correct:** Monophosphoryl lipid A is a detoxified component of lipopolysaccharide (LPS), a major part of the outer membrane of gram-negative bacteria.\n• **Mechanism:** As a PAMP, it directly engages pattern-recognition receptors (like TLR4) on innate immune cells, providing a powerful 'danger signal' that strongly enhances the adaptive immune response to the vaccine antigen."
+    },
+    {
+        question: "33. In a conjugate vaccine like the one for *Streptococcus pneumoniae*, a polysaccharide is linked to a tetanus toxoid protein. How does a person's pre-existing immunity to tetanus (from a prior DTaP vaccine) enhance the response to the polysaccharide?",
+        options: ["Pre-existing antibodies to tetanus directly neutralize the pneumococcus bacteria.", "Memory T-helper cells that recognize the tetanus toxoid can be quickly activated to help B-cells produce antibodies against the polysaccharide.", "The tetanus toxoid acts as an adjuvant, non-specifically boosting all immune responses.", "The polysaccharide and the toxoid must be recognized by the same B-cell receptor to work."],
+        correctAnswer: "Memory T-helper cells that recognize the tetanus toxoid can be quickly activated to help B-cells produce antibodies against the polysaccharide.",
+        rationale: "• **Why it's correct:** This mechanism is called 'linked recognition.'\n• **Steps:** 1) A B-cell recognizes and binds the polysaccharide. 2) The B-cell internalizes the entire conjugate molecule (polysaccharide + protein). 3) It processes the protein part and presents tetanus peptides on its MHC class II. 4) A pre-existing memory T-helper cell from a prior DTaP shot recognizes the tetanus peptide and provides powerful activation signals to the B-cell, driving a strong antibody response against the polysaccharide."
+    },
+    {
+        question: "34. A clinical correlation in the module draws a parallel between vaccination and allergy therapy. In allergy therapy, small doses of allergens are given to modulate the immune response. This therapy aims to convert the typical allergic Th2 response into which other type of T-helper cell response?",
+        options: ["A Th17 response", "A Th1 response", "A T-regulatory (Treg) response", "A T-follicular helper (Tfh) response"],
+        correctAnswer: "A Th1 response",
+        rationale: "• **Why it's correct:** Allergic reactions are typically driven by a Th2 response, which promotes IgE production and eosinophil activation.\n• **Therapeutic Goal:** Allergy shots (immunotherapy) aim to induce immune deviation by shifting the T-cell response from a Th2 phenotype to a Th1 phenotype. A Th1 response promotes IgG production (which can be blocking antibodies) and cell-mediated immunity, which is not associated with allergic symptoms."
+    },
+    {
+        question: "35. The mRNA vaccines for COVID-19 are stabilized using a lipid nanoparticle. What is the dual function of this nanoparticle?",
+        options: ["It acts as the primary antigen and as a preservative.", "It allows the mRNA to enter cells and acts as an adjuvant.", "It neutralizes the virus and provides a vehicle for injection.", "It attaches the mRNA to the ribosome and enhances translation speed."],
+        correctAnswer: "It allows the mRNA to enter cells and acts as an adjuvant.",
+        rationale: "• **Function 1 (Delivery):** mRNA is a very fragile molecule that would be quickly degraded in the body and cannot easily cross cell membranes. The lipid nanoparticle protects the mRNA and facilitates its fusion with the host cell membrane to deliver its cargo into the cytoplasm.\n• **Function 2 (Adjuvant):** Certain lipids used in the nanoparticle can be recognized by the innate immune system, providing an adjuvant effect that helps stimulate a stronger immune response."
+    },
+    {
+        question: "36. Live attenuated vaccines (LAVs), such as MMR and varicella, are contraindicated during pregnancy. What is the basis for this contraindication?",
+        options: ["There are numerous documented cases of the vaccine virus crossing the placenta and causing birth defects.", "The vaccines are ineffective in pregnant people due to hormonal changes.", "A theoretical risk that the weakened virus could cross the placenta and infect the fetus.", "The adjuvant used in these vaccines is known to be toxic to the fetus."],
+        correctAnswer: "A theoretical risk that the weakened virus could cross the placenta and infect the fetus.",
+        rationale: "• **Why it's correct:** The contraindication is based on a safety principle of avoiding any potential harm, even if not proven.\n• **Reasoning:** Natural infection with viruses like rubella and varicella during pregnancy can cause severe congenital defects. Because LAVs contain live, replicating virus, there is a theoretical possibility that the vaccine virus could also cross the placenta and harm the fetus. The module specifically notes that while this is the reason for the contraindication, no actual cases of this have ever been documented."
+    },
+    {
+        question: "37. Which of the following vaccine types is most effective for generating protection against intracellular pathogens and why?",
+        options: ["Toxoid vaccines, because they neutralize the products of intracellular pathogens.", "Inactivated vaccines, because they contain the whole pathogen structure.", "Live attenuated vaccines, because they mimic a natural infection and stimulate a CTL response.", "Conjugate vaccines, because they create high-affinity antibodies."],
+        correctAnswer: "Live attenuated vaccines, because they mimic a natural infection and stimulate a CTL response.",
+        rationale: "• **Why it's correct:** To clear an intracellular pathogen (like a virus), the body must kill its own infected cells.\n• **Mechanism:** This is the job of cytotoxic T-lymphocytes (CTLs or CD8+ T-cells). CTLs are activated when they recognize pathogen peptides presented on MHC class I molecules. Live attenuated vaccines (as well as mRNA and viral vector vaccines) cause endogenous protein production inside the host's cells, leading to robust MHC class I presentation and a strong CTL response."
+    },
+    {
+        question: "38. The module states that after sanitation, vaccines are the most effective method for preventing infectious diseases and are the only intervention to have completely eradicated a disease. This highlights that:",
+        options: ["Antibiotics are more important than vaccines for public health.", "Clean water and hygiene (sanitation) have had a larger impact on preventing infectious disease than vaccines.", "Vaccines have eradicated most major infectious diseases.", "Passive immunization is more effective than active immunization for public health."],
+        correctAnswer: "Clean water and hygiene (sanitation) have had a larger impact on preventing infectious disease than vaccines.",
+        rationale: "• **Why it's correct:** The introduction of the module makes a specific and important public health point by ranking the most effective methods for preventing infectious diseases. It places sanitation (e.g., clean water, sewage systems) first, and vaccines second. This emphasizes the foundational role of basic public health infrastructure.\n• **Eradication:** The text notes that vaccination is the only intervention to have eradicated *a* disease (singular), which was smallpox."
+    },
+    {
+        question: "39. A small, non-immunogenic molecule that must be covalently linked to a larger carrier protein to elicit an immune response is known as a:",
+        options: ["Adjuvant", "Toxoid", "Hapten", "PAMP"],
+        correctAnswer: "Hapten",
+        rationale: "• **Why it's correct:** This is the definition of a hapten.\n• **Mechanism:** A hapten can be recognized by B-cells or antibodies but cannot stimulate an immune response on its own because of its small size. When linked to a large carrier protein, the hapten-carrier conjugate becomes immunogenic. The immune system then produces antibodies that can recognize the hapten, the carrier, and the combined molecule. This is the mechanism behind some drug allergies (e.g., penicillin acting as a hapten)."
+    },
+    {
+        question: "40. According to the contraindications, live attenuated vaccines should be avoided in patients with known severe immunodeficiency and:",
+        options: ["Only in their household family members.", "Only in their healthcare providers.", "In their close contacts.", "This contraindication only applies to the patient themselves."],
+        correctAnswer: "In their close contacts.",
+        rationale: "• **Why it's correct:** This is a crucial safety precaution to protect the most vulnerable.\n• **Reasoning:** Some live attenuated vaccines (particularly the oral polio vaccine) can be shed in the stool or respiratory secretions of the vaccinated person. If a close contact of a severely immunocompromised patient receives an LAV, they could potentially shed the virus and transmit it to the immunocompromised individual, for whom the infection could be life-threatening."
+    }
+];
+
+const quizContainer = document.getElementById('quiz-container');
+
+function buildQuiz() {
+    quizData.forEach((item, index) => {
+        const questionCard = document.createElement('div');
+        questionCard.className = 'bg-white p-6 rounded-lg shadow-md';
+
+        const questionText = document.createElement('p');
+        questionText.className = 'text-lg font-semibold mb-4 text-gray-900';
+        questionText.textContent = item.question;
+        questionCard.appendChild(questionText);
+
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'grid grid-cols-1 gap-3';
+        optionsContainer.id = `options-${index}`;
+
+        item.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'option-btn w-full text-left p-3 bg-gray-50 border border-gray-300 rounded-md hover:bg-indigo-100 hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500';
+            button.textContent = option;
+            button.onclick = () => checkAnswer(index, option, button);
+            optionsContainer.appendChild(button);
+        });
+        questionCard.appendChild(optionsContainer);
+
+        const rationaleDiv = document.createElement('div');
+        rationaleDiv.id = `rationale-${index}`;
+        rationaleDiv.className = 'rationale mt-4 bg-gray-50 rounded-md';
+        const rationaleText = document.createElement('p');
+        rationaleText.className = 'text-gray-700';
+        const formattedRationale = item.rationale.replace(/\\n/g, '<br>');
+        rationaleText.innerHTML = `<strong class='font-semibold text-gray-900'>Rationale:</strong><br>${formattedRationale}`;
+        rationaleDiv.appendChild(rationaleText);
+        questionCard.appendChild(rationaleDiv);
+
+        quizContainer.appendChild(questionCard);
+    });
+}
+
+function checkAnswer(questionIndex, selectedAnswer, button) {
+    const item = quizData[questionIndex];
+    const rationaleDiv = document.getElementById(`rationale-${questionIndex}`);
+    const optionsContainer = document.getElementById(`options-${questionIndex}`);
+    const allButtons = optionsContainer.getElementsByTagName('button');
+    
+    const isCorrect = selectedAnswer === item.correctAnswer;
+
+    for (let btn of allButtons) {
+        btn.disabled = true;
+        if (btn.textContent === item.correctAnswer) {
+            btn.classList.add('correct');
+        }
+    }
+
+    if (!isCorrect) {
+        button.classList.add('incorrect');
+        rationaleDiv.classList.add('incorrect-border');
+    } else {
+        rationaleDiv.classList.add('correct-border');
+    }
+
+    rationaleDiv.style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', buildQuiz);
+</script>
+
+</body>
+</html>
