@@ -1,0 +1,241 @@
+<style>
+    #hla-quiz-container {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 800px;
+        margin: auto;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    .quiz-section {
+        display: flex;
+        justify-content: space-around;
+        gap: 15px;
+    }
+
+    #draggable-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        padding: 10px;
+        border: 2px dashed #ddd;
+        border-radius: 5px;
+        min-height: 50px;
+    }
+
+    .draggable {
+        padding: 10px 20px;
+        background-color: #e0e0e0;
+        border: 1px solid #b0b0b0;
+        border-radius: 5px;
+        cursor: grab;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .draggable:active {
+        cursor: grabbing;
+    }
+
+    #drop-zones-container {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .drop-zone {
+        border: 2px dashed #aaa;
+        padding: 10px;
+        min-height: 60px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background-color: #fff;
+        transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .drop-zone.drag-over {
+        background-color: #e8f4ff;
+        border-color: #007bff;
+    }
+    
+    .drop-zone.correct {
+        border: 2px solid #28a745; /* Green */
+        background-color: #d4edda;
+    }
+
+    .drop-zone.incorrect {
+        border: 2px solid #dc3545; /* Red */
+        background-color: #f8d7da;
+    }
+
+    .disease-label {
+        flex-grow: 1;
+        text-align: left;
+        color: #333;
+    }
+
+    .quiz-controls {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .quiz-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        color: white;
+    }
+
+    #check-answers-btn { background-color: #007bff; }
+    #reset-btn { background-color: #6c757d; }
+    #feedback { text-align: center; font-weight: bold; font-size: 1.1em; margin-top: 10px; }
+
+</style>
+
+<div id="hla-quiz-container">
+    <div id="drop-zones-container">
+        <div class="drop-zone" id="target-b27">
+            <span class="disease-label">Psoriatic arthritis, ankylosing spondylitis, IBD-associated arthritis, reactive arthritis</span>
+        </div>
+        <div class="drop-zone" id="target-dq2_dq8">
+            <span class="disease-label">Celiac disease</span>
+        </div>
+        <div class="drop-zone" id="target-dr2">
+            <span class="disease-label">Multiple sclerosis, SLE, Goodpasture syndrome</span>
+        </div>
+        <div class="drop-zone" id="target-dr4">
+            <span class="disease-label">Rheumatoid arthritis, diabetes mellitus type 1, Addison disease</span>
+        </div>
+    </div>
+    <hr>
+    <p style="text-align:center; margin: 0; font-weight: bold;">Drag the HLA Subtype to the correct disease group:</p>
+    <div id="draggable-items">
+        </div>
+    <div class="quiz-controls">
+        <button id="check-answers-btn" class="quiz-button">Check Answers</button>
+        <button id="reset-btn" class="quiz-button">Reset</button>
+    </div>
+    <div id="feedback"></div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const draggablesData = [
+            { id: 'b27', text: 'B27', target: 'target-b27' },
+            { id: 'dq2_dq8', text: 'DQ2/DQ8', target: 'target-dq2_dq8' },
+            { id: 'dr2', text: 'DR2', target: 'target-dr2' },
+            { id: 'dr4', text: 'DR4', target: 'target-dr4' }
+        ];
+
+        const draggablesContainer = document.getElementById('draggable-items');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const checkBtn = document.getElementById('check-answers-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const feedbackEl = document.getElementById('feedback');
+        
+        // --- Initialize Quiz ---
+        function initializeQuiz() {
+            draggablesContainer.innerHTML = '';
+            feedbackEl.textContent = '';
+            dropZones.forEach(zone => {
+                zone.classList.remove('correct', 'incorrect');
+                // Clear any existing draggables from zones
+                const existingDraggable = zone.querySelector('.draggable');
+                if(existingDraggable) zone.removeChild(existingDraggable);
+            });
+
+            // Shuffle and create draggable elements
+            draggablesData.sort(() => Math.random() - 0.5); 
+            draggablesData.forEach(item => {
+                const draggableEl = document.createElement('div');
+                draggableEl.classList.add('draggable');
+                draggableEl.setAttribute('draggable', 'true');
+                draggableEl.id = item.id;
+                draggableEl.dataset.target = item.target;
+                draggableEl.textContent = item.text;
+                draggablesContainer.appendChild(draggableEl);
+                addDragListeners(draggableEl);
+            });
+        }
+        
+        // --- Add Drag-and-Drop Event Listeners ---
+        function addDragListeners(draggable) {
+            draggable.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', e.target.id);
+                setTimeout(() => e.target.style.display = 'none', 0);
+            });
+
+            draggable.addEventListener('dragend', (e) => {
+                e.target.style.display = 'block';
+            });
+        }
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const id = e.dataTransfer.getData('text/plain');
+                const draggable = document.getElementById(id);
+
+                // If zone already has a draggable, move it back to the start
+                if (zone.querySelector('.draggable')) {
+                    draggablesContainer.appendChild(zone.querySelector('.draggable'));
+                }
+                
+                zone.appendChild(draggable);
+            });
+        });
+        
+        // --- Check Answers ---
+        checkBtn.addEventListener('click', () => {
+            let correctCount = 0;
+            const total = draggablesData.length;
+
+            dropZones.forEach(zone => {
+                const droppedItem = zone.querySelector('.draggable');
+                zone.classList.remove('correct', 'incorrect'); // Reset classes before checking
+
+                if (droppedItem) {
+                    const isCorrect = droppedItem.dataset.target === zone.id;
+                    if (isCorrect) {
+                        zone.classList.add('correct');
+                        correctCount++;
+                    } else {
+                        zone.classList.add('incorrect');
+                    }
+                } else {
+                     zone.classList.add('incorrect'); // Mark empty zones as incorrect
+                }
+            });
+
+            feedbackEl.textContent = `You got ${correctCount} out of ${total} correct!`;
+        });
+        
+        // --- Reset Quiz ---
+        resetBtn.addEventListener('click', initializeQuiz);
+        
+        // --- Initial Load ---
+        initializeQuiz();
+    });
+</script>
