@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Adrenergic Agonists Drag & Drop</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg: #0f172a;
+  --panel: #111827cc;
+  --muted: #94a3b8;
+  --text: #e5e7eb;
+  --brand: #22c55e;
+  --brand-2:#38bdf8;
+  --warn: #ef4444;
+  --card:#0b1222b3;
+  --ring:#38bdf888;
+  --ok:#16a34a;
+  --pending:#334155;
+}
+*{box-sizing:border-box}
+html, body{height:100%;}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1200px 800px at -10% -20%, #0ea5e980 0, transparent 60%),
+    radial-gradient(1000px 800px at 110% 120%, #22c55e40 0, transparent 60%),
+    linear-gradient(180deg, #0b1020, #0f172a 50%, #0b1020);
+  min-width:320px;
+  min-height:100vh;
+  overflow:hidden;
+}
+.wrap{
+  max-width:100vw;
+  margin:0 auto;
+  padding:0;
+  width:100vw;
+}
+header{
+  display:flex; gap:12px; align-items:center; justify-content:space-between;
+  background:linear-gradient(180deg,#111827dd,#0b1020e6);
+  border:1px solid #1f2937; box-shadow:0 10px 30px #00000055; border-radius:16px;
+  padding:14px 16px 14px 18px; position:sticky; top:6px; backdrop-filter: blur(6px); z-index:5;
+  max-width:1400px; margin:auto;
+}
+header h1{font-size:18px; margin:0; letter-spacing:.3px}
+.badge{
+  font-weight:600; font-size:12px; color:#0b1020; background:linear-gradient(90deg,var(--brand-2),#60a5fa);
+  padding:4px 10px; border-radius:999px; margin-left:8px;
+}
+.kpis{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+.pill{
+  display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
+  border:1px solid #1f2735; background:#0b1222cc; font-size:12px; color:var(--muted)
+}
+.pill strong{color:var(--text)}
+.actions{display:flex; gap:8px}
+button{
+  border:1px solid #1f2937; color:#0b1020; font-weight:700; letter-spacing:.2px;
+  padding:8px 12px; border-radius:10px; cursor:pointer; transition:.15s transform ease,.2s filter ease;
+  background:linear-gradient(180deg,#e5f0ff,#cfe8ff);
+}
+button:hover{filter:brightness(1.03)}
+button.secondary{
+  color:var(--text); background:#0b1222; border-color:#223047
+}
+
+/* FULL FLEX GRID */
+main{
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  max-width: 1400px;
+  margin: 20px auto 0 auto;
+  align-items: flex-start;
+}
+.left-col{
+  flex: 0 0 310px;
+  min-width:200px;
+  max-width:320px;
+  width:23vw;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.right-col{
+  flex: 1 1 0%;
+  min-width:0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.panel{
+  border:1px solid #223047; background:var(--panel); backdrop-filter:blur(6px);
+  border-radius:16px; padding:16px 12px 16px 12px;
+}
+.section-title{margin:0 0 10px 0; font-size:14px; color:var(--muted); letter-spacing:.2px}
+
+/* Answer Bank */
+#bank { 
+  display:grid; 
+  grid-template-columns:1fr; 
+  gap:9px; 
+  max-height:73vh; 
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding-right:4px;
+}
+.card{
+  border:1px solid #203049; background:linear-gradient(180deg,#0f1a34,#0a1224);
+  border-radius:12px; padding:10px; cursor:grab; box-shadow:0 10px 24px #0008;
+  font-size:14px; user-select:none; transition:transform .1s ease, box-shadow .1s ease;
+  margin-bottom:0;
+}
+.card:active{transform:scale(.98)}
+.ghost{opacity:.6}
+.hover{box-shadow:0 0 0 3px var(--ring) inset}
+.card.ok{outline:2px solid #22c55e99}
+.card.bad{outline:2px solid #ef444499}
+.footer-note{font-size:12px; color:var(--muted); margin-top:6px}
+
+/* Board and Agents */
+.board{
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(242px, 1fr));
+  width: 100%;
+}
+.disease{
+  border:1px solid #203049; background:var(--card);
+  border-radius:14px; padding:13px 11px 12px 11px; box-shadow:0 8px 24px #0007;
+  margin-bottom:0;
+  min-width:0;
+}
+.d-top{display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:10px}
+.d-top h3{margin:0; font-size:15px;}
+.grid{
+  display:grid; gap:7px;
+  grid-template-columns:1fr;
+}
+.slot{
+  position:relative; min-height:58px;
+  border-radius:12px; padding:8px;
+  border:1.5px dashed #2a3a58; background:#0c1427bd;
+  transition: .15s border-color ease, .15s box-shadow ease, .15s background ease;
+  margin-bottom:5px;
+}
+.slot.correct{border-color:var(--ok); background:#072311bb; box-shadow:0 0 0 3px #16a34a33 inset}
+.slot.wrong{border-color:var(--warn); box-shadow:0 0 0 3px #ef444426 inset}
+.slot .label{position:absolute; top:-10px; left:10px; font-size:11px;color:var(--muted); background:#0b1222; padding:2px 6px; border-radius:999px; border:1px solid #1f273b}
+.slot .placeholder{font-size:12px; color:#6b7280}
+.won{
+  display:none; margin-top:10px; padding:10px 12px; border-radius:12px;
+  background:linear-gradient(90deg,#22c55e22,#38bdf822);
+  border:1px solid #194b33; color:#d1fae5; font-weight:700
+}
+.won.show{display:block}
+
+/* Responsive */
+@media (max-width:1200px){
+  main, header{max-width:98vw;}
+  .wrap{padding:0;}
+  .disease{padding:10px 5px}
+}
+@media (max-width:900px) {
+  main{flex-direction:column; max-width:100vw;}
+  .left-col, .right-col{width:100%; max-width:unset;}
+  #bank{max-height:unset;}
+  .board{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Adrenergic Agonists Matching <span class="badge">drag & drop</span></h1>
+      <div class="kpis">
+        <div class="pill">Solved: <strong id="solved">0</strong>/<span id="total">0</span></div>
+        <div class="pill">Accuracy: <strong id="acc">100%</strong></div>
+      </div>
+      <div class="actions">
+        <button id="reset" class="secondary" type="button">Reset</button>
+        <button id="shuffle" type="button">Shuffle Answers</button>
+      </div>
+    </header>
+    <main>
+      <section class="left-col">
+        <div class="panel" style="flex-shrink:1;">
+          <p class="section-title">Answer Bank</p>
+          <div id="bank" class="bank"></div>
+          <p class="footer-note">Tip: use Shuffle to mix the bank. Works on desktop and touch.</p>
+        </div>
+      </section>
+      <section class="right-col">
+        <div class="panel" style="margin-bottom:0">
+          <p class="section-title">How to play</p>
+          <ul style="margin:0 0 6px 18px; padding:0; line-height:1.5; font-size:14px; color:var(--text)">
+            <li>Drag cards from the Answer Bank into the correct slots for each agent.</li>
+            <li>Green = correct and locked. Red = incorrect, try again.</li>
+          </ul>
+          <div id="win" class="won">Nice. Everything is matched correctly.</div>
+        </div>
+        <div class="panel">
+          <p class="section-title">Board</p>
+          <div id="board" class="board"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+<script>
+/** Data */
+const AGENTS = [
+  {
+    name: "Epinephrine",
+    slots: [
+      {label:"Receptor Selectivity", answer:"α1 = β1 = β2"},
+      {label:"Heart Rate",         answer:"↑↑"},
+      {label:"Cardiac Output",     answer:"↑↑"},
+      {label:"SVR",                answer:"↑"},
+      {label:"Renal",              answer:"no effect"},
+    ]
+  },
+  {
+    name: "Norepinephrine",
+    slots: [
+      {label:"Receptor Selectivity", answer:"α1 > β1"},
+      {label:"Heart Rate",         answer:"↑"},
+      {label:"Cardiac Output",     answer:"↑"},
+      {label:"SVR",                answer:"↑↑"},
+      {label:"Renal",              answer:"no effect"},
+    ]
+  },
+  {
+    name: "Dopamine",
+    slots: [
+      {label:"Receptor Selectivity", answer:"D1 > β1 > β2 > α1"},
+      {label:"Heart Rate",         answer:"↑↑"},
+      {label:"Cardiac Output",     answer:"↑↑"},
+      {label:"SVR",                answer:"↑"},
+      {label:"Renal",              answer:"↑"},
+    ]
+  },
+  {
+    name: "Isoproterenol",
+    slots: [
+      {label:"Receptor Selectivity", answer:"β1 = β2"},
+      {label:"Heart Rate",         answer:"↑↑"},
+      {label:"Cardiac Output",     answer:"↑↑"},
+      {label:"SVR",                answer:"↓"},
+      {label:"Renal",              answer:"no effect"},
+    ]
+  },
+  {
+    name: "Dobutamine",
+    slots: [
+      {label:"Receptor Selectivity", answer:"β1 > β2"},
+      {label:"Heart Rate",         answer:"↑"},
+      {label:"Cardiac Output",     answer:"↑"},
+      {label:"SVR",                answer:"↓"},
+      {label:"Renal",              answer:"no effect"},
+    ]
+  },
+  {
+    name: "Phenylephrine",
+    slots: [
+      {label:"Receptor Selectivity", answer:"α1 only"},
+      {label:"Heart Rate",         answer:"↓"},
+      {label:"Cardiac Output",     answer:"↓"},
+      {label:"SVR",                answer:"↑↑"},
+      {label:"Renal",              answer:"no effect"},
+    ]
+  },
+  {
+    name: "Clonidine",
+    slots: [
+      {label:"Receptor Selectivity", answer:"α2 only"},
+      {label:"Heart Rate",         answer:"↓"},
+      {label:"Cardiac Output",     answer:"↓"},
+      {label:"SVR",                answer:"↓"},
+      {label:"Renal",              answer:"no effect"},
+    ]
+  },
+];
+/** ---- Build UI ---- */
+const $board = document.getElementById('board');
+const $bank  = document.getElementById('bank');
+const $solved= document.getElementById('solved');
+const $total = document.getElementById('total');
+const $acc   = document.getElementById('acc');
+const $win   = document.getElementById('win');
+let solved = 0, attempts = 0;
+const allAnswers = [];
+AGENTS.forEach(d => d.slots.forEach(s => allAnswers.push(s.answer)));
+$total.textContent = allAnswers.length;
+function el(tag, cls, html){
+  const n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(html !== undefined) n.innerHTML = html;
+  return n;
+}
+function renderBoard(){
+  $board.innerHTML = '';
+  AGENTS.forEach((d, i) => {
+    const card = el('div','disease');
+    const top  = el('div','d-top');
+    top.appendChild(el('h3','',d.name));
+    card.appendChild(top);
+    const grid = el('div','grid');
+    d.slots.forEach((s, idx) => {
+      const slot = el('div','slot');
+      slot.dataset.answer = s.answer;
+      slot.dataset.key = `${i}-${idx}`;
+      slot.appendChild(el('span','label',s.label));
+      slot.appendChild(el('div','placeholder','Drop here'));
+      grid.appendChild(slot);
+    });
+    card.appendChild(grid);
+    $board.appendChild(card);
+  });
+}
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function renderBank(){
+  $bank.innerHTML = '';
+  shuffle([...allAnswers]).forEach(text => {
+    const c = el('div','card');
+    c.textContent = text;
+    c.draggable = true;
+    c.dataset.match = text;
+    $bank.appendChild(c);
+  });
+}
+/** ---- Drag & Drop ---- */
+let dragEl = null;
+function addDnD(){
+  document.addEventListener('dragstart', e=>{
+    const t = e.target.closest('.card');
+    if(!t) return;
+    dragEl = t; t.classList.add('ghost');
+    e.dataTransfer.setData('text/plain', t.dataset.match);
+  });
+  document.addEventListener('dragend', e=>{
+    const t = e.target.closest('.card');
+    if(t) t.classList.remove('ghost');
+  });
+  document.addEventListener('dragover', e=>{
+    const slot = e.target.closest('.slot');
+    if(!slot || slot.classList.contains('correct')) return;
+    e.preventDefault(); slot.classList.add('hover');
+  });
+  document.addEventListener('dragleave', e=>{
+    const slot = e.target.closest('.slot');
+    if(slot) slot.classList.remove('hover');
+  });
+  document.addEventListener('drop', e=>{
+    const slot = e.target.closest('.slot');
+    if(!slot || slot.classList.contains('correct')) return;
+    e.preventDefault(); slot.classList.remove('hover');
+    const dropped = dragEl?.dataset.match;
+    if(!dropped) return;
+    attempts++;
+    if(dropped === slot.dataset.answer){
+      slot.classList.remove('wrong');
+      slot.classList.add('correct');
+      slot.innerHTML = `<span class="label">${slot.querySelector('.label')?.textContent || ''}</span><div>${dropped}</div>`;
+      dragEl.remove();
+      solved++;
+    }else{
+      slot.classList.add('wrong');
+      dragEl.classList.add('bad');
+      setTimeout(()=>dragEl && dragEl.classList.remove('bad'), 400);
+    }
+    updateKpis();
+  });
+  // Touch support
+  let touchCard = null;
+  $bank.addEventListener('touchstart', e=>{
+    const t = e.target.closest('.card'); if(!t) return;
+    touchCard = t; t.classList.add('ghost');
+  },{passive:true});
+  document.addEventListener('touchend', e=>{
+    if(!touchCard) return;
+    const elAt = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+    const slot = elAt?.closest('.slot');
+    if(slot && !slot.classList.contains('correct')){
+      const val = touchCard.dataset.match; attempts++;
+      if(val === slot.dataset.answer){
+        slot.classList.add('correct');
+        slot.innerHTML = `<span class="label">${slot.querySelector('.label')?.textContent || ''}</span><div>${val}</div>`;
+        touchCard.remove(); solved++;
+      }else{
+        slot.classList.add('wrong'); touchCard.classList.add('bad');
+        setTimeout(()=>touchCard && touchCard.classList.remove('bad'),400);
+      }
+      updateKpis();
+    }
+    touchCard.classList.remove('ghost'); touchCard = null;
+  });
+}
+function updateKpis(){
+  $solved.textContent = solved;
+  const acc = attempts ? Math.round((solved/attempts)*100) : 100;
+  $acc.textContent = acc + '%';
+  if(solved === allAnswers.length){ $win.classList.add('show'); }
+}
+/** ---- Controls ---- */
+function resetAll(){
+  solved = 0; attempts = 0; $win.classList.remove('show');
+  renderBoard(); renderBank(); addDnD(); updateKpis();
+}
+document.getElementById('reset').addEventListener('click', resetAll);
+document.getElementById('shuffle').addEventListener('click', ()=>renderBank());
+/** init */
+resetAll();
+</script>
+</body>
+</html>
