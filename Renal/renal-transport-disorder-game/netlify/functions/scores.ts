@@ -7,7 +7,7 @@ interface ScoreEntry {
 }
 
 export const handler = async (event: any) => {
-  // Identify which game is calling (e.g., ?game=renal-transport)
+  // Identify which game is calling (e.g., ?game=renal-transport-disorder-game)
   const gameId = event.queryStringParameters?.game || "general";
   
   // Connect to a 'store' named after the specific game
