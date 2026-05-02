@@ -1,122 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Renal Course Dashboard</title>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #0f0f0f;
-        color: #eaeaea;
-        margin: 0;
-        padding: 40px;
-        text-align: center;
-    }
-
-    h1 {
-        font-size: 32px;
-        margin-bottom: 30px;
-        color: #ffffff;
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 25px;
-        max-width: 1000px;
-        margin: auto;
-    }
-
-    .card {
-        background: #1a1a1a;
-        border-radius: 14px;
-        padding: 25px 15px;
-        transition: 0.25s;
-        cursor: pointer;
-        border: 1px solid #2a2a2a;
-    }
-
-    .card:hover {
-        transform: translateY(-6px);
-        background: #242424;
-        border-color: #4a4a4a;
-    }
-
-    .icon {
-        font-size: 42px;
-        margin-bottom: 12px;
-    }
-
-    a {
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .label {
-        font-size: 16px;
-        margin-top: 8px;
-        font-weight: 600;
-        color: #eaeaea;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedBoard — Renal System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-amber-50 text-slate-800">
 
-<body>
-
-<h1>Renal Course Dashboard</h1>
-
-<div class="grid">
-
-    <!-- ADH Agonists & Antagonists -->
-    <a href="https://doctimmer.github.io/Medical-School-Learning/Renal_Pharmacology_ADH.html" target="_blank">
-        <div class="card">
-            <div class="icon">💧</div>
-            <div class="label">[ADH Agonists & Antagonists]</div>
+    <nav class="sticky top-0 z-50 border-b border-gray-200/80 bg-white/80 backdrop-blur-xl">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-200 text-white text-xl">
+                        🫘
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900 leading-tight">Renal Dashboard</h1>
+                        <p class="text-xs font-medium uppercase tracking-wider text-amber-600">MS1 Block</p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </a>
+    </nav>
 
-    <!-- Acidosis-Alkalosis Game -->
-    <a href="https://acid-base-imbalance-learning-game.netlify.app target="_blank">
-        <div class="card">
-            <div class="icon">🧠</div>
-            <div class="label">Acidosis-Alkalosis Game</div>
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-hide">
+            <span class="text-sm font-semibold text-gray-500 mr-2">Filter by Week:</span>
+            <button onclick="filterSelection('all')" class="filter-btn active bg-amber-100 text-amber-800 border-amber-300 border px-4 py-1.5 rounded-full text-sm font-medium transition-all hover:bg-amber-200">All</button>
+            <button onclick="filterSelection('week1')" class="filter-btn bg-white text-gray-600 border-gray-200 border px-4 py-1.5 rounded-full text-sm font-medium transition-all hover:bg-gray-100">Week 1: A&P</button>
+            <button onclick="filterSelection('week2')" class="filter-btn bg-white text-gray-600 border-gray-200 border px-4 py-1.5 rounded-full text-sm font-medium transition-all hover:bg-gray-100">Week 2: Path & Acid-Base</button>
+            <button onclick="filterSelection('week3')" class="filter-btn bg-white text-gray-600 border-gray-200 border px-4 py-1.5 rounded-full text-sm font-medium transition-all hover:bg-gray-100">Week 3: Glomerulopathies</button>
         </div>
-    </a>
 
-    <!-- Quiz/Game 2 -->
-    <a href="[INSERT URL HERE]" target="_blank">
-        <div class="card">
-            <div class="icon">⚗️</div>
-            <div class="label">[Electrolytes Quiz]</div>
+        <div class="space-y-10" id="dashboard-grid">
+            
+            <div class="week-section week1">
+                <div class="mb-4 border-b border-gray-200 pb-2">
+                    <h2 class="text-xl font-bold text-gray-800">Week 1: Anatomy, Filtration & Clearances</h2>
+                    <p class="text-sm text-gray-500">Embryology, Hemodynamics, Tubular Transport, Diuretics</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    
+                    <a href="https://doctimmer.github.io/Medical-School-Learning/Renal_Pharmacology_ADH.html" target="_blank" class="group relative flex flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-amber-300 hover:-translate-y-1">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                                <span>💧</span> Pharm
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-900 group-hover:text-amber-600 transition-colors">ADH Agonists & Antagonists</h4>
+                        <p class="text-xs text-gray-500 flex-1">Mechanism of action and therapeutic uses.</p>
+                    </a>
+
+                    <a href="YOUR_LINK_HERE" target="_blank" class="group relative flex flex-col rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 transition-all duration-200 hover:bg-white hover:border-solid hover:border-gray-300 hover:shadow-sm">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                                <span>🏗️</span> Anatomy
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-700 group-hover:text-amber-600 transition-colors">[Urinary Anatomy & Embryology]</h4>
+                        <p class="text-xs text-gray-400 flex-1">Add link to your resource here.</p>
+                    </a>
+
+                    <a href="YOUR_LINK_HERE" target="_blank" class="group relative flex flex-col rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 transition-all duration-200 hover:bg-white hover:border-solid hover:border-gray-300 hover:shadow-sm">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                                <span>⚙️</span> Physio
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-700 group-hover:text-amber-600 transition-colors">[Glomerular Filtration & Clearances]</h4>
+                        <p class="text-xs text-gray-400 flex-1">Add link to your resource here.</p>
+                    </a>
+
+                    <a href="YOUR_LINK_HERE" target="_blank" class="group relative flex flex-col rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 transition-all duration-200 hover:bg-white hover:border-solid hover:border-gray-300 hover:shadow-sm">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                                <span>💊</span> Pharm
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-700 group-hover:text-amber-600 transition-colors">[Diuretics Mechanisms]</h4>
+                        <p class="text-xs text-gray-400 flex-1">Add link to your resource here.</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="week-section week2">
+                <div class="mb-4 border-b border-gray-200 pb-2">
+                    <h2 class="text-xl font-bold text-gray-800">Week 2: Pathology & Acid-Base</h2>
+                    <p class="text-sm text-gray-500">Electrolytes, AKI/CKD, Renal Stones, Acidosis/Alkalosis</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    
+                    <a href="https://doctimmer.github.io/Medical-School-Learning/Renal_Hyperkalemia_vs_Hypokalemia.html" target="_blank" class="group relative flex flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-amber-300 hover:-translate-y-1">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-medium text-teal-700">
+                                <span>📘</span> Review
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-900 group-hover:text-amber-600 transition-colors">Hyperkalemia vs. Hypokalemia</h4>
+                        <p class="text-xs text-gray-500 flex-1">Pathophysiology, lab findings, and management plans.</p>
+                    </a>
+
+                    <a href="https://acid-base-imbalance-learning-game.netlify.app" target="_blank" class="group relative flex flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-amber-300 hover:-translate-y-1">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-700">
+                                <span>🎮</span> Game
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-900 group-hover:text-amber-600 transition-colors">Acidosis-Alkalosis Game</h4>
+                        <p class="text-xs text-gray-500 flex-1">Interactive metabolic and respiratory disturbances.</p>
+                    </a>
+
+                    <a href="YOUR_LINK_HERE" target="_blank" class="group relative flex flex-col rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 transition-all duration-200 hover:bg-white hover:border-solid hover:border-gray-300 hover:shadow-sm">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                                <span>🩺</span> Pathology
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-700 group-hover:text-amber-600 transition-colors">[AKI & CKD]</h4>
+                        <p class="text-xs text-gray-400 flex-1">Add link to your resource here.</p>
+                    </a>
+
+                    <a href="YOUR_LINK_HERE" target="_blank" class="group relative flex flex-col rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 transition-all duration-200 hover:bg-white hover:border-solid hover:border-gray-300 hover:shadow-sm">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                                <span>🪨</span> Pathology
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-700 group-hover:text-amber-600 transition-colors">[Renal Stones & Hematuria]</h4>
+                        <p class="text-xs text-gray-400 flex-1">Add link to your resource here.</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="week-section week3">
+                <div class="mb-4 border-b border-gray-200 pb-2">
+                    <h2 class="text-xl font-bold text-gray-800">Week 3: Glomerulopathies & Interstitium</h2>
+                    <p class="text-sm text-gray-500">Nephrotic, Nephritic, Tubulointerstitial, Infections</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    
+                    <a href="YOUR_LINK_HERE" target="_blank" class="group relative flex flex-col rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 transition-all duration-200 hover:bg-white hover:border-solid hover:border-gray-300 hover:shadow-sm">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                                <span>🔬</span> Pathology
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-700 group-hover:text-amber-600 transition-colors">[Nephrotic Syndromes]</h4>
+                        <p class="text-xs text-gray-400 flex-1">MCD, FSGS, Membranous, Diabetic, etc.</p>
+                    </a>
+
+                    <a href="YOUR_LINK_HERE" target="_blank" class="group relative flex flex-col rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 transition-all duration-200 hover:bg-white hover:border-solid hover:border-gray-300 hover:shadow-sm">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                                <span>🔬</span> Pathology
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-700 group-hover:text-amber-600 transition-colors">[Nephritic Syndromes]</h4>
+                        <p class="text-xs text-gray-400 flex-1">PSGN, IgA, Anti-GBM, Alport, etc.</p>
+                    </a>
+
+                    <a href="YOUR_LINK_HERE" target="_blank" class="group relative flex flex-col rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 transition-all duration-200 hover:bg-white hover:border-solid hover:border-gray-300 hover:shadow-sm">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                                <span>🦠</span> Inf Dis
+                            </span>
+                        </div>
+                        <h4 class="mb-2 text-base font-semibold text-gray-700 group-hover:text-amber-600 transition-colors">[Cystitis & Pyelonephritis]</h4>
+                        <p class="text-xs text-gray-400 flex-1">Include Schistosoma spp.</p>
+                    </a>
+                </div>
+            </div>
+
         </div>
-    </a>
+    </div>
 
-    <!-- Resource 1 -->
-    <a href="[INSERT URL HERE]" target="_blank">
-        <div class="card">
-            <div class="icon">📘</div>
-            <div class="label">[Renal Physiology Notes]</div>
-        </div>
-    </a>
+    <script>
+        function filterSelection(c) {
+            var x, i;
+            x = document.getElementsByClassName("week-section");
+            
+            // Handle buttons styling
+            var btns = document.getElementsByClassName("filter-btn");
+            for (i = 0; i < btns.length; i++) {
+                btns[i].className = btns[i].className.replace(" bg-amber-100 text-amber-800 border-amber-300", " bg-white text-gray-600 border-gray-200");
+            }
+            // Add active class to clicked button
+            event.currentTarget.className = event.currentTarget.className.replace("bg-white text-gray-600 border-gray-200", "bg-amber-100 text-amber-800 border-amber-300");
 
-    <!-- Resource 2 -->
-    <a href="[INSERT URL HERE]" target="_blank">
-        <div class="card">
-            <div class="icon">🩺</div>
-            <div class="label">[Pathology / RTA Tool]</div>
-        </div>
-    </a>
-
-    <!-- Add More -->
-    <a href="[INSERT URL HERE]" target="_blank">
-        <div class="card">
-            <div class="icon">➕</div>
-            <div class="label">[Add Another Resource]</div>
-        </div>
-    </a>
-
-</div>
-
+            if (c == "all") c = "";
+            for (i = 0; i < x.length; i++) {
+                if (c == "" || x[i].className.indexOf(c) > -1) {
+                    x[i].style.display = "block";
+                } else {
+                    x[i].style.display = "none";
+                }
+            }
+        }
+    </script>
 </body>
 </html>
