@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Potassium Masterclass: Hyperkalemia vs. Hypokalemia</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Lexend',sans-serif;background:#0f172a;color:#f1f5f9;padding:15px;min-height:100vh;}
+  .container{max-width:1600px;margin:0 auto;}
+  h1{text-align:center;color:#38bdf8;margin-bottom:5px;font-size:1.8em;text-shadow:0 0 15px rgba(56,189,248,0.3);}
+  .subtitle{text-align:center;color:#94a3b8;margin-bottom:15px;font-size:.95em;}
+  
+  .stats-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;}
+  .stats{display:flex;gap:15px;flex-wrap:wrap;}
+  .stat-item{background:rgba(56,189,248,0.1);padding:6px 12px;border-radius:6px;border:1px solid rgba(56,189,248,0.35);}
+  .stat-label{color:#38bdf8;font-weight:700;margin-right:6px;font-size:.85em;}
+  
+  .controls{display:flex;gap:6px;flex-wrap:wrap;}
+  .btn{padding:6px 14px;border:none;border-radius:6px;cursor:pointer;font-size:.8em;font-weight:600;transition:.2s;}
+  .btn-secondary{background:#1e293b;color:#f1f5f9;border:1px solid rgba(56,189,248,0.4);}
+  .btn-secondary:hover{background:#334155;}
+  .btn-danger{background:#1e293b;color:#94a3b8;border:1px solid #1e293b;}
+  .btn-danger:hover{color:#ef4444;border-color:#ef4444;}
+  
+  .main-content{display:grid;grid-template-columns:350px 1fr;gap:15px;align-items:start;}
+  
+  /* Sticky Word Bank */
+  .word-bank-container{position:sticky;top:15px;background:#1e293b;border-radius:10px;padding:12px;border:1px solid #334155;box-shadow:0 4px 20px rgba(0,0,0,.4); max-height:calc(100vh - 30px); display:flex; flex-direction:column;}
+  .word-bank-title{color:#38bdf8;font-size:1em;margin-bottom:8px;text-align:center;font-weight:700;}
+  
+  .bank-tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;border-bottom:1px solid #334155;padding-bottom:8px;}
+  .tab-btn{padding:5px 8px;border-radius:5px;border:1px solid transparent;background:#0f172a;color:#94a3b8;font-size:0.75em;font-weight:700;cursor:pointer;transition:0.2s;}
+  .tab-btn.active{background:#38bdf8;color:#0f172a;border-color:#38bdf8;}
+  
+  .word-bank{display:none;flex-direction:row;flex-wrap:wrap;align-content:flex-start;gap:6px;overflow-y:auto;padding:4px; flex-grow:1;}
+  .word-bank.active{display:flex;}
+  .word-bank::-webkit-scrollbar{width:5px;}
+  .word-bank::-webkit-scrollbar-thumb{background:#38bdf8;border-radius:3px;}
+  
+  /* Draggable Items - Neutral before placement */
+  .draggable-item{background:#e0f2fe;color:#0369a1;padding:6px 10px;border-radius:5px;cursor:grab;border:1px solid #0284c7;font-size:.78em;font-weight:600;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.2);transition:transform 0.1s; line-height:1.3;}
+  .draggable-item:active{cursor:grabbing;}
+  .draggable-item:hover:not(.locked){transform:scale(1.02);background:#bae6fd;}
+  .draggable-item.dragging{opacity:0.5;}
+  
+  /* Locked States - Compact "Chip" Layout */
+  .draggable-item.locked{cursor:default;box-shadow:none;transform:none;font-weight:400;text-align:left;padding:5px 8px;display:inline-block; font-size:.75em; height:auto; border-radius:4px;}
+  
+  /* Color Coding for distinction */
+  .locked-hyper { background:#7f1d1d; color:#ffffff; border:1px solid #fca5a5; }
+  .locked-hypo { background:#4a044e; color:#ffffff; border:1px solid #f0abfc; }
+  
+  /* Compact Table */
+  table{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed;background:transparent;}
+  th, td{border-radius:6px;padding:4px;vertical-align:top; border: 1px solid rgba(255,255,255,0.1);}
+  
+  th{background:#0284c7;color:#ffffff;font-size:0.9em;font-weight:700;text-align:center;padding:10px; position:sticky; top:0; z-index:10;}
+  .side-header{background:#1e293b;color:#bae6fd;font-size:.85em;font-weight:700;text-align:center;vertical-align:middle;width:18%; border:1px solid #334155; padding:6px;}
+  .side-header small { display:block; font-size: 0.8em; color: #94a3b8; margin-top:4px; font-weight:400; }
+  
+  .group-hyper { background: #991b1b; color: #fff; text-align: center; font-weight: 700; font-size: 1em; padding: 8px; letter-spacing: 1px; }
+  .group-hypo { background: #701a75; color: #fff; text-align: center; font-weight: 700; font-size: 1em; padding: 8px; letter-spacing: 1px; }
+  
+  /* Drop Zones - Flex Wrap for Chip Layout */
+  .drop-zone{min-height:70px;height:100%;display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px;transition:0.2s;padding:6px;background:rgba(255,255,255,0.05);}
+  .drop-zone.drag-over{background:rgba(56,189,248,0.15);box-shadow:inset 0 0 0 2px #38bdf8;}
+  
+  .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #ef4444 !important; box-shadow: 0 0 10px rgba(239,68,68,0.8); background: #fca5a5 !important; color:#7f1d1d !important;}
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(3px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+    40%, 60% { transform: translate3d(5px, 0, 0); }
+  }
+
+  /* Modal */
+  .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;}
+  .modal-content{background:#1e293b;padding:35px;border-radius:12px;max-width:900px;width:95%;max-height:90vh;overflow-y:auto;color:#f1f5f9;border:2px solid #38bdf8;box-shadow:0 10px 30px rgba(0,0,0,0.6);}
+  .modal-content h2{color:#38bdf8;margin-bottom:20px;font-size:1.6em;text-align:center;}
+  .modal-content h3{color:#bae6fd;margin:15px 0 8px 0;font-size:1.2em;}
+  .modal-content p{margin-bottom:12px;line-height:1.6;font-size:0.95em;}
+  .modal-close{display:block;margin:25px auto 0;padding:12px 25px;background:#38bdf8;color:#000;border:none;border-radius:6px;font-weight:bold;cursor:pointer;}
+  .modal-close:hover{background:#0284c7; color: white;}
+
+  @media(max-width:1100px){
+    .main-content{grid-template-columns:1fr;}
+    .word-bank-container{position:relative;top:0; max-height: 400px;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Potassium Masterclass: Hyperkalemia vs. Hypokalemia</h1>
+  <p class="subtitle">Drag features into their correct rows. Hyperkalemia will lock in Red; Hypokalemia will lock in Purple. Use the tabs to filter by column!</p>
+  
+  <div class="stats-controls">
+    <div class="stats">
+      <div class="stat-item"><span class="stat-label">Locked Items:</span><span id="score">0</span> / <span id="total">55</span></div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="showAllAnswers()">Show Answers</button>
+      <button class="btn btn-secondary" id="btn-explain" style="display:none;" onclick="openModal()">View Rationale</button>
+      <button class="btn btn-danger" onclick="resetGame()">Reset</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="word-bank-container">
+      <div class="word-bank-title">📦 Grouped Word Bank</div>
+      <div class="bank-tabs" id="bank-tabs"></div>
+      <div id="bank-content"></div>
+    </div>
+    
+    <table id="quiz-table">
+      <thead>
+        <tr>
+          <th style="background:transparent; border:none;">Category of Cause</th>
+          <th>What is the main mechanism?</th>
+          <th>Common examples</th>
+          <th>Clinical clue(s) / associated setting</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="4" class="group-hyper">HYPERKALEMIA (High Potassium)</td></tr>
+        <tr id="row-hyper_excretion"><td class="side-header">Decreased Excretion<br><small>(Can't excrete it)</small></td></tr>
+        <tr id="row-hyper_shift"><td class="side-header">Transcellular Shift<br><small>(Shifted out of cells)</small></td></tr>
+        <tr id="row-hyper_spill"><td class="side-header">Cellular Release<br><small>(Spilled out / cell injury)</small></td></tr>
+        <tr id="row-hyper_pseudo"><td class="side-header">Pseudohyperkalemia<br><small>(Not real)</small></td></tr>
+        
+        <tr><td colspan="4" class="group-hypo">HYPOKALEMIA (Low Potassium)</td></tr>
+        <tr id="row-hypo_intake"><td class="side-header">Decreased Intake<br><small>(Not enough coming in)</small></td></tr>
+        <tr id="row-hypo_gi"><td class="side-header">Gastrointestinal Loss<br><small>(Lost from the GI tract)</small></td></tr>
+        <tr id="row-hypo_renal"><td class="side-header">Renal Loss<br><small>(Lost in the urine)</small></td></tr>
+        <tr id="row-hypo_shift"><td class="side-header">Transcellular Shift<br><small>(Shifted into cells)</small></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="explanation-modal">
+  <div class="modal-content">
+    <h2>The Breakdown: Mastering Potassium Dynamics</h2>
+    <div id="explanation-text">
+      <h3>1. The Shift (Intracellular vs. Extracellular)</h3>
+      <p>Potassium lives primarily <em>inside</em> the cells. The body uses the Na+/K+ ATPase pump to keep it there. <strong>Insulin</strong> and <strong>β2-agonists (like Albuterol)</strong> rev up this pump, shoving potassium into the cell and causing <strong>Hypokalemia</strong>. <br><br>Conversely, a lack of insulin (Insulin deficiency/DKA) leaves potassium trapped outside. Furthermore, the pH dictates potassium movement: <strong>Acidosis</strong> pulls potassium <em>out</em> of the cell (Hyperkalemia), while <strong>Alkalosis</strong> pushes potassium <em>into</em> the cell (Hypokalemia) in exchange for hydrogen ions.</p>
+      
+      <h3>2. The Kidney Gatekeeper (Aldosterone)</h3>
+      <p>The kidneys filter out potassium, and <strong>Aldosterone</strong> is the boss that tells the kidneys to dump it into the urine. If the kidneys fail (AKI/CKD) or the RAAS system is blocked (ACE-Inhibitors, ARBs, Hypoaldosteronism), potassium backs up into the blood, causing deadly <strong>Hyperkalemia</strong>.<br><br>On the flip side, states of <em>Hyperaldosteronism</em> or the use of heavy diuretics (Loops, Thiazides) force the kidneys to aggressively waste potassium, leading to <strong>Hypokalemia</strong>.</p>
+
+      <h3>3. The Spill vs. The Drain</h3>
+      <p><strong>Hyperkalemia (The Spill):</strong> Because cells are bags of potassium, massive cellular destruction (Crush trauma / Rhabdomyolysis / Tumor Lysis Syndrome) causes all that intracellular potassium to violently spill into the bloodstream.<br><br><strong>Hypokalemia (The Drain):</strong> You lose potassium from the GI tract. While diarrhea is a direct loss of potassium, vomiting is tricky. Vomiting loses stomach acid (causing alkalosis) and volume. The volume drop triggers Aldosterone, which forces the kidneys to waste potassium. Thus, vomiting causes hypokalemia mostly through <em>renal</em> wasting.</p>
+
+      <h3>4. The Illusion (Pseudohyperkalemia)</h3>
+      <p>Always trust the patient over the lab! If a blood draw was difficult, the red blood cells may have hemolyzed (popped) inside the test tube, spilling their potassium into the sample. If the lab reads 7.5 but the patient's ECG is normal, redraw the lab!</p>
+    </div>
+    <button class="modal-close" onclick="closeModal()">Back to Study</button>
+  </div>
+</div>
+
+<script>
+const rawData = [
+  // ================= HYPERKALEMIA =================
+  // 1. Decreased Excretion
+  { group: "hyper", rowId: "hyper_excretion", cat: "Mechanism", text: "Decreased renal potassium elimination." },
+  { group: "hyper", rowId: "hyper_excretion", cat: "Common examples", text: "AKI / CKD" },
+  { group: "hyper", rowId: "hyper_excretion", cat: "Common examples", text: "Hypoaldosteronism / type IV RTA" },
+  { group: "hyper", rowId: "hyper_excretion", cat: "Common examples", text: "Medications that impair renal potassium excretion." },
+  { group: "hyper", rowId: "hyper_excretion", cat: "Clinical Clues", text: "Elevated creatinine" },
+  { group: "hyper", rowId: "hyper_excretion", cat: "Clinical Clues", text: "Oliguria" },
+  { group: "hyper", rowId: "hyper_excretion", cat: "Clinical Clues", text: "Diabetes," },
+  { group: "hyper", rowId: "hyper_excretion", cat: "Clinical Clues", text: "RAAS-inhibitors (e.g. ACE-I/ ARBs)" },
+  { group: "hyper", rowId: "hyper_excretion", cat: "Clinical Clues", text: "Potassium-sparing medications." },
+
+  // 2. Shifted Out
+  { group: "hyper", rowId: "hyper_shift", cat: "Mechanism", text: "Redistribution of potassium from the intracellular space to the extracellular space." },
+  { group: "hyper", rowId: "hyper_shift", cat: "Common examples", text: "DKA" },
+  { group: "hyper", rowId: "hyper_shift", cat: "Common examples", text: "Insulin deficiency" },
+  { group: "hyper", rowId: "hyper_shift", cat: "Common examples", text: "Hyperosmolality" },
+  { group: "hyper", rowId: "hyper_shift", cat: "Common examples", text: "Acidosis." },
+  { group: "hyper", rowId: "hyper_shift", cat: "Clinical Clues", text: "Hyperglycemia" }, // Hyperglycemia appeared twice in original table, treating as separate drops
+  { group: "hyper", rowId: "hyper_shift", cat: "Clinical Clues", text: "acid-base disturbance" },
+  { group: "hyper", rowId: "hyper_shift", cat: "Clinical Clues", text: "Hyperglycemia " }, // Added invisible space for unique ID drop if needed, but logic handles it
+
+  // 3. Spilled Out
+  { group: "hyper", rowId: "hyper_spill", cat: "Mechanism", text: "Release of intracellular potassium from damaged or lysed cells." },
+  { group: "hyper", rowId: "hyper_spill", cat: "Common examples", text: "Rhabdomyolysis" },
+  { group: "hyper", rowId: "hyper_spill", cat: "Common examples", text: "Tumor lysis syndrome." },
+  { group: "hyper", rowId: "hyper_spill", cat: "Clinical Clues", text: "Trauma/ crush injury" },
+  { group: "hyper", rowId: "hyper_spill", cat: "Clinical Clues", text: "Malignancy treatment" },
+  { group: "hyper", rowId: "hyper_spill", cat: "Clinical Clues", text: "Markedly elevated CK" },
+  { group: "hyper", rowId: "hyper_spill", cat: "Clinical Clues", text: "Elevated uric acid." },
+
+  // 4. Pseudohyperkalemia
+  { group: "hyper", rowId: "hyper_pseudo", cat: "Mechanism", text: "Laboratory artifact rather than a true increase in circulating potassium." },
+  { group: "hyper", rowId: "hyper_pseudo", cat: "Common examples", text: "Hemolyzed specimen" },
+  { group: "hyper", rowId: "hyper_pseudo", cat: "Common examples", text: "Difficult blood draw" },
+  { group: "hyper", rowId: "hyper_pseudo", cat: "Common examples", text: "Specimen handling error." },
+  { group: "hyper", rowId: "hyper_pseudo", cat: "Clinical Clues", text: "Unexpected elevated potassium without matching symptoms or ECG changes." },
+
+  // ================= HYPOKALEMIA =================
+  // 1. Decreased Intake
+  { group: "hypo", rowId: "hypo_intake", cat: "Mechanism", text: "Reduced potassium intake lowers total body potassium, especially when another cause of potassium loss is also present." },
+  { group: "hypo", rowId: "hypo_intake", cat: "Common examples", text: "Malnutrition" },
+  { group: "hypo", rowId: "hypo_intake", cat: "Common examples", text: "Poor oral intake" },
+  { group: "hypo", rowId: "hypo_intake", cat: "Common examples", text: "Chronic alcohol use" },
+  { group: "hypo", rowId: "hypo_intake", cat: "Clinical Clues", text: "Low intake history" },
+  { group: "hypo", rowId: "hypo_intake", cat: "Clinical Clues", text: "Weight loss" },
+  { group: "hypo", rowId: "hypo_intake", cat: "Clinical Clues", text: "Nutritional deficiency" },
+
+  // 2. GI Loss
+  { group: "hypo", rowId: "hypo_gi", cat: "Mechanism", text: "Potassium is lost in stool directly or lost indirectly through vomiting-induced renal potassium wasting." },
+  { group: "hypo", rowId: "hypo_gi", cat: "Common examples", text: "Diarrhea" },
+  { group: "hypo", rowId: "hypo_gi", cat: "Common examples", text: "Laxative use" },
+  { group: "hypo", rowId: "hypo_gi", cat: "Common examples", text: "Vomiting" },
+  { group: "hypo", rowId: "hypo_gi", cat: "Clinical Clues", text: "GI symptoms" },
+  { group: "hypo", rowId: "hypo_gi", cat: "Clinical Clues", text: "Volume depletion" },
+  { group: "hypo", rowId: "hypo_gi", cat: "Clinical Clues", text: "Metabolic alkalosis with vomiting" },
+
+  // 3. Renal Loss
+  { group: "hypo", rowId: "hypo_renal", cat: "Mechanism", text: "Increased renal potassium secretion due to aldosterone, increased distal sodium delivery, high urine flow, or negatively charged urinary anions" },
+  { group: "hypo", rowId: "hypo_renal", cat: "Common examples", text: "Loop diuretics" },
+  { group: "hypo", rowId: "hypo_renal", cat: "Common examples", text: "Thiazides" },
+  { group: "hypo", rowId: "hypo_renal", cat: "Common examples", text: "Hyperaldosteronism" },
+  { group: "hypo", rowId: "hypo_renal", cat: "Common examples", text: "Bartter syndrome" },
+  { group: "hypo", rowId: "hypo_renal", cat: "Common examples", text: "Gitelman syndrome" },
+  { group: "hypo", rowId: "hypo_renal", cat: "Common examples", text: "Liddle syndrome" },
+  { group: "hypo", rowId: "hypo_renal", cat: "Clinical Clues", text: "High urine potassium" },
+  { group: "hypo", rowId: "hypo_renal", cat: "Clinical Clues", text: "Diuretic use" },
+  { group: "hypo", rowId: "hypo_renal", cat: "Clinical Clues", text: "Hypertension in mineralocorticoid states" },
+
+  // 4. Shifted Into Cells
+  { group: "hypo", rowId: "hypo_shift", cat: "Mechanism", text: "Potassium moves from extracellular fluid into cells without necessarily reducing total body potassium" },
+  { group: "hypo", rowId: "hypo_shift", cat: "Common examples", text: "Alkalemia" },
+  { group: "hypo", rowId: "hypo_shift", cat: "Common examples", text: "Insulin" },
+  { group: "hypo", rowId: "hypo_shift", cat: "Common examples", text: "β2-agonists" },
+  { group: "hypo", rowId: "hypo_shift", cat: "Clinical Clues", text: "Alkalosis" },
+  { group: "hypo", rowId: "hypo_shift", cat: "Clinical Clues", text: "Insulin administration" },
+  { group: "hypo", rowId: "hypo_shift", cat: "Clinical Clues", text: "Albuterol or other β-agonist exposure" }
+];
+
+const rowIds = [
+  "hyper_excretion", "hyper_shift", "hyper_spill", "hyper_pseudo",
+  "hypo_intake", "hypo_gi", "hypo_renal", "hypo_shift"
+];
+
+const categories = ["Mechanism", "Common examples", "Clinical Clues"];
+
+let score = 0;
+const totalItems = rawData.length;
+
+function initGame() {
+  score = 0;
+  document.getElementById('score').innerText = score;
+  document.getElementById('btn-explain').style.display = 'none';
+  
+  const tabContainer = document.getElementById("bank-tabs");
+  const bankContent = document.getElementById("bank-content");
+  
+  tabContainer.innerHTML = "";
+  bankContent.innerHTML = "";
+  
+  // Inject drop zones into the hardcoded table rows
+  rowIds.forEach(id => {
+    const tr = document.getElementById("row-" + id);
+    // Clear out existing drop zones if resetting
+    while(tr.children.length > 1) {
+        tr.removeChild(tr.lastChild);
+    }
+    
+    // Check if this row is hyper or hypo based on ID prefix
+    const groupType = id.startsWith("hyper") ? "hyper" : "hypo";
+
+    categories.forEach(cat => {
+      const td = document.createElement("td");
+      const dz = document.createElement("div");
+      dz.className = "drop-zone";
+      dz.dataset.rowId = id;
+      dz.dataset.cat = cat;
+      dz.dataset.groupType = groupType;
+
+      dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("drag-over"); });
+      dz.addEventListener("dragleave", () => dz.classList.remove("drag-over"));
+      dz.addEventListener("drop", handleDropEvent);
+      
+      td.appendChild(dz);
+      tr.appendChild(td);
+    });
+  });
+
+  // Build Tabs
+  categories.forEach(cat => {
+    const tabBtn = document.createElement("button");
+    tabBtn.className = "tab-btn";
+    // Adjust name for the tab
+    tabBtn.innerText = cat === "Clinical Clues" ? "Clinical Clues & Settings" : cat;
+    tabBtn.onclick = () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      tabBtn.classList.add("active");
+      document.querySelectorAll(".word-bank").forEach(b => b.style.display = "none");
+      document.getElementById("bank-" + cat.replace(/[^a-zA-Z0-9]/g, '-')).style.display = "flex";
+    };
+    tabContainer.appendChild(tabBtn);
+
+    const bank = document.createElement("div");
+    bank.className = "word-bank";
+    bank.id = "bank-" + cat.replace(/[^a-zA-Z0-9]/g, '-');
+    bankContent.appendChild(bank);
+    
+    if (cat === "Mechanism") { tabBtn.classList.add("active"); bank.style.display = "flex"; }
+  });
+
+  // Populate Shuffled Banks
+  categories.forEach(cat => {
+    const bank = document.getElementById("bank-" + cat.replace(/[^a-zA-Z0-9]/g, '-'));
+    const items = rawData.filter(d => d.cat === cat);
+    shuffleArray(items).forEach((item, idx) => {
+      const div = document.createElement("div");
+      div.className = "draggable-item";
+      div.draggable = true;
+      div.id = `item-${cat.replace(/[^a-zA-Z0-9]/g, '-')}-${idx}`;
+      div.innerHTML = item.text.trim(); 
+      div.dataset.rowId = item.rowId;
+      div.dataset.cat = item.cat;
+      div.dataset.rawText = item.text; 
+      div.dataset.groupType = item.group; // Used to assign specific color on drop
+      
+      div.addEventListener("dragstart", e => {
+        if (div.classList.contains("locked")) return;
+        div.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", div.id);
+      });
+      div.addEventListener("dragend", () => div.classList.remove("dragging"));
+      bank.appendChild(div);
+    });
+  });
+}
+
+function handleDropEvent(e) {
+  e.preventDefault();
+  const dz = e.currentTarget;
+  dz.classList.remove("drag-over");
+  
+  const itemId = e.dataTransfer.getData("text/plain");
+  const draggedElement = document.getElementById(itemId);
+  if (!draggedElement) return;
+  
+  // Validate exact match based on category and matching text string for that row
+  // Because some text might be duplicated (e.g., "Hyperglycemia"), checking rawText and rowId ensures exact placement
+  if (draggedElement.dataset.rowId === dz.dataset.rowId && draggedElement.dataset.cat === dz.dataset.cat) {
+    draggedElement.draggable = false;
+    draggedElement.classList.add("locked");
+    
+    // Assign color based on Hyper vs Hypo
+    if(dz.dataset.groupType === "hyper") {
+        draggedElement.classList.add("locked-hyper");
+    } else {
+        draggedElement.classList.add("locked-hypo");
+    }
+
+    draggedElement.parentElement.removeChild(draggedElement);
+    dz.appendChild(draggedElement);
+    score++;
+    document.getElementById('score').innerText = score;
+    
+    if (score === totalItems) {
+      document.getElementById('btn-explain').style.display = 'inline-block';
+      setTimeout(() => openModal(), 400);
+    }
+  } else {
+    draggedElement.classList.remove("shake"); 
+    void draggedElement.offsetWidth; 
+    draggedElement.classList.add("shake");
+  }
+}
+
+function shuffleArray(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function showAllAnswers() {
+  if(!confirm("Reveal all correct placements?")) return;
+  
+  document.querySelectorAll(".draggable-item:not(.locked)").forEach(item => {
+    // Find the specific matching drop zone
+    const targetZone = document.querySelector(`.drop-zone[data-row-id="${item.dataset.rowId}"][data-cat="${item.dataset.cat}"]`);
+      
+    if (targetZone) {
+      item.draggable = false;
+      item.classList.add("locked");
+      
+      if(targetZone.dataset.groupType === "hyper") {
+          item.classList.add("locked-hyper");
+      } else {
+          item.classList.add("locked-hypo");
+      }
+
+      item.parentElement.removeChild(item);
+      targetZone.appendChild(item);
+    }
+  });
+  
+  score = totalItems;
+  document.getElementById('score').innerText = score;
+  document.getElementById('btn-explain').style.display = 'inline-block';
+}
+
+function resetGame() { if(confirm("Restart the table?")) initGame(); }
+function openModal() { document.getElementById('explanation-modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('explanation-modal').style.display = 'none'; }
+
+window.onload = initGame;
+</script>
+</body>
+</html>
