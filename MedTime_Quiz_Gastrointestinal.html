@@ -2795,24 +2795,35 @@ function showSummary() {
 // ---- CUSTOM QUIZ BUILDER ----
 function openCreateQuizModal() {
   const listEl = document.getElementById('custom-quiz-source-list');
+  const modalEl = document.getElementById('create-quiz-modal');
+  const nameInput = document.getElementById('custom-quiz-name');
+
+  if (!listEl || !modalEl || !nameInput) return;
+
   listEl.innerHTML = '';
-  DB.quizzes.filter(q => !q.isCustom).forEach(q => {
-    const item = document.createElement('div');
-    item.className = 'quiz-select-item';
-    item.innerHTML = `
-      <input type="checkbox" id="cq_${q.id}" data-id="${q.id}" onchange="updateCustomQtyVisibility('${q.id}')">
-      <div class="quiz-select-label">
-        <div class="quiz-select-title">${q.title}</div>
-        <div class="quiz-select-count">${q.questions.length} questions available</div>
-      </div>
-      <div id="cq_qty_${q.id}" style="display:none; align-items:center; gap:6px; flex-shrink:0;">
-        <label style="font-size:0.8rem; color:#666;">Qty:</label>
-        <input type="number" class="qty-input" id="cq_num_${q.id}" value="${Math.min(10, q.questions.length)}" min="1" max="${q.questions.length}">
-      </div>
-    `;
-    listEl.appendChild(item);
-  });
-  document.getElementById('create-quiz-modal').classList.add('open');
+  nameInput.value = '';
+
+  DB.quizzes
+    .filter(q => !q.isCustom)
+    .sort((a, b) => a.title.localeCompare(b.title))
+    .forEach(q => {
+      const item = document.createElement('div');
+      item.className = 'quiz-select-item';
+      item.innerHTML = `
+        <input type="checkbox" id="cq_${q.id}" data-id="${q.id}" onchange="updateCustomQtyVisibility('${q.id}')">
+        <div class="quiz-select-label">
+          <div class="quiz-select-title">${q.title}</div>
+          <div class="quiz-select-count">${q.questions.length} questions available</div>
+        </div>
+        <div id="cq_qty_${q.id}" style="display:none; align-items:center; gap:6px; flex-shrink:0;">
+          <label style="font-size:0.8rem; color:#666;">Qty:</label>
+          <input type="number" class="qty-input" id="cq_num_${q.id}" value="${Math.min(10, q.questions.length)}" min="1" max="${q.questions.length}">
+        </div>
+      `;
+      listEl.appendChild(item);
+    });
+
+  modalEl.classList.add('open');
 }
 
 function updateCustomQtyVisibility(id) {
@@ -2826,31 +2837,42 @@ function closeCreateQuizModal() {
 }
 
 function buildCustomQuiz() {
-  const name = document.getElementById('custom-quiz-name').value.trim() || 'My Custom Quiz';
+  const nameInput = document.getElementById('custom-quiz-name');
+  const modalList = document.getElementById('custom-quiz-source-list');
+  const name = (nameInput?.value || '').trim() || 'My Custom Quiz';
   const selected = [];
-  document.querySelectorAll('#custom-quiz-source-list input[type="checkbox"]:checked').forEach(cb => {
+
+  if (!modalList) return;
+
+  const selectedItems = [...modalList.querySelectorAll('.quiz-select-item')];
+  selectedItems.forEach(item => {
+    const cb = item.querySelector('input[type="checkbox"]');
+    if (!cb || !cb.checked) return;
+
     const id = cb.getAttribute('data-id');
     const qObj = DB.quizzes.find(q => q.id === id);
     if (!qObj) return;
+
     const numEl = document.getElementById('cq_num_' + id);
-    let num = numEl ? parseInt(numEl.value) : qObj.questions.length;
-    num = Math.min(Math.max(1, num), qObj.questions.length);
-    // Random sample
+    let num = numEl ? parseInt(numEl.value, 10) : qObj.questions.length;
+    num = Math.min(Math.max(1, num || 1), qObj.questions.length);
+
     const pool = [...qObj.questions];
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
+
     selected.push(...pool.slice(0, num));
   });
 
   if (selected.length === 0) {
-    alert('Please select at least one quiz and check some questions.');
+    alert('Please select at least one quiz and choose a quantity.');
     return;
   }
 
-  const customId = 'custom_' + Date.now();
-  DB.quizzes.push({
+  const customId = `custom_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  DB.quizzes.unshift({
     id: customId,
     title: name,
     questions: selected,
@@ -2858,6 +2880,7 @@ function buildCustomQuiz() {
     isCustom: true,
     keepCustom: true,
   });
+
   saveDB();
   closeCreateQuizModal();
   renderMenu();
