@@ -375,6 +375,7 @@ body.highlight-mode { cursor: crosshair; }
 .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.3; }
 .empty-state h3 { font-size: 1.2rem; margin-bottom: 8px; color: #555; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 </head>
 <body>
 <div id="print-area"></div>
@@ -2341,10 +2342,12 @@ let currentZoom = 1;
 let calcString = '';
 
 // ---- INIT ----
-function initApp() {
-  const saved = localStorage.getItem(STORAGE_KEY);
+async function initApp() {
+  const saved = await localforage.getItem(STORAGE_KEY);
   if (saved) {
-    try { DB = JSON.parse(saved); } catch(e) { DB = { quizzes: [] }; }
+    DB = saved;
+  } else {
+    DB = { quizzes: [] };
   }
 
   // Merge in quiz data from file, preserving history
@@ -2377,8 +2380,8 @@ function initApp() {
   setupHighlight();
 }
 
-function saveDB() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+async function saveDB() {
+  await localforage.setItem(STORAGE_KEY, DB);
 }
 
 // ---- MENU RENDERING ----
