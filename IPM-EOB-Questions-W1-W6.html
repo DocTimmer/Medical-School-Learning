@@ -1,0 +1,3445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedTime Quiz — IPM III Midterm (Weeks 1–6)</title>
+<style>
+:root {
+  --ex-header-bg: #1c2532;
+  --ex-header-text: #ffffff;
+  --ex-bg: #f4f6f8;
+  --ex-sidebar-bg: #f4f6f8;
+  --ex-content-bg: #ffffff;
+  --ex-blue: #3582c4;
+  --ex-blue-hover: #2a69a0;
+  --ex-dark-blue: #2c3e50;
+  --ex-border: #e0e0e0;
+  --ex-text-main: #333333;
+  --ex-text-muted: #777777;
+  --ex-option-bg: #f9f9f9;
+  --ex-option-border: #e0e0e0;
+  --ex-flag-orange: #f39c12;
+  --ex-footer-bg: #dce4eb;
+  --success-green: #2ecc71;
+  --success-light: #e8f8f0;
+  --error-red: #e74c3c;
+  --error-light: #fdedec;
+  --font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--ex-bg);
+  color: var(--ex-text-main);
+  font-family: var(--font-family);
+  height: 100vh; overflow: hidden;
+  display: flex; flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; transform-origin: top center; transition: transform 0.1s ease; }
+
+.view-section { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.view-section.active { display: flex; }
+
+/* ====== DASHBOARD ====== */
+#view-menu { overflow-y: auto; background: #fff; }
+.menu-topbar {
+  background: var(--ex-header-bg); color: white;
+  padding: 0 24px; height: 56px; display: flex; align-items: center;
+  justify-content: space-between; flex-shrink: 0;
+}
+.menu-topbar-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; }
+.menu-topbar-actions { display: flex; align-items: center; gap: 12px; }
+.menu-topbar-btn {
+  background: rgba(255,255,255,0.12); border: none; color: white;
+  padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 0.82rem; font-weight: 600;
+  transition: background 0.2s;
+}
+.menu-topbar-btn:hover { background: rgba(255,255,255,0.22); }
+
+.menu-body { max-width: 1200px; margin: 0 auto; padding: 28px 24px; width: 100%; }
+
+.menu-controls {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.menu-search {
+  flex: 1; min-width: 200px; padding: 9px 14px; border: 1px solid var(--ex-border);
+  border-radius: 6px; font-size: 0.9rem; outline: none; transition: border-color 0.2s;
+}
+.menu-search:focus { border-color: var(--ex-blue); }
+.menu-stats {
+  display: flex; gap: 20px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.stat-chip {
+  background: #f4f6f8; border: 1px solid var(--ex-border); border-radius: 8px;
+  padding: 10px 18px; font-size: 0.85rem; color: var(--ex-text-muted); font-weight: 600;
+}
+.stat-chip span { color: var(--ex-blue); font-size: 1.1rem; display: block; }
+
+.quiz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+
+.quiz-card {
+  background: #fff; border-radius: 8px; padding: 20px; border: 1px solid var(--ex-border);
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04); transition: box-shadow 0.2s, transform 0.15s;
+  cursor: default;
+}
+.quiz-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.quiz-card-title { font-size: 1rem; font-weight: 700; color: var(--ex-dark-blue); line-height: 1.3; }
+.quiz-card-meta { font-size: 0.8rem; color: var(--ex-text-muted); }
+
+.progress-bar-bg { background: #e9ecef; height: 6px; border-radius: 3px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--ex-blue); border-radius: 3px; transition: width 0.5s; }
+
+.quiz-card-stats { display: flex; justify-content: space-between; font-size: 0.78rem; color: #666; font-weight: 600; }
+
+.card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.btn { padding: 8px 16px; border-radius: 4px; border: none; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.15s; }
+.btn-primary { background: var(--ex-blue); color: white; }
+.btn-primary:hover { background: var(--ex-blue-hover); }
+.btn-sec { background: #e8ecef; color: #333; }
+.btn-sec:hover { background: #d8dde3; }
+.btn-danger { background: #fdedec; color: var(--error-red); border: 1px solid #f5c6c2; }
+.btn-danger:hover { background: #fad7d3; }
+.btn-success { background: #e8f8f0; color: #27ae60; border: 1px solid #b3e5cc; }
+.btn-success:hover { background: #d2f0e0; }
+.btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+.btn-full { width: 100%; text-align: center; }
+.btn-review { background: #fef5e7; color: #b9770e; border: 1px solid #fdebd0; }
+.btn-review:hover { background: #fde8c0; }
+.btn-flag-rev { background: #fcf3cf; color: #7d6608; border: 1px solid #f9e79f; }
+.btn-flag-rev:hover { background: #f9e08a; }
+
+.create-quiz-btn {
+  background: linear-gradient(135deg, #3582c4, #2c3e50);
+  color: white; border: none; border-radius: 8px;
+  padding: 12px 24px; font-weight: 700; font-size: 0.95rem;
+  cursor: pointer; transition: opacity 0.2s;
+}
+.create-quiz-btn:hover { opacity: 0.88; }
+
+/* ====== QUIZ VIEW (NBME STYLE + SINGLE SCROLL-DOWN) ====== */
+.ex-header {
+  background: var(--ex-header-bg); color: var(--ex-header-text);
+  height: 50px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; font-size: 0.9rem; flex-shrink: 0;
+}
+.ex-header-left { display: flex; align-items: center; gap: 12px; font-weight: 700; }
+.ex-header-center { flex: 1; text-align: center; color: #aaa; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; }
+.ex-header-right { display: flex; align-items: center; height: 100%; gap: 0; }
+.ex-header-btn {
+  background: rgba(255,255,255,0.1); border: none; color: white; height: 100%;
+  padding: 0 14px; cursor: pointer; display: flex; align-items: center; gap: 5px;
+  font-size: 0.82rem; font-weight: 600; transition: background 0.2s; white-space: nowrap;
+}
+.ex-header-btn:hover { background: rgba(255,255,255,0.2); }
+
+.ex-body { display: flex; flex: 1; overflow: hidden; }
+
+.ex-sidebar {
+  width: 78px; background: var(--ex-sidebar-bg); border-right: 1px solid var(--ex-border);
+  display: flex; flex-direction: column; align-items: center; padding-top: 12px;
+  overflow-y: auto; flex-shrink: 0;
+}
+.ex-filter { font-size: 0.68rem; color: var(--ex-text-muted); font-weight: 700; margin-bottom: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
+.nbme-nav-label { font-size: 0.72rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+#grid-cells { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 6px; padding: 0 8px 16px; }
+.ex-nav-item {
+  width: 38px; height: 38px; border-radius: 50%; display: flex; justify-content: center; align-items: center;
+  font-size: 0.82rem; color: var(--ex-text-main); background: #ffffff; cursor: pointer;
+  border: 2px solid #ccc; position: relative; transition: all 0.15s; font-weight: 600;
+  flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.ex-nav-item:hover { background: #e5e9ee; border-color: #999; }
+.ex-nav-item.current { border-color: var(--ex-blue); box-shadow: 0 0 0 2px rgba(53, 130, 196, 0.4); }
+.ex-nav-item.correct { background: var(--success-light); border-color: var(--success-green); color: #27ae60; font-weight: 700; }
+.ex-nav-item.wrong { background: var(--error-light); border-color: var(--error-red); color: #c0392b; font-weight: 700; }
+.ex-nav-item.flagged::before { content: '⚑'; position: absolute; top: -5px; right: -5px; font-size: 12px; color: var(--ex-flag-orange); }
+
+.ex-main {
+  flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 28px 40px; position: relative;
+  scroll-behavior: smooth;
+}
+
+/* Question Cards in Scroll View */
+#questions-container {
+  max-width: 960px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 32px;
+}
+
+.question-paper-wrap.question-card {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid var(--ex-border);
+  padding: 30px 34px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  scroll-margin-top: 20px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.question-paper-wrap.question-card:hover {
+  border-color: #ccd5df;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+}
+.question-paper-wrap.question-card.pulse-focus {
+  animation: cardPulse 1.2s ease;
+}
+@keyframes cardPulse {
+  0% { box-shadow: 0 0 0 4px rgba(53, 130, 196, 0.4); border-color: var(--ex-blue); }
+  100% { box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-color: var(--ex-border); }
+}
+
+.question-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #edf1f5;
+  flex-wrap: wrap; gap: 10px;
+}
+.question-card-num {
+  font-size: 0.95rem; font-weight: 700; color: var(--ex-dark-blue);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.question-brick-tag {
+  font-size: 0.75rem; font-weight: 600; background: #eef4fb; color: #2c5f8a;
+  padding: 3px 8px; border-radius: 4px; border: 1px solid #d0e1f3;
+}
+
+.nbme-flag-toggle {
+  background: #ffffff; border: 1px solid #ccd5df; color: #666666;
+  padding: 4px 12px; border-radius: 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; text-transform: uppercase;
+}
+.nbme-flag-toggle:hover { background: #f4f6f8; border-color: #999; }
+.nbme-flag-toggle.active { background: #fff8e1; color: var(--ex-flag-orange); border-color: var(--ex-flag-orange); }
+
+.ex-question-text { font-size: 1.08rem; line-height: 1.68; margin-bottom: 24px; color: var(--ex-text-main); font-weight: 500; }
+
+.q-images { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 0 0 22px 0; }
+.question-image { align-self: center; display: block; width: auto; height: auto; max-width: 100%; max-height: 56vh; object-fit: contain; border-radius: 8px; border: 1px solid var(--ex-border); }
+
+.ex-option-container { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.ex-option {
+  background: var(--ex-option-bg); padding: 12px 18px; border-radius: 6px;
+  border: 1px solid var(--ex-option-border); display: flex; align-items: flex-start;
+  cursor: pointer; transition: all 0.15s; position: relative;
+}
+.ex-option:hover:not(.disabled) { background: #eef2f6; border-color: #ccd5df; }
+.ex-option.selected { border-color: var(--ex-blue); background: #f0f6fa; }
+.ex-option.correct { border-color: var(--success-green); background: var(--success-light); }
+.ex-option.wrong { border-color: var(--error-red); background: var(--error-light); }
+.ex-option.disabled { cursor: default; }
+.ex-option.crossed-out { opacity: 0.45; }
+.ex-option.crossed-out .nbme-text, .ex-option.crossed-out .letter-label { text-decoration: line-through; color: #888; }
+
+/* NBME Elements */
+.nbme-header-bar {
+  background: #1b4376;
+  border-bottom: 3px solid #2185a6;
+  color: #fff;
+  padding: 0 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  height: 64px; flex-shrink: 0; z-index: 100;
+}
+.header-left-stack { display: flex; flex-direction: column; gap: 4px; }
+.section-text-wrap { display: flex; align-items: center; gap: 14px; font-size: 13px; font-weight: 700; color: #fff; }
+.header-left-row { display: flex; align-items: center; gap: 8px; }
+.goto-dropdown {
+  background: #fff; color: #000; border: 1px solid #777; font-size: 12px;
+  padding: 3px 6px; border-radius: 3px; font-family: Arial, sans-serif; cursor: pointer;
+}
+.nbme-mini-btn {
+  background: linear-gradient(to bottom, #e2e4e8 0%, #a2a8b5 100%);
+  border: 1px solid #444; border-radius: 3px; padding: 3px 8px; font-size: 11px;
+  font-weight: 700; color: #0c2d59; cursor: pointer;
+}
+.nbme-mini-btn:hover { filter: brightness(1.08); }
+
+.nbme-title { font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.5px; text-transform: uppercase; text-align: center; }
+.nbme-subtitle { font-size: 11px; color: #d0e4f7; text-align: center; }
+.reg-symbol { font-size: 9px; vertical-align: super; }
+
+.header-right { display: flex; align-items: center; gap: 16px; }
+.time-box, .examinee-box { display: flex; flex-direction: column; align-items: flex-end; font-size: 11px; color: #d0e4f7; }
+.time-box span:last-child, .examinee-box strong { font-size: 13px; font-weight: 700; color: #fff; font-family: monospace; }
+
+#view-quiz .radio-container {
+  padding-top: 2px; margin-right: 10px; flex-shrink: 0;
+}
+#view-quiz .nbme-radio {
+  width: 14px; height: 14px; border: 1px solid #777; border-radius: 50%;
+  background: #fff; position: relative;
+}
+#view-quiz .nbme-choice-row.selected .nbme-radio::after,
+#view-quiz .nbme-choice-row.correct .nbme-radio::after,
+#view-quiz .nbme-choice-row.wrong .nbme-radio::after {
+  content: ''; width: 6px; height: 6px; background: #000; border-radius: 50%;
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+#view-quiz .nbme-highlight-wrapper {
+  display: inline-flex; align-items: flex-start; padding: 2px 6px; margin-left: -4px; border-radius: 2px; gap: 6px; flex: 1;
+}
+#view-quiz .nbme-choice-row.selected .nbme-highlight-wrapper,
+#view-quiz .nbme-choice-row.correct .nbme-highlight-wrapper {
+  background: #ffff00;
+}
+#view-quiz .nbme-choice-row.wrong .nbme-highlight-wrapper { background: #ffd6d6; }
+#view-quiz .letter-label { font-weight: 700; font-size: 15px; padding-top: 1px; color: #000; min-width: 18px; }
+#view-quiz .nbme-text { font-size: 15px; line-height: 1.4; color: #000; }
+#view-quiz .feedback-icon { position: absolute; left: -20px; top: 12px; font-size: 16px; font-weight: 700; }
+#view-quiz .feedback-icon.check { color: #228b22; }
+#view-quiz .feedback-icon.cross { color: #d32f2f; }
+#view-quiz .choice-exp {
+  margin-top: 4px; font-size: 13px; color: #333; font-style: italic;
+}
+
+/* Rationale Box */
+.rationale-box {
+  margin-top: 24px; padding: 18px 20px; border-radius: 6px;
+  background: #d9edf7; border: 1px solid #bce8f1; display: none;
+}
+.rationale-header {
+  color: #31708f; font-weight: 700; margin-bottom: 12px; font-size: 13px; letter-spacing: 0.5px;
+}
+.rationale-line {
+  padding: 10px 14px; margin-bottom: 8px; border-radius: 4px; font-size: 0.9rem; line-height: 1.55;
+  background: #fff; border-left: 4px solid #bbb; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.rationale-line.is-correct { background: #e8f6e8; border-left-color: #2e7d32; }
+.rationale-line.is-wrong { background: #fdeaea; border-left-color: #c62828; }
+.rationale-label { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; margin-bottom: 4px; }
+
+.lo-hidden { display: none; }
+.lo-visible {
+  margin-top: 14px; padding: 10px 14px;
+  background: #fff; border-left: 4px solid #1b4376;
+  border-radius: 0 4px 4px 0; font-size: 0.88rem; color: #1b4376;
+  line-height: 1.5; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.lo-visible strong { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; color: #1b4376; }
+
+/* Footer Bar */
+#view-quiz .nbme-footer-bar {
+  flex-shrink: 0; background: #1b4376; border-top: 3px solid #2185a6; color: #fff;
+  padding: 0 14px; display: flex; justify-content: space-between; align-items: center;
+  height: 64px; z-index: 120;
+}
+#view-quiz .nbme-footer-bar * { color: #fff; }
+#view-quiz .footer-left { display: flex; align-items: center; gap: 8px; }
+#view-quiz .nav-btn, #view-quiz .tool-btn {
+  background: transparent; border: none; box-shadow: none;
+  cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin-right: 8px; padding: 0; font-family: Arial, sans-serif;
+}
+#view-quiz .tool-btn { margin-right: 0; }
+#view-quiz .nav-btn.disabled, #view-quiz .nav-btn:disabled { opacity: 0.45; cursor: default; }
+#view-quiz .nav-icon, #view-quiz .tool-icon {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(to bottom, #e2e4e8 0%, #a2a8b5 100%);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.45);
+  color: #0c2d59 !important; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; margin: 0 auto 3px auto;
+}
+#view-quiz .nav-text, #view-quiz .tool-label { font-size: 11px; color: #fff; white-space: nowrap; }
+#view-quiz .tools-area { display: flex; gap: 12px; }
+#view-quiz .tool-btn:hover, #view-quiz .nav-btn:hover:not(:disabled):not(.disabled) { opacity: 0.82; }
+#view-quiz .tool-btn.active .tool-icon { box-shadow: inset 0 1px 3px rgba(0,0,0,0.45); background: #c5c9d1; }
+
+/* Scroll footer */
+.quiz-scroll-footer {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 30px 20px 60px; max-width: 600px; margin: 0 auto; width: 100%;
+}
+.btn-lg { padding: 14px 28px; font-size: 0.98rem; border-radius: 6px; font-weight: 700; }
+
+/* Review banner */
+.review-banner {
+  background: #fff8d0; color: #5a4a00; border: 1px solid #e0c96a; padding: 12px;
+  border-radius: 4px; margin-bottom: 20px; text-align: center; font-weight: 700; font-size: 0.95rem;
+}
+
+/* Night Mode Simulated */
+#view-quiz.nightMode-simulated .ex-main,
+#view-quiz.nightMode-simulated .ex-sidebar { background: #1c1c1c; color: #eee; }
+#view-quiz.nightMode-simulated .question-paper-wrap.question-card { background: #262626; border-color: #404040; }
+#view-quiz.nightMode-simulated .question-card-header { border-bottom-color: #383838; }
+#view-quiz.nightMode-simulated .question-card-num { color: #eee; }
+#view-quiz.nightMode-simulated .question-brick-tag { background: #1c2e42; color: #9bc2e6; border-color: #2b4563; }
+#view-quiz.nightMode-simulated .nbme-flag-toggle { background: #2a2a2a; border-color: #555; color: #bbb; }
+#view-quiz.nightMode-simulated .nbme-flag-toggle.active { background: #4a3b00; color: #fbc02d; border-color: #fbc02d; }
+#view-quiz.nightMode-simulated .ex-question-text,
+#view-quiz.nightMode-simulated .nbme-text,
+#view-quiz.nightMode-simulated .letter-label { color: #eee !important; }
+#view-quiz.nightMode-simulated .ex-nav-item { background: #2a2a2a; color: #eee; border-color: #555; }
+#view-quiz.nightMode-simulated .nbme-choice-row.selected .nbme-highlight-wrapper,
+#view-quiz.nightMode-simulated .nbme-choice-row.correct .nbme-highlight-wrapper { background: #7a6a00; }
+#view-quiz.nightMode-simulated .rationale-box { background: #16344a; border-color: #2a5a78; }
+#view-quiz.nightMode-simulated .rationale-line { background: #222; color: #eee; }
+#view-quiz.nightMode-simulated .lo-visible { background: #222; color: #9bc2e6; border-left-color: #3582c4; }
+
+/* Summary View */
+#view-summary { overflow-y: auto; background: var(--ex-bg); }
+.summary-body { max-width: 700px; margin: 0 auto; padding: 32px 24px; }
+.summary-card { background: white; border-radius: 10px; border: 1px solid var(--ex-border); padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.summary-title { font-size: 1.4rem; font-weight: 700; color: var(--ex-dark-blue); margin-bottom: 6px; }
+.summary-subtitle { color: var(--ex-text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+.summary-score { font-size: 3rem; font-weight: 800; color: var(--ex-blue); text-align: center; margin: 16px 0; }
+.summary-score-label { text-align: center; color: var(--ex-text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+.summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+.summary-stat { background: var(--ex-bg); border-radius: 8px; padding: 14px; text-align: center; }
+.summary-stat-val { font-size: 1.6rem; font-weight: 800; }
+.summary-stat-val.green { color: var(--success-green); }
+.summary-stat-val.red { color: var(--error-red); }
+.summary-stat-val.blue { color: var(--ex-blue); }
+.summary-stat-label { font-size: 0.78rem; color: var(--ex-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+.summary-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+/* Modals & Tools */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9000;
+  display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: white; border-radius: 10px; width: min(680px, 95vw); max-height: 85vh;
+  display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.modal-header {
+  padding: 16px 20px; background: var(--ex-header-bg); color: white;
+  display: flex; justify-content: space-between; align-items: center; font-weight: 700;
+}
+.modal-close { background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 14px 20px; background: var(--ex-bg); border-top: 1px solid var(--ex-border); display: flex; justify-content: flex-end; gap: 10px; }
+
+.quiz-select-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--ex-border);
+  border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: background 0.15s;
+}
+.quiz-select-item:hover { background: #f8fafc; }
+.quiz-select-label { flex: 1; }
+.quiz-select-title { font-weight: 700; font-size: 0.9rem; color: var(--ex-dark-blue); }
+.quiz-select-count { font-size: 0.78rem; color: var(--ex-text-muted); }
+.qty-input { width: 60px; padding: 4px 8px; border: 1px solid var(--ex-border); border-radius: 4px; font-size: 0.85rem; }
+
+/* Classic NBME Modals (Calculator, Labs, Notes) */
+.nbme-modal {
+  position: fixed; background: #d4d0c8; border: 2px solid #fff; border-right-color: #404040; border-bottom-color: #404040;
+  border-radius: 0; box-shadow: 2px 2px 5px rgba(0,0,0,0.4); font-family: Tahoma, sans-serif; min-width: 260px; z-index: 5000;
+  display: flex; flex-direction: column;
+}
+.nbme-modal-header {
+  background: #0c2d59; color: #fff; padding: 3px 5px; font-size: 12px; font-weight: 700;
+  display: flex; justify-content: space-between; align-items: center; cursor: move; user-select: none;
+}
+.nbme-close-btn {
+  background: #d4d0c8; border: 1px solid #fff; border-right-color: #404040; border-bottom-color: #404040;
+  color: #000; font-weight: 700; font-size: 10px; width: 16px; height: 16px; line-height: 12px; padding: 0; cursor: pointer;
+}
+.nbme-modal-content { padding: 8px; }
+.calc-screen {
+  background: #fff; border: 2px solid #888; border-right-color: #fff; border-bottom-color: #fff;
+  border-radius: 0; height: 26px; font-size: 16px; text-align: right; padding: 2px 6px; font-family: monospace; margin-bottom: 6px;
+}
+.calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.calc-btn {
+  background: #d4d0c8; color: #000; border: 1px solid #fff; border-right-color: #404040; border-bottom-color: #404040;
+  border-radius: 0; height: 30px; font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.calc-btn:active { border-color: #404040; border-right-color: #fff; border-bottom-color: #fff; }
+.lab-search { width: 100%; padding: 4px 6px; border: 2px solid #888; border-right-color: #fff; border-bottom-color: #fff; margin-bottom: 6px; font-size: 12px; }
+.lab-list-wrap { max-height: 320px; overflow-y: auto; background: #fff; border: 1px solid #888; font-size: 11px; }
+.lab-cat { background: #ccc; font-weight: 700; padding: 3px 6px; }
+.lab-row { display: flex; justify-content: space-between; padding: 3px 6px; border-bottom: 1px solid #eee; }
+.notes-area { width: 100%; height: 180px; padding: 6px; border: 2px solid #888; border-right-color: #fff; border-bottom-color: #fff; font-family: inherit; font-size: 12px; resize: vertical; }
+
+/* Help overlay */
+#nbme-help {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 8000;
+  align-items: center; justify-content: center;
+}
+#nbme-help.open { display: flex; }
+#nbme-help .help-box {
+  background: #d4d0c8; border: 2px solid #fff; border-right-color: #404040; border-bottom-color: #404040;
+  width: min(520px, 92vw); max-height: 80vh; overflow: auto; font-family: Tahoma, sans-serif; color: #000;
+}
+#nbme-help .help-head {
+  background: #0c2d59; color: #fff; padding: 6px 8px; display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; font-weight: 700;
+}
+#nbme-help .help-body { padding: 12px 14px; font-size: 13px; line-height: 1.5; background: #fff; }
+#nbme-help .help-body kbd { background: #eee; border: 1px solid #bbb; border-radius: 3px; padding: 0 5px; font-size: 12px; }
+
+/* Highlight Mode */
+body.highlight-mode #q-scroll-area { cursor: text; }
+.highlight-span { background-color: #fff176; color: #000; cursor: pointer; }
+body.highlight-mode .highlight-span:hover { background-color: #ff8a80; }
+
+/* Print Area */
+#print-area { display: none; }
+@media print {
+  body > *:not(#print-area) { display: none !important; }
+  #print-area { display: block !important; background: white; padding: 20px; color: black; font-family: sans-serif; }
+  .print-item { page-break-inside: avoid; margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 15px; }
+  .print-q { font-weight: bold; margin-bottom: 8px; font-size: 1.1rem; }
+  .print-a { color: #c0392b; margin-bottom: 4px; }
+  .print-correct { color: #27ae60; font-weight: bold; margin-bottom: 6px; }
+  .print-exp { font-size: 0.9rem; color: #444; line-height: 1.4; }
+}
+
+@media (max-width: 800px) {
+  .nbme-title, .nbme-subtitle { display: none; }
+  #view-quiz .nav-text, #view-quiz .tool-label { display: none; }
+  #view-quiz .nbme-footer-bar { height: 56px; }
+  #view-quiz .tools-area { gap: 8px; }
+  .ex-main { padding: 16px 12px; }
+  .question-paper-wrap.question-card { padding: 20px 16px; }
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+</head>
+<body>
+<div id="print-area"></div>
+<div id="app-wrapper">
+
+<!-- DASHBOARD -->
+<div id="view-menu" class="view-section active">
+  <div class="menu-topbar">
+    <div class="menu-topbar-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      MedTime Quizzer — IPM III Midterm
+    </div>
+    <div class="menu-topbar-actions">
+      <button class="menu-topbar-btn" onclick="adjustZoom(-0.1)">A-</button>
+      <button class="menu-topbar-btn" onclick="adjustZoom(0.1)">A+</button>
+      <button class="create-quiz-btn" onclick="openCreateQuizModal()">+ Custom Quiz</button>
+    </div>
+  </div>
+
+  <div class="menu-body">
+    <div class="menu-controls">
+      <input type="text" class="menu-search" id="quiz-search" placeholder="Search IPM III modules..." oninput="renderMenu()">
+      <select id="sort-select" onchange="renderMenu()" style="padding:9px 12px; border:1px solid var(--ex-border); border-radius:6px; font-size:0.88rem; outline:none; background:#fff;">
+        <option value="default">Default Order</option>
+        <option value="alpha">Alphabetical</option>
+        <option value="progress">Completion %</option>
+        <option value="score">Score %</option>
+      </select>
+    </div>
+
+    <div class="menu-stats" id="global-stats"></div>
+
+    <div id="quiz-list-container"></div>
+    <div id="empty-msg" class="empty-state" style="display:none;">
+      <h3>No quizzes found</h3>
+      <p>Try clearing your search query.</p>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ VIEW (SINGLE SCROLL-DOWN PAGE) -->
+<div id="view-quiz" class="view-section">
+  <div class="nbme-header-bar">
+    <div class="header-left">
+      <div class="header-left-stack">
+        <div class="section-text-wrap">
+          <span class="section-text" id="section-text">Exam Section 1 · 42 Questions</span>
+        </div>
+        <div class="header-left-row">
+          <select class="goto-dropdown" id="goto-question" title="Go to Question" onchange="scrollToQuestion(parseInt(this.value, 10))"></select>
+          <button type="button" class="nbme-mini-btn" id="btn-random" onclick="shuffleAndRestart()" title="Randomize question order">Shuffle</button>
+          <button type="button" class="nbme-mini-btn" id="btn-toggle-sidebar" onclick="toggleMobileSidebar()" style="display:none;">Items</button>
+        </div>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="nbme-title">National Board of Medical Examiners<span class="reg-symbol">®</span></div>
+      <div class="nbme-subtitle" id="ex-exam-title">IPM III Midterm Assessment</div>
+    </div>
+    <div class="header-right">
+      <div class="time-box">
+        <span class="time-label">Elapsed</span>
+        <span id="timer-display">00:00:00</span>
+      </div>
+      <div class="examinee-box">
+        <span class="examinee-label">Examinee</span>
+        <strong>Timothy Chandler</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-body nbme-body">
+    <div class="ex-sidebar" id="ex-sidebar">
+      <div class="ex-filter" onclick="toggleMobileSidebar()">CLOSE ×</div>
+      <div class="nbme-nav-label">Items</div>
+      <div id="grid-cells"></div>
+    </div>
+
+    <div class="ex-main" id="q-scroll-area">
+      <div id="review-banner" class="review-banner" style="display:none;"></div>
+      
+      <!-- All questions rendered inside this container -->
+      <div id="questions-container"></div>
+    </div>
+  </div>
+
+  <div class="nbme-footer-bar">
+    <div class="footer-left">
+      <button class="nav-btn" type="button" onclick="endExam()" title="End and return to dashboard">
+        <div class="nav-icon">✕</div><span class="nav-text">End</span>
+      </button>
+      <button class="nav-btn" type="button" onclick="finishToReport()" title="Score report">
+        <div class="nav-icon">✓</div><span class="nav-text">Score Report</span>
+      </button>
+    </div>
+    <div class="footer-right tools-area">
+      <button class="tool-btn" type="button" onclick="openTool('modal-labs')">
+        <div class="tool-icon">⚖</div><div class="tool-label">Lab Values</div>
+      </button>
+      <button class="tool-btn" type="button" onclick="openTool('modal-notes')">
+        <div class="tool-icon">📝</div><div class="tool-label">Notes</div>
+      </button>
+      <button class="tool-btn" type="button" onclick="openTool('modal-calculator')">
+        <div class="tool-icon">🖩</div><div class="tool-label">Calculator</div>
+      </button>
+      <button class="tool-btn" type="button" id="btn-highlight" onclick="toggleHighlightMode()">
+        <div class="tool-icon">✏</div><div class="tool-label">Highlight</div>
+      </button>
+      <button class="tool-btn" type="button" onclick="toggleHelp()">
+        <div class="tool-icon">?</div><div class="tool-label">Help</div>
+      </button>
+      <button class="tool-btn" type="button" id="btn-pause" onclick="togglePause()">
+        <div class="tool-icon">||</div><div class="tool-label">Pause</div>
+      </button>
+      <button class="tool-btn" type="button" id="btn-reverse" onclick="toggleReverse()" title="Reverse colors">
+        <div class="tool-icon">↺</div><div class="tool-label">Rev.</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY VIEW -->
+<div id="view-summary" class="view-section">
+  <div class="ex-header">
+    <div class="ex-header-left">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      MedTime
+    </div>
+    <div class="ex-header-center">Quiz Summary</div>
+    <div class="ex-header-right">
+      <button class="ex-header-btn" onclick="goHome()">⌂ HOME</button>
+    </div>
+  </div>
+  <div style="flex:1; overflow-y:auto;">
+    <div class="summary-body">
+      <div class="summary-card" id="summary-content"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end app-wrapper -->
+
+<!-- Custom Quiz Builder Modal -->
+<div class="modal-overlay" id="create-quiz-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>✦ Create Custom Quiz</span>
+      <button class="modal-close" onclick="closeCreateQuizModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:16px; color:#555; font-size:0.9rem;">Select quiz modules and choose how many questions to pull from each.</p>
+      <div id="custom-quiz-source-list"></div>
+    </div>
+    <div class="modal-footer">
+      <div style="flex:1; display:flex; align-items:center; gap:10px;">
+        <label style="font-size:0.85rem; font-weight:600;">Quiz Name:</label>
+        <input type="text" id="custom-quiz-name" placeholder="My Custom Quiz" style="flex:1; padding:7px 10px; border:1px solid var(--ex-border); border-radius:4px; font-size:0.85rem; outline:none; font-family:inherit;">
+      </div>
+      <button class="btn btn-sec" onclick="closeCreateQuizModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="buildCustomQuiz()">Build Quiz →</button>
+    </div>
+  </div>
+</div>
+
+<!-- NBME Tool Modals -->
+<div id="modal-calculator" class="nbme-modal" style="display:none; top:120px; left:200px;">
+  <div class="nbme-modal-header" id="calc-header">
+    <span>Calculator</span>
+    <button class="nbme-close-btn" onclick="closeTool('modal-calculator')">✕</button>
+  </div>
+  <div class="nbme-modal-content">
+    <div class="calc-screen" id="calc-display">0</div>
+    <div class="calc-keys">
+      <button onclick="calcCmd('C')" class="calc-btn red">C</button>
+      <button onclick="calcCmd('/')" class="calc-btn op">÷</button>
+      <button onclick="calcCmd('*')" class="calc-btn op">×</button>
+      <button onclick="calcCmd('back')" class="calc-btn op">⌫</button>
+      <button onclick="calcCmd('7')" class="calc-btn">7</button>
+      <button onclick="calcCmd('8')" class="calc-btn">8</button>
+      <button onclick="calcCmd('9')" class="calc-btn">9</button>
+      <button onclick="calcCmd('-')" class="calc-btn op">-</button>
+      <button onclick="calcCmd('4')" class="calc-btn">4</button>
+      <button onclick="calcCmd('5')" class="calc-btn">5</button>
+      <button onclick="calcCmd('6')" class="calc-btn">6</button>
+      <button onclick="calcCmd('+')" class="calc-btn op">+</button>
+      <button onclick="calcCmd('1')" class="calc-btn">1</button>
+      <button onclick="calcCmd('2')" class="calc-btn">2</button>
+      <button onclick="calcCmd('3')" class="calc-btn">3</button>
+      <button onclick="calcCmd('=')" class="calc-btn equals">=</button>
+      <button onclick="calcCmd('0')" class="calc-btn zero">0</button>
+      <button onclick="calcCmd('.')" class="calc-btn">.</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-labs" class="nbme-modal" style="display:none; top:120px; left:200px; width:440px;">
+  <div class="nbme-modal-header" id="labs-header">
+    <span>Lab Values</span>
+    <button class="nbme-close-btn" onclick="closeTool('modal-labs')">✕</button>
+  </div>
+  <div class="nbme-modal-content">
+    <input type="text" id="lab-search" class="lab-search" placeholder="Search lab values..." oninput="filterLabs()">
+    <div class="lab-list-wrap">
+      <div id="lab-list-content">
+        <div class="lab-cat">BLOOD / PLASMA / SERUM</div>
+        <div class="lab-row"><span>Sodium</span><span>136–145 mEq/L</span></div>
+        <div class="lab-row"><span>Potassium</span><span>3.5–5.0 mEq/L</span></div>
+        <div class="lab-row"><span>Chloride</span><span>95–105 mEq/L</span></div>
+        <div class="lab-row"><span>Bicarbonate (HCO₃)</span><span>22–28 mEq/L</span></div>
+        <div class="lab-row"><span>BUN</span><span>7–18 mg/dL</span></div>
+        <div class="lab-row"><span>Creatinine</span><span>0.6–1.2 mg/dL</span></div>
+        <div class="lab-row"><span>Glucose (fasting)</span><span>70–100 mg/dL</span></div>
+        <div class="lab-row"><span>Calcium</span><span>8.4–10.2 mg/dL</span></div>
+        <div class="lab-row"><span>Magnesium</span><span>1.5–2.0 mEq/L</span></div>
+        <div class="lab-row"><span>Phosphate</span><span>3.0–4.5 mg/dL</span></div>
+        <div class="lab-row"><span>Albumin</span><span>3.5–5.0 g/dL</span></div>
+        <div class="lab-row"><span>Total Protein</span><span>6.0–8.0 g/dL</span></div>
+        <div class="lab-row"><span>AST (SGOT)</span><span>10–40 U/L</span></div>
+        <div class="lab-row"><span>ALT (SGPT)</span><span>7–56 U/L</span></div>
+        <div class="lab-row"><span>Alk Phosphatase</span><span>44–147 U/L</span></div>
+        <div class="lab-row"><span>Total Bilirubin</span><span>0.1–1.0 mg/dL</span></div>
+        <div class="lab-row"><span>Uric Acid</span><span>3.4–7.0 mg/dL</span></div>
+        <div class="lab-cat">HEMATOLOGIC</div>
+        <div class="lab-row"><span>Hemoglobin (M)</span><span>13.5–17.5 g/dL</span></div>
+        <div class="lab-row"><span>Hemoglobin (F)</span><span>12.0–15.5 g/dL</span></div>
+        <div class="lab-row"><span>Hematocrit (M)</span><span>41–53%</span></div>
+        <div class="lab-row"><span>Hematocrit (F)</span><span>36–46%</span></div>
+        <div class="lab-row"><span>MCV</span><span>80–100 fL</span></div>
+        <div class="lab-row"><span>WBC</span><span>4.5–11.0 × 10³/mm³</span></div>
+        <div class="lab-row"><span>Platelets</span><span>150–400 × 10³/mm³</span></div>
+        <div class="lab-row"><span>Reticulocytes</span><span>0.5–1.5%</span></div>
+        <div class="lab-row"><span>PT</span><span>11–15 sec</span></div>
+        <div class="lab-row"><span>aPTT</span><span>25–40 sec</span></div>
+        <div class="lab-row"><span>INR (therapeutic)</span><span>2.0–3.0</span></div>
+        <div class="lab-cat">LIPIDS</div>
+        <div class="lab-row"><span>Total Cholesterol</span><span>< 200 mg/dL</span></div>
+        <div class="lab-row"><span>LDL</span><span>< 100 mg/dL</span></div>
+        <div class="lab-row"><span>HDL (M)</span><span>> 40 mg/dL</span></div>
+        <div class="lab-row"><span>HDL (F)</span><span>> 50 mg/dL</span></div>
+        <div class="lab-row"><span>Triglycerides</span><span>< 150 mg/dL</span></div>
+        <div class="lab-cat">THYROID</div>
+        <div class="lab-row"><span>TSH</span><span>0.4–4.0 μU/mL</span></div>
+        <div class="lab-row"><span>Free T4</span><span>0.8–1.8 ng/dL</span></div>
+        <div class="lab-row"><span>Free T3</span><span>2.3–4.2 pg/mL</span></div>
+        <div class="lab-cat">ARTERIAL BLOOD GAS</div>
+        <div class="lab-row"><span>pH</span><span>7.35–7.45</span></div>
+        <div class="lab-row"><span>PaO₂</span><span>75–100 mmHg</span></div>
+        <div class="lab-row"><span>PaCO₂</span><span>35–45 mmHg</span></div>
+        <div class="lab-row"><span>HCO₃</span><span>22–26 mEq/L</span></div>
+        <div class="lab-row"><span>O₂ Saturation</span><span>95–100%</span></div>
+        <div class="lab-cat">URINE</div>
+        <div class="lab-row"><span>Specific Gravity</span><span>1.003–1.030</span></div>
+        <div class="lab-row"><span>Osmolarity</span><span>50–1200 mOsm/kg</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-notes" class="nbme-modal" style="display:none; top:120px; left:200px; width:320px;">
+  <div class="nbme-modal-header" id="notes-header">
+    <span>📝 Scratchpad</span>
+    <button class="nbme-close-btn" onclick="closeTool('modal-notes')">✕</button>
+  </div>
+  <div class="nbme-modal-content">
+    <textarea class="notes-area" id="scratch-notes" placeholder="Jot notes here..."></textarea>
+  </div>
+</div>
+
+<div id="nbme-help">
+  <div class="help-box">
+    <div class="help-head">
+      <span>Examinee Help</span>
+      <button class="nbme-close-btn" type="button" onclick="toggleHelp()">X</button>
+    </div>
+    <div class="help-body">
+      <p><b>Single Scroll-Down Page:</b> All questions in this module appear on one continuous page. You can scroll freely through the entire set.</p>
+      <p><b>Mark / Flag:</b> Click the Mark button on any question to flag an item for review.</p>
+      <p><b>Item Navigation:</b> Click any number in the left sidebar or select from the "Go to Question" dropdown to smoothly jump directly to that question.</p>
+      <p><b>Answers & Immediate Feedback:</b> Click an option to answer. The correct answer and detailed instructor rationales will expand instantly.</p>
+      <p><b>Cross Out:</b> Right-click any option or click while in cross-out mode to strike out choices.</p>
+      <p><b>Highlight:</b> Turn on Highlight mode to paint text; click highlighted text to remove.</p>
+      <p><b>Score Report:</b> Click Score Report at the bottom or in the footer to review your final score and review missed/flagged items.</p>
+    </div>
+  </div>
+</div>
+
+<!-- JAVASCRIPT ENGINE -->
+<script>
+// ===================================================================
+// MEDTIME QUIZ ENGINE v2.0 — IPM III MIDTERM
+// ===================================================================
+
+const QUIZZES_DATA = [
+  {
+    "id": "ipm3-midterm-all",
+    "title": "IPM III Midterm — All Weeks 1–6 (42 Questions)",
+    "questions": [
+      {
+        "id": "ipm3-q1",
+        "question": "Which statement best describes Whole Health?",
+        "options": [
+          "A healthcare approach emphasizing complementary therapies",
+          "A disease-management model focused on risk factor reduction",
+          "A healthcare approach aligning people, relationships, and systems",
+          "A wellness program designed primarily for healthy individuals"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Whole Health is not limited to complementary therapies and does not replace conventional medicine.",
+          "Whole Health includes prevention and risk reduction but extends beyond disease management to include meaning, purpose, relationships, community, and quality of life.",
+          "Whole Health is a human-centered approach that aligns people, relationships, and systems to support health and human flourishing. It focuses on what matters most to individuals and integrates prevention, resilience, well-being, and person-centered care.",
+          "Whole Health applies across the entire health continuum and supports flourishing for individuals with or without disease."
+        ],
+        "learningObjective": "Explain the principles of Whole Health and how they differ from disease-centered care, using the Whole Health Circle.",
+        "brickTitle": "Whole Health and The Science of Motivation"
+      },
+      {
+        "id": "ipm3-q2",
+        "question": "Which of the following domains is NOT one of the four core domains of the AWSOM Whole Health Circle?",
+        "options": [
+          "Body",
+          "Mind",
+          "Community",
+          "Productivity"
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Body is a core domain and reflects physical health and lived physical experiences.",
+          "Mind is a core domain and includes thoughts, emotions, beliefs, and psychological well-being.",
+          "Community is a core domain and reflects connection, belonging, contribution, and support.",
+          "The AWSOM Whole Health Circle is organized around four core domains: Body, Mind, Meaning, Community. These domains provide the foundation for understanding health as an interconnected and lived experience."
+        ],
+        "learningObjective": "Apply Whole Health concepts by completing the Whole Health Living Inventory to identify personal factors influencing health behaviors and motivation.",
+        "brickTitle": "Whole Health and The Science of Motivation"
+      },
+      {
+        "id": "ipm3-q3",
+        "question": "According to Whole Health principles, which factor is most likely to influence motivation and behavior change?",
+        "options": [
+          "Individual knowledge and understanding of health information",
+          "Personal determination and self-discipline during change",
+          "The interaction of biological, psychological, social, and meaning",
+          "External incentives that shape motivation and flourishing"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Knowledge is important but often insufficient to produce lasting behavior change.",
+          "Willpower may support short-term efforts but does not fully explain long-term behavior change.",
+          "Whole Health recognizes that motivation and behavior change are influenced by multiple interacting factors, including biology, psychology, relationships, environment, and meaning. Sustainable change rarely occurs through knowledge, willpower, or incentives alone.",
+          "External incentives may influence behavior temporarily but are generally less effective than addressing the broader factors that shape motivation."
+        ],
+        "learningObjective": "Analyze how Whole Health domains influence motivation, resilience, and behavior change and identify key audience-specific motivational challenges for incorporation into the Whole Health Educational Design Project.",
+        "brickTitle": "Whole Health and The Science of Motivation"
+      },
+      {
+        "id": "ipm3-q4",
+        "question": "Which of the following best describes a core value?",
+        "options": [
+          "A specific outcome a person wants to achieve",
+          "A deeply held principle that guides behavior",
+          "A personality trait that remains fixed over time",
+          "An external reward that increases motivation"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "A specific outcome describes a goal rather than a value.",
+          "B is correct because core values are enduring internal principles that reflect what matters most and provide ongoing direction for decisions and behavior across time and circumstances.",
+          "A fixed personality trait is innate rather than chosen.",
+          "An external reward describes extrinsic motivation rather than an internal principle."
+        ],
+        "learningObjective": "Describe how identity and values shape intrinsic drivers of behavior.",
+        "brickTitle": "Identity, Values and Intrinsic Drivers of Behaviors"
+      },
+      {
+        "id": "ipm3-q5",
+        "question": "Which factor is most strongly associated with intrinsic motivation?",
+        "options": [
+          "External rewards",
+          "Social pressure",
+          "Personal values",
+          "Fear of consequences"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "External rewards define extrinsic motivation and extinguish behavior when removed.",
+          "Social pressure produces compliance, not genuine motivation, and fades with the social context.",
+          "Values-aligned behavior generates internal meaning that sustains motivation without external pressure or reward.",
+          "Fear of consequences represents the least autonomous form of motivation on the SDT continuum — rarely producing sustainable engagement."
+        ],
+        "learningObjective": "Describe how identity and values shape intrinsic drivers of behavior.",
+        "brickTitle": "Identity, Values and Intrinsic Drivers of Behaviors"
+      },
+      {
+        "id": "ipm3-q6",
+        "question": "According to Self-Determination Theory, which of the following is NOT a core psychological need?",
+        "options": [
+          "Autonomy",
+          "Competence",
+          "Relatedness",
+          "Perfection"
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Autonomy is the experience of choice and personal agency.",
+          "Competence reflects belief in one's capacity to succeed at meaningful tasks.",
+          "Relatedness reflects a sense of meaningful connection and belonging with others.",
+          "SDT identifies exactly three core psychological needs — autonomy, competence, and relatedness — and perfection is not among them."
+        ],
+        "learningObjective": "Apply a values clarification exercise to identify core values influencing decision-making and motivation.",
+        "brickTitle": "Identity, Values and Intrinsic Drivers of Behaviors"
+      },
+      {
+        "id": "ipm3-q7",
+        "question": "Why are values important in behavior change?",
+        "options": [
+          "They provide external accountability.",
+          "They determine personality type.",
+          "They align behavior with what matters.",
+          "They eliminate barriers to change."
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "External accountability supports structure but not the internal drivers that sustain change once structures are removed.",
+          "Personality type describes stable patterns of thinking and feeling, not chosen principles.",
+          "Sustainable behavior change requires connection to something personally meaningful — an internal, renewable motivational source that external incentives cannot replicate.",
+          "Values don't eliminate barriers but provide a compelling internal reason to persist through them."
+        ],
+        "learningObjective": "Evaluate identity, values, and intrinsic motivation influence health / healthcare behaviors and apply these principles to the Whole Health Educational Design Project for the selected audience.",
+        "brickTitle": "Identity, Values and Intrinsic Drivers of Behaviors"
+      },
+      {
+        "id": "ipm3-q8",
+        "question": "Which statement best describes dopamine's primary role in reward processing?",
+        "options": [
+          "Produces pleasure during rewarding experiences",
+          "Regulates cardiovascular stress responses",
+          "Signals motivation, salience and reward prediction",
+          "Suppresses urges and reduces cravings"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Pleasure is mediated by opioid systems, not dopamine.",
+          "Blood pressure regulation is not a dopaminergic function.",
+          "Dopamine primarily drives motivation, anticipatory attention, and reward prediction — not pleasure.",
+          "Eliminating cravings is the opposite of dopamine's role — dopaminergic activity generates craving rather than suppressing it."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q9",
+        "question": "Which neural system is primarily responsible for the \"wanting\" component and motivational drive toward a reward?",
+        "options": [
+          "Dopamine",
+          "Opioids",
+          "Corticotropin-releasing factor",
+          "Serotonin"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Dopamine signals motivation and the \"wanting\" signal.",
+          "Opioids mediate pleasure and the \"liking\" signal rather than wanting.",
+          "Corticotropin-releasing factor is involved in the anti-reward stress response circuitry.",
+          "Serotonin is not the primary mediator of incentive salience and motivational drive."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q10",
+        "question": "Which neural system is primarily responsible for the hedonic experience of pleasure and \"liking\"?",
+        "options": [
+          "Dopamine",
+          "Opioids",
+          "Acetylcholine",
+          "Corticotropin-releasing factor"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Dopamine mediates motivation and \"wanting\" rather than pleasure.",
+          "Opioids generate the pleasure and \"liking\" signal during rewarding experiences.",
+          "Acetylcholine is not the primary neurotransmitter system for hedonic pleasure signaling.",
+          "Corticotropin-releasing factor mediates stress and anti-reward circuitry."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q11",
+        "question": "How is reward prediction error defined in reward processing?",
+        "options": [
+          "The brain's guess and comparison between expected and actual rewards",
+          "The transition of behavior to the basal ganglia",
+          "The hedonic experience of pleasure",
+          "The activation of chronic stress circuitry"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Reward prediction error reflects the brain's comparison between what actually happened and what was expected.",
+          "Behavioral automaticity shifting to the basal ganglia describes habit formation.",
+          "The hedonic experience of pleasure is mediated by the opioid liking system.",
+          "The activation of chronic stress circuitry describes the anti-reward system."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q12",
+        "question": "What state is characterized by deep, focused engagement where the activity itself becomes an intrinsic reward?",
+        "options": [
+          "Temporal discounting",
+          "Anti-reward state",
+          "Flow states",
+          "Negative reinforcement"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Temporal discounting is the preference for immediate over delayed rewards.",
+          "Anti-reward states represent dysphoric stress-related compensatory mechanisms.",
+          "Flow states involve deep and focused engagement where the activity becomes an intrinsic reward.",
+          "Negative reinforcement involves removing an aversive stimulus to strengthen behavior."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q13",
+        "question": "What is the correct sequence of stages in the habit formation cycle?",
+        "options": [
+          "Craving → Cue → Reward → Response",
+          "Cue → Craving → Response → Reward",
+          "Response → Cue → Craving → Reward",
+          "Cue → Response → Craving → Reward"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Craving is triggered by the cue, not preceding it.",
+          "Habit formation follows the four-stage cycle: Cue → Craving → Response → Reward.",
+          "Response follows cue and craving rather than starting the cycle.",
+          "Craving precedes the response rather than following it."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q14",
+        "question": "Which principle describes adding a desirable reward or outcome following a behavior to strengthen its future occurrence?",
+        "options": [
+          "Positive reinforcement",
+          "Negative reinforcement",
+          "Temporal discounting",
+          "Anti-reward compensation"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Positive reinforcement adds a reward (such as praise or improved energy) to strengthen future behavior.",
+          "Negative reinforcement removes discomfort to strengthen behavior.",
+          "Temporal discounting refers to undervaluing delayed rewards.",
+          "Anti-reward compensation refers to stress circuitry activation following overstimulation."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q15",
+        "question": "Which principle describes removing discomfort or an unpleasant state to reinforce future behavior?",
+        "options": [
+          "Positive reinforcement",
+          "Negative reinforcement",
+          "Reward prediction error",
+          "Flow state"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Positive reinforcement adds a desirable stimulus rather than removing discomfort.",
+          "Negative reinforcement removes discomfort or aversive states to reinforce future behavior.",
+          "Reward prediction error compares expected vs. actual outcomes.",
+          "Flow states refer to deep immersion and optimal performance during an activity."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q16",
+        "question": "Which cognitive bias describes the brain's tendency to prefer smaller, immediate rewards over larger, delayed rewards?",
+        "options": [
+          "Temporal discounting",
+          "Reward prediction error",
+          "Anti-reward habituation",
+          "Negative reinforcement"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Temporal discounting is preferring smaller-sooner over larger-later rewards.",
+          "Reward prediction error evaluates outcome discrepancies rather than time delays.",
+          "Anti-reward systems drive dysphoric stress baselines rather than discounting time valuation.",
+          "Negative reinforcement strengthens behavior through relief from unpleasant stimuli."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q17",
+        "question": "Which neural system acts as chronic stress response circuitry that compensates when reward pathways are overstimulated?",
+        "options": [
+          "Dopaminergic pathway",
+          "Opioid pathway",
+          "Anti-reward system",
+          "Prefrontal executive network"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Dopaminergic pathways drive reward seeking and wanting.",
+          "Opioid pathways mediate hedonic pleasure.",
+          "The anti-reward system is chronic stress response circuitry (potentiated by CRF) that creates a dysphoric baseline.",
+          "The prefrontal cortex mediates executive control rather than compensatory stress response circuitry."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q18",
+        "question": "Which statement best describes the role of the brain's opioid system in reward?",
+        "options": [
+          "It creates \"liking\" during rewarding experiences",
+          "It mainly signals prediction errors for future rewards",
+          "It only controls movement and motor coordination",
+          "It is active only when a person is experiencing stress"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "The brain’s opioid system helps generate the hedonic “liking” or pleasurable feelings during rewarding experiences.",
+          "Describes dopamine’s role in signaling reward prediction errors, not opioids.",
+          "Opioids influence reward and affect, not just movement and motor coordination.",
+          "Opioid circuits are active in many contexts, not only during stress."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q19",
+        "question": "A patient consistently uses alcohol after stressful workdays because it temporarily reduces anxiety and emotional discomfort. Which concept best explains this pattern?",
+        "options": [
+          "Behavior is rewarded through discomfort reduction",
+          "Behavior is rewarded through social recognition",
+          "Behavior is strengthened through unexpected rewards",
+          "Behavior is maintained through personal enjoyment"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Negative reinforcement occurs when behavior removes an unpleasant state — here, alcohol temporarily relieves anxiety, reinforcing its use.",
+          "Social recognition is positive reinforcement.",
+          "Unexpected rewards relate to reward prediction error.",
+          "Personal enjoyment reflects intrinsic reward, not relief from distress."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q20",
+        "question": "A healthcare team wants to increase physical activity among employees. Which intervention is most consistent with principles of reward systems and environmental design?",
+        "options": [
+          "Distributing information about the exercise benefits",
+          "Increasing consequences for missed activities",
+          "Creating visible and convenient movement opportunities",
+          "Requiring attendance at wellness presentations"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Distributing information rarely produces lasting change alone.",
+          "Increasing consequences relies on external pressure.",
+          "Sustainable behavior change requires reducing friction and supporting environmental cues — not just information or pressure.",
+          "Requiring attendance increases information exposure without modifying the environmental conditions that drive daily behavior."
+        ],
+        "learningObjective": "Analyze how reward pathways, reinforcement patterns, and environmental cues shape health and healthcare behaviors and integrate behavior change strategies into the longitudinal project framework.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q21",
+        "question": "Which statement best describes the primary role of the habenula?",
+        "options": [
+          "Providing pleasurable responses associated with reward",
+          "Coordinating voluntary movements during goal pursuit",
+          "Processing disappointment and failed expectations",
+          "Producing motivational signals that reinforce behavior"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Pleasure is mediated by opioid \"liking\" systems, not the habenula.",
+          "Movement is coordinated by motor networks, not the habenula.",
+          "The habenula becomes active when expected rewards fail to occur and helps the brain process disappointment and negative prediction errors.",
+          "Motivational reinforcement is mediated by dopaminergic pathways that the habenula modulates but does not generate."
+        ],
+        "learningObjective": "Describe the role of the habenula and stress physiology in regulating motivation, reward prediction, and avoidance behaviors.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      },
+      {
+        "id": "ipm3-q22",
+        "question": "What is the \"know-do gap\"?",
+        "options": [
+          "The neurobiological default mode the brain enters after repeated failures to alter outcomes",
+          "The discrepancy between understanding what should be done and consistently doing it",
+          "The transient suppression of approach behavior during acute threat evaluation",
+          "The loss of dopaminergic responsiveness due to lateral habenula activation"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "This describes learned helplessness rather than the know-do gap.",
+          "The know-do gap refers specifically to the discrepancy between understanding what should be done and consistently doing it.",
+          "This describes the acute stress response in motivational circuits.",
+          "This describes the neurobiological consequence of habenular overactivation on reward processing."
+        ],
+        "learningObjective": "Apply the concept of helplessness to clinical scenarios involving chronic illness, depression, trauma, insomnia, or disengagement from care, including factors that influence loss of agency.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      },
+      {
+        "id": "ipm3-q23",
+        "question": "Which statement best describes how chronic stress affects motivation?",
+        "options": [
+          "It amplifies reward sensitivity and reliably increases intrinsic approach behavior.",
+          "It leaves reward pathways unchanged while improving executive functioning.",
+          "It primarily boosts pleasure responses, making healthy habits easier to maintain.",
+          "It reduces dopamine responsiveness, amplifies threat, and promotes avoidance."
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Amplifying reward sensitivity describes enhanced reward responses, which are not typical outcomes of chronic stress.",
+          "Chronic stress impairs executive functioning and significantly alters reward pathways.",
+          "Boosting pleasure responses describes enhanced liking systems, which do not occur with chronic stress.",
+          "Chronic stress is associated with reduced dopamine responsiveness and heightened activation of threat-detection networks, which together bias the brain toward avoidance and withdrawal rather than approach behavior."
+        ],
+        "learningObjective": "Describe the role of the habenula and stress physiology in regulating motivation, reward prediction, and avoidance behaviors.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      },
+      {
+        "id": "ipm3-q24",
+        "question": "Which statement best explains the know-do gap?",
+        "options": [
+          "Individuals lack sufficient information to change behavior",
+          "Individuals possess knowledge but struggle to act on it",
+          "Individuals prioritize novelty over behavioral consistency",
+          "Individuals value external rewards more than internal rewards"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "The know-do gap is driven by stress, habits, environmental barriers, and diminished agency, not information deficits.",
+          "The know-do gap describes the discrepancy between knowing what to do and consistently doing it.",
+          "Novelty-seeking does not account for the systemic failure to act on known health practices.",
+          "Reward source preference does not explain the inability to translate understanding into action."
+        ],
+        "learningObjective": "Apply the concept of helplessness to clinical scenarios involving chronic illness, depression, trauma, insomnia, or disengagement from care, including factors that influence loss of agency.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      },
+      {
+        "id": "ipm3-q25",
+        "question": "Which intervention is most likely to strengthen agency and restore motivation?",
+        "options": [
+          "Providing additional education regarding health risks",
+          "Increasing accountability through external consequences",
+          "Creating opportunities for meaningful early successes",
+          "Encouraging greater discipline during difficult periods"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Education addresses knowledge deficits, not agency or outcome prediction.",
+          "External accountability does not restore an internal belief in efficacy.",
+          "Small early successes rebuild the belief that personal effort influences outcomes.",
+          "Emphasizing discipline misidentifies the problem as a lack of willpower rather than learned helplessness."
+        ],
+        "learningObjective": "Analyze how chronic stress, helplessness, and motivational impairment influence patient and clinician behavior and apply these concepts to systems-level intervention planning within the longitudinal project.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      },
+      {
+        "id": "ipm3-q26",
+        "question": "Which component of burnout is characterized by the quote: \"I just don't have the energy to take on another task.\"?",
+        "options": [
+          "Emotional Exhaustion",
+          "Depersonalization",
+          "Reduced Professional Accomplishment",
+          "Moral Injury"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Exhaustion is characterized by feeling physically, emotionally, or mentally depleted.",
+          "Depersonalization is demonstrated by emotional distancing from patients, viewing individuals as diagnoses or tasks rather than people.",
+          "Reduced accomplishment reflects a declining sense of competence or accomplishment despite continued effort.",
+          "Moral injury refers to knowing what a patient needs but being unable to provide it due to systemic constraints."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q27",
+        "question": "Which component of burnout is characterized by the quote: \"The headache in Room 4 needs pain meds.\"?",
+        "options": [
+          "Emotional Exhaustion",
+          "Depersonalization",
+          "Reduced Professional Accomplishment",
+          "Moral Injury"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Exhaustion is characterized by feeling physically, emotionally, or mentally depleted.",
+          "Depersonalization is demonstrated by emotional distancing from patients, in which individuals are viewed as diagnoses or tasks rather than people.",
+          "Reduced accomplishment reflects a declining sense of competence or accomplishment despite continued effort.",
+          "Moral injury refers to knowing what a patient needs but being unable to provide it due to systemic constraints."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q28",
+        "question": "Which component of burnout is characterized by the quote: \"I can't do anything right.\"?",
+        "options": [
+          "Emotional Exhaustion",
+          "Depersonalization",
+          "Reduced Professional Accomplishment",
+          "Moral Injury"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Exhaustion is characterized by feeling physically, emotionally, or mentally depleted.",
+          "Depersonalization is demonstrated by emotional distancing from patients, viewing individuals as diagnoses or tasks rather than people.",
+          "Reduced accomplishment reflects a declining sense of competence or accomplishment despite continued effort.",
+          "Moral injury refers to knowing what a patient needs but being unable to provide it due to systemic constraints."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q29",
+        "question": "A 42-year-old emergency physician reports feeling physically exhausted after months of staffing shortages and increased patient volume. Although she still enjoys caring for patients, she believes that a reduced workload and additional support staff would allow her to recover. Which recovery strategy is most appropriate to address her primary source of burnout?",
+        "options": [
+          "Clarify personal values and redefine professional identity.",
+          "Explore symptoms of major depressive disorder and initiate treatment.",
+          "Reduce workplace demands and restore opportunities for recovery.",
+          "Encourage greater resilience through mindfulness and self-reflection alone."
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Values clarification primarily addresses existential burnout.",
+          "The vignette does not suggest depression affecting all aspects of life.",
+          "This clinician's symptoms are most consistent with circumstantial burnout, in which excessive workload, workplace demands, or moral injury are the primary drivers. Recovery focuses on reducing exposure to these stressors, restoring personal reserves, and improving the work environment.",
+          "Personal resilience alone is unlikely to resolve burnout driven primarily by organizational factors."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q30",
+        "question": "A clinician reports low vitality despite adequate rest, a sense of emotional flatness, and a growing mismatch between who she is becoming and the work she does daily. This most closely reflects:",
+        "options": [
+          "Circumstantial burnout driven by excessive workload",
+          "Existential burnout driven by identity dissonance",
+          "Major depressive disorder",
+          "Ordinary occupational stress"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Circumstantial burnout is primarily driven by external workplace stressors such as workload or staffing.",
+          "Existential burnout is characterized by a progressive loss of meaning, purpose, and alignment between professional identity and daily work.",
+          "Major depressive disorder extends beyond the workplace and affects multiple areas of life.",
+          "Ordinary occupational stress is typically temporary and improves with adequate recovery, unlike burnout."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q31",
+        "question": "Which statement best reflects the Whole Health approach to burnout?",
+        "options": [
+          "Burnout develops primarily from inadequate resilience and ineffective personal coping.",
+          "Burnout represents primarily a depressive illness requiring psychiatric treatment.",
+          "Burnout improves primarily through vacation, recovery, and temporary workload reduction.",
+          "Burnout develops through interactions among personal, workplace, and organizational factors."
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Burnout is not simply a failure of resilience.",
+          "Burnout and depression are distinct conditions, although they may coexist and share overlapping symptoms.",
+          "Vacation alone rarely addresses the underlying contributors to burnout.",
+          "Whole Health views burnout as the result of interactions among personal health, workplace culture, organizational systems, and professional meaning."
+        ],
+        "learningObjective": "Apply a validated burnout assessment tool to evaluate risk and identify contributing factors.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q32",
+        "question": "During your longitudinal project, which question would best guide your educational strategy?",
+        "options": [
+          "Which factors contribute most to this audience's workplace stress and burnout?",
+          "Which factors best support this audience's well-being and professional flourishing?",
+          "Which factors place this audience at greatest risk for occupational burnout?",
+          "Which factors determine this audience's readiness for educational interventions?"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Workload alone does not explain burnout or flourishing.",
+          "Effective Whole Health educational strategies begin by understanding the audience's well-being, values, environment, and opportunities to promote professional fulfillment and human flourishing.",
+          "Prevalence data do not identify the needs of a specific audience.",
+          "Interventions should be selected based on audience needs and evidence rather than ease of implementation."
+        ],
+        "learningObjective": "Evaluate how burnout, workforce strain, and culture influence human flourishing and develop audience-specific strategies to support resilience and sustainable well-being within a specific demographic.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q33",
+        "question": "When viewing a colonoscopy finding (such as in Mr. S.'s case), why is it essential to first describe the visual finding as \"a nodular, exophytic mass\" rather than immediately documenting a diagnosis of adenocarcinoma?",
+        "options": [
+          "To ensure the clinical finding can be immediately matched to an available pharmacological treatment",
+          "To adhere to the principle of observing objective features before interpreting meaning or assigning diagnostic labels",
+          "To avoid having to perform an invasive biopsy of the lesion",
+          "To allow the patient to self-diagnose the lesion without clinician influence"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Selecting pharmacological therapies occurs much later in the management sequence and does not explain the initial observational principle.",
+          "Step 1 of the clinical reasoning framework emphasizes observing and cataloging purely objective physical features before making assumptions or assigning diagnostic labels, thereby avoiding cognitive shortcuts like premature closure.",
+          "An objective description identifies the need for targeted tissue sampling rather than bypassing biopsy.",
+          "Describing findings objectively is a fundamental tool for clinician diagnostic reasoning, not a method for patient self-diagnosis."
+        ],
+        "learningObjective": "Apply clinical reasoning and visual observation to clinical scenarios as informed by arts-based approaches",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q34",
+        "question": "In both microscopic tissue analysis and visual art analysis, why is it critical to systematically isolate specific details—such as identifying an abnormal gland with elongated nuclei and luminal \"dirty\" necrosis—before reaching a diagnostic conclusion?",
+        "options": [
+          "To prove that visual analysis is superior to molecular diagnostics",
+          "To provide an exhaustive histological inventory solely for billing purposes",
+          "To ground diagnostic hypotheses in concrete visual evidence and prevent unsupported assumptions",
+          "To bypass the generation of a broad differential diagnosis"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "In both pathology and visual art analysis, careful attention to specific objective details strengthens evidence-based interpretation, grounds clinical reasoning in objective data, and limits unsupported assumptions.",
+          "Visual analysis complements other diagnostic modalities rather than replacing or proving superiority over molecular testing.",
+          "Isolating specific histological details is central to diagnostic reasoning and patient care, not an administrative billing requirement.",
+          "Detailed observation is intended to build and test differential diagnoses accurately, not bypass the differential reasoning process."
+        ],
+        "learningObjective": "Apply clinical reasoning and visual observation to clinical scenarios as informed by arts-based approaches",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q35",
+        "question": "Which type of cognitive error is illustrated by deciding a painting looks sad because of a single figure and overlooking other evidence?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Diagnostic momentum",
+          "Framing effect"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Anchoring bias is defined as fixating on an initial impression or early piece of information and failing to adjust when new evidence emerges.",
+          "Availability heuristic involves judging an explanation to be more likely because it comes readily to mind due to a recent experience or memorable example.",
+          "Confirmation bias involves seeking evidence that supports a favored explanation while overlooking or discounting evidence that contradicts it.",
+          "Diagnostic momentum involves accepting a prior conclusion without independently reassessing the available evidence.",
+          "Framing effect involves allowing the way information is presented to influence interpretation and decision-making."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q36",
+        "question": "Which type of cognitive error is illustrated by diagnosing abdominal pain as appendicitis due to many recent cases and overlooking ectopic pregnancy?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Diagnostic momentum",
+          "Representation error"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Anchoring bias involves fixating on an initial impression or early piece of information.",
+          "Availability heuristic is defined as judging an explanation to be more likely because it comes readily to mind, often due to a recent experience or memorable example.",
+          "Confirmation bias involves seeking evidence that supports a favored explanation while ignoring contradictory findings.",
+          "Diagnostic momentum involves accepting and repeating a prior diagnosis without independent re-evaluation.",
+          "Representation error involves failing to consider disease prevalence, epidemiology, or demographic context."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q37",
+        "question": "Which type of cognitive error is illustrated by noticing only details in an artwork that support your interpretation?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Framing effect",
+          "Visceral bias"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Anchoring bias involves fixating on an initial piece of information from the outset.",
+          "Availability heuristic involves overestimating likelihood based on recent or vivid recollections.",
+          "Confirmation bias is defined as seeking evidence that supports a favored explanation while overlooking or discounting evidence that contradicts it.",
+          "Framing effect involves allowing the presentation or framing of a problem to guide conclusions.",
+          "Visceral bias involves allowing personal emotions or subjective feelings to steer judgment."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q38",
+        "question": "Which type of cognitive error is illustrated by continuing a prior diagnosis of irritable bowel syndrome without considering new symptoms of hematochezia and weight loss?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Diagnostic momentum",
+          "Visceral bias"
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Anchoring bias involves fixating on an initial impression rather than carrying an established chart label forward across visits.",
+          "Availability heuristic involves choosing a diagnosis because a recent case readily comes to mind.",
+          "Confirmation bias involves selectively gathering data to prove a hypothesis.",
+          "Diagnostic momentum is defined as accepting a prior conclusion or diagnosis without independently reassessing the available evidence.",
+          "Visceral bias involves allowing personal emotional reactions toward a patient to impact clinical judgment."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q39",
+        "question": "Which type of cognitive error is illustrated by being told a painting represents suffering and interpreting the art through this lens?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Diagnostic momentum",
+          "Framing effect"
+        ],
+        "correctIndex": 4,
+        "explanations": [
+          "Anchoring bias involves locking onto an initial observation made by oneself.",
+          "Availability heuristic involves judging probability based on ease of mental recall.",
+          "Confirmation bias involves actively searching for supporting data while ignoring counterevidence.",
+          "Diagnostic momentum involves carrying forward a previously assigned diagnostic label.",
+          "Framing effect is defined as allowing the way information is presented (such as a colleague's label or a museum placard) to influence interpretation and decision-making."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q40",
+        "question": "Which type of cognitive error is illustrated by placing diverticular disease, common to older individuals, high on the differential diagnosis of an adolescent?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Representation error",
+          "Visceral bias"
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Anchoring bias involves fixating on an initial piece of information from the patient encounter.",
+          "Availability heuristic involves estimating probability based on easily recalled recent cases.",
+          "Confirmation bias involves selectively emphasizing findings that match a favored idea.",
+          "Representation error is defined as failing to consider disease prevalence, epidemiology, or context when estimating the likelihood of a diagnosis.",
+          "Visceral bias involves letting subjective personal feelings cloud objective decision-making."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q41",
+        "question": "An art therapist is reviewing a painting created by a colon cancer survivor. Which answer choice best reflects observation before interpretation on the part of the therapist?",
+        "options": [
+          "The large dark shape in the center represents the artist's fear of cancer recurrence.",
+          "The large dark shape in the center is surrounded by several red brushstrokes.",
+          "The large dark shape in the center symbolizes the emotional burden of illness."
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "This choice moves beyond observation and interprets the artist's emotions or intentions.",
+          "Observation involves describing what is directly visible without assigning meaning. Choice B focuses on objective visual features of the artwork. Choices A and C move beyond observation and interpret the artist's emotions or intentions. In both art analysis and clinical reasoning, careful observation should precede interpretation.",
+          "This choice moves beyond observation and interprets symbolic meaning or emotional burden."
+        ],
+        "learningObjective": "Apply clinical reasoning and visual observation to clinical scenarios as informed by arts-based approaches",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q42",
+        "question": "A 24-year-old woman presents with abdominal pain, diarrhea, fatigue, and weight loss. Several prior clinic notes label her symptoms as irritable bowel syndrome (IBS). At today's visit, the clinician continues to treat the symptoms as IBS without reconsidering alternative diagnoses despite the development of new symptoms Which cognitive error is most likely occurring?",
+        "options": [
+          "Anchoring bias",
+          "Cognitive bias",
+          "Diagnostic momentum"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Anchoring bias involves fixation on an initial impression rather than perpetuating an existing chart label over time.",
+          "Cognitive bias is an overarching generic category rather than the specific cognitive failure mode demonstrated.",
+          "Diagnostic momentum occurs when a diagnostic label gains credibility simply because it has been repeated over time, leading subsequent clinicians to accept the diagnosis without independently reassessing the evidence. In this case, the prior IBS diagnosis continues to influence decision-making despite new symptoms that warrant reconsideration of the differential diagnosis."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      }
+    ]
+  },
+  {
+    "id": "ipm3-w1-whole-health",
+    "title": "Whole Health and The Science of Motivation",
+    "questions": [
+      {
+        "id": "ipm3-q1",
+        "question": "Which statement best describes Whole Health?",
+        "options": [
+          "A healthcare approach emphasizing complementary therapies",
+          "A disease-management model focused on risk factor reduction",
+          "A healthcare approach aligning people, relationships, and systems",
+          "A wellness program designed primarily for healthy individuals"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Whole Health is not limited to complementary therapies and does not replace conventional medicine.",
+          "Whole Health includes prevention and risk reduction but extends beyond disease management to include meaning, purpose, relationships, community, and quality of life.",
+          "Whole Health is a human-centered approach that aligns people, relationships, and systems to support health and human flourishing. It focuses on what matters most to individuals and integrates prevention, resilience, well-being, and person-centered care.",
+          "Whole Health applies across the entire health continuum and supports flourishing for individuals with or without disease."
+        ],
+        "learningObjective": "Explain the principles of Whole Health and how they differ from disease-centered care, using the Whole Health Circle.",
+        "brickTitle": "Whole Health and The Science of Motivation"
+      },
+      {
+        "id": "ipm3-q2",
+        "question": "Which of the following domains is NOT one of the four core domains of the AWSOM Whole Health Circle?",
+        "options": [
+          "Body",
+          "Mind",
+          "Community",
+          "Productivity"
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Body is a core domain and reflects physical health and lived physical experiences.",
+          "Mind is a core domain and includes thoughts, emotions, beliefs, and psychological well-being.",
+          "Community is a core domain and reflects connection, belonging, contribution, and support.",
+          "The AWSOM Whole Health Circle is organized around four core domains: Body, Mind, Meaning, Community. These domains provide the foundation for understanding health as an interconnected and lived experience."
+        ],
+        "learningObjective": "Apply Whole Health concepts by completing the Whole Health Living Inventory to identify personal factors influencing health behaviors and motivation.",
+        "brickTitle": "Whole Health and The Science of Motivation"
+      },
+      {
+        "id": "ipm3-q3",
+        "question": "According to Whole Health principles, which factor is most likely to influence motivation and behavior change?",
+        "options": [
+          "Individual knowledge and understanding of health information",
+          "Personal determination and self-discipline during change",
+          "The interaction of biological, psychological, social, and meaning",
+          "External incentives that shape motivation and flourishing"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Knowledge is important but often insufficient to produce lasting behavior change.",
+          "Willpower may support short-term efforts but does not fully explain long-term behavior change.",
+          "Whole Health recognizes that motivation and behavior change are influenced by multiple interacting factors, including biology, psychology, relationships, environment, and meaning. Sustainable change rarely occurs through knowledge, willpower, or incentives alone.",
+          "External incentives may influence behavior temporarily but are generally less effective than addressing the broader factors that shape motivation."
+        ],
+        "learningObjective": "Analyze how Whole Health domains influence motivation, resilience, and behavior change and identify key audience-specific motivational challenges for incorporation into the Whole Health Educational Design Project.",
+        "brickTitle": "Whole Health and The Science of Motivation"
+      }
+    ]
+  },
+  {
+    "id": "ipm3-w2-identity-values",
+    "title": "Identity, Values and Intrinsic Drivers of Behaviors",
+    "questions": [
+      {
+        "id": "ipm3-q4",
+        "question": "Which of the following best describes a core value?",
+        "options": [
+          "A specific outcome a person wants to achieve",
+          "A deeply held principle that guides behavior",
+          "A personality trait that remains fixed over time",
+          "An external reward that increases motivation"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "A specific outcome describes a goal rather than a value.",
+          "B is correct because core values are enduring internal principles that reflect what matters most and provide ongoing direction for decisions and behavior across time and circumstances.",
+          "A fixed personality trait is innate rather than chosen.",
+          "An external reward describes extrinsic motivation rather than an internal principle."
+        ],
+        "learningObjective": "Describe how identity and values shape intrinsic drivers of behavior.",
+        "brickTitle": "Identity, Values and Intrinsic Drivers of Behaviors"
+      },
+      {
+        "id": "ipm3-q5",
+        "question": "Which factor is most strongly associated with intrinsic motivation?",
+        "options": [
+          "External rewards",
+          "Social pressure",
+          "Personal values",
+          "Fear of consequences"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "External rewards define extrinsic motivation and extinguish behavior when removed.",
+          "Social pressure produces compliance, not genuine motivation, and fades with the social context.",
+          "Values-aligned behavior generates internal meaning that sustains motivation without external pressure or reward.",
+          "Fear of consequences represents the least autonomous form of motivation on the SDT continuum — rarely producing sustainable engagement."
+        ],
+        "learningObjective": "Describe how identity and values shape intrinsic drivers of behavior.",
+        "brickTitle": "Identity, Values and Intrinsic Drivers of Behaviors"
+      },
+      {
+        "id": "ipm3-q6",
+        "question": "According to Self-Determination Theory, which of the following is NOT a core psychological need?",
+        "options": [
+          "Autonomy",
+          "Competence",
+          "Relatedness",
+          "Perfection"
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Autonomy is the experience of choice and personal agency.",
+          "Competence reflects belief in one's capacity to succeed at meaningful tasks.",
+          "Relatedness reflects a sense of meaningful connection and belonging with others.",
+          "SDT identifies exactly three core psychological needs — autonomy, competence, and relatedness — and perfection is not among them."
+        ],
+        "learningObjective": "Apply a values clarification exercise to identify core values influencing decision-making and motivation.",
+        "brickTitle": "Identity, Values and Intrinsic Drivers of Behaviors"
+      },
+      {
+        "id": "ipm3-q7",
+        "question": "Why are values important in behavior change?",
+        "options": [
+          "They provide external accountability.",
+          "They determine personality type.",
+          "They align behavior with what matters.",
+          "They eliminate barriers to change."
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "External accountability supports structure but not the internal drivers that sustain change once structures are removed.",
+          "Personality type describes stable patterns of thinking and feeling, not chosen principles.",
+          "Sustainable behavior change requires connection to something personally meaningful — an internal, renewable motivational source that external incentives cannot replicate.",
+          "Values don't eliminate barriers but provide a compelling internal reason to persist through them."
+        ],
+        "learningObjective": "Evaluate identity, values, and intrinsic motivation influence health / healthcare behaviors and apply these principles to the Whole Health Educational Design Project for the selected audience.",
+        "brickTitle": "Identity, Values and Intrinsic Drivers of Behaviors"
+      }
+    ]
+  },
+  {
+    "id": "ipm3-w3-reward-neurobiology",
+    "title": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation",
+    "questions": [
+      {
+        "id": "ipm3-q8",
+        "question": "Which statement best describes dopamine's primary role in reward processing?",
+        "options": [
+          "Produces pleasure during rewarding experiences",
+          "Regulates cardiovascular stress responses",
+          "Signals motivation, salience and reward prediction",
+          "Suppresses urges and reduces cravings"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Pleasure is mediated by opioid systems, not dopamine.",
+          "Blood pressure regulation is not a dopaminergic function.",
+          "Dopamine primarily drives motivation, anticipatory attention, and reward prediction — not pleasure.",
+          "Eliminating cravings is the opposite of dopamine's role — dopaminergic activity generates craving rather than suppressing it."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q9",
+        "question": "Which neural system is primarily responsible for the \"wanting\" component and motivational drive toward a reward?",
+        "options": [
+          "Dopamine",
+          "Opioids",
+          "Corticotropin-releasing factor",
+          "Serotonin"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Dopamine signals motivation and the \"wanting\" signal.",
+          "Opioids mediate pleasure and the \"liking\" signal rather than wanting.",
+          "Corticotropin-releasing factor is involved in the anti-reward stress response circuitry.",
+          "Serotonin is not the primary mediator of incentive salience and motivational drive."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q10",
+        "question": "Which neural system is primarily responsible for the hedonic experience of pleasure and \"liking\"?",
+        "options": [
+          "Dopamine",
+          "Opioids",
+          "Acetylcholine",
+          "Corticotropin-releasing factor"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Dopamine mediates motivation and \"wanting\" rather than pleasure.",
+          "Opioids generate the pleasure and \"liking\" signal during rewarding experiences.",
+          "Acetylcholine is not the primary neurotransmitter system for hedonic pleasure signaling.",
+          "Corticotropin-releasing factor mediates stress and anti-reward circuitry."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q11",
+        "question": "How is reward prediction error defined in reward processing?",
+        "options": [
+          "The brain's guess and comparison between expected and actual rewards",
+          "The transition of behavior to the basal ganglia",
+          "The hedonic experience of pleasure",
+          "The activation of chronic stress circuitry"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Reward prediction error reflects the brain's comparison between what actually happened and what was expected.",
+          "Behavioral automaticity shifting to the basal ganglia describes habit formation.",
+          "The hedonic experience of pleasure is mediated by the opioid liking system.",
+          "The activation of chronic stress circuitry describes the anti-reward system."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q12",
+        "question": "What state is characterized by deep, focused engagement where the activity itself becomes an intrinsic reward?",
+        "options": [
+          "Temporal discounting",
+          "Anti-reward state",
+          "Flow states",
+          "Negative reinforcement"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Temporal discounting is the preference for immediate over delayed rewards.",
+          "Anti-reward states represent dysphoric stress-related compensatory mechanisms.",
+          "Flow states involve deep and focused engagement where the activity becomes an intrinsic reward.",
+          "Negative reinforcement involves removing an aversive stimulus to strengthen behavior."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q13",
+        "question": "What is the correct sequence of stages in the habit formation cycle?",
+        "options": [
+          "Craving → Cue → Reward → Response",
+          "Cue → Craving → Response → Reward",
+          "Response → Cue → Craving → Reward",
+          "Cue → Response → Craving → Reward"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Craving is triggered by the cue, not preceding it.",
+          "Habit formation follows the four-stage cycle: Cue → Craving → Response → Reward.",
+          "Response follows cue and craving rather than starting the cycle.",
+          "Craving precedes the response rather than following it."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q14",
+        "question": "Which principle describes adding a desirable reward or outcome following a behavior to strengthen its future occurrence?",
+        "options": [
+          "Positive reinforcement",
+          "Negative reinforcement",
+          "Temporal discounting",
+          "Anti-reward compensation"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Positive reinforcement adds a reward (such as praise or improved energy) to strengthen future behavior.",
+          "Negative reinforcement removes discomfort to strengthen behavior.",
+          "Temporal discounting refers to undervaluing delayed rewards.",
+          "Anti-reward compensation refers to stress circuitry activation following overstimulation."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q15",
+        "question": "Which principle describes removing discomfort or an unpleasant state to reinforce future behavior?",
+        "options": [
+          "Positive reinforcement",
+          "Negative reinforcement",
+          "Reward prediction error",
+          "Flow state"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Positive reinforcement adds a desirable stimulus rather than removing discomfort.",
+          "Negative reinforcement removes discomfort or aversive states to reinforce future behavior.",
+          "Reward prediction error compares expected vs. actual outcomes.",
+          "Flow states refer to deep immersion and optimal performance during an activity."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q16",
+        "question": "Which cognitive bias describes the brain's tendency to prefer smaller, immediate rewards over larger, delayed rewards?",
+        "options": [
+          "Temporal discounting",
+          "Reward prediction error",
+          "Anti-reward habituation",
+          "Negative reinforcement"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Temporal discounting is preferring smaller-sooner over larger-later rewards.",
+          "Reward prediction error evaluates outcome discrepancies rather than time delays.",
+          "Anti-reward systems drive dysphoric stress baselines rather than discounting time valuation.",
+          "Negative reinforcement strengthens behavior through relief from unpleasant stimuli."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q17",
+        "question": "Which neural system acts as chronic stress response circuitry that compensates when reward pathways are overstimulated?",
+        "options": [
+          "Dopaminergic pathway",
+          "Opioid pathway",
+          "Anti-reward system",
+          "Prefrontal executive network"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Dopaminergic pathways drive reward seeking and wanting.",
+          "Opioid pathways mediate hedonic pleasure.",
+          "The anti-reward system is chronic stress response circuitry (potentiated by CRF) that creates a dysphoric baseline.",
+          "The prefrontal cortex mediates executive control rather than compensatory stress response circuitry."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q18",
+        "question": "Which statement best describes the role of the brain's opioid system in reward?",
+        "options": [
+          "It creates \"liking\" during rewarding experiences",
+          "It mainly signals prediction errors for future rewards",
+          "It only controls movement and motor coordination",
+          "It is active only when a person is experiencing stress"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "The brain’s opioid system helps generate the hedonic “liking” or pleasurable feelings during rewarding experiences.",
+          "Describes dopamine’s role in signaling reward prediction errors, not opioids.",
+          "Opioids influence reward and affect, not just movement and motor coordination.",
+          "Opioid circuits are active in many contexts, not only during stress."
+        ],
+        "learningObjective": "Explain key neural pathways involved in reward processing, motivation, and habit formation.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q19",
+        "question": "A patient consistently uses alcohol after stressful workdays because it temporarily reduces anxiety and emotional discomfort. Which concept best explains this pattern?",
+        "options": [
+          "Behavior is rewarded through discomfort reduction",
+          "Behavior is rewarded through social recognition",
+          "Behavior is strengthened through unexpected rewards",
+          "Behavior is maintained through personal enjoyment"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Negative reinforcement occurs when behavior removes an unpleasant state — here, alcohol temporarily relieves anxiety, reinforcing its use.",
+          "Social recognition is positive reinforcement.",
+          "Unexpected rewards relate to reward prediction error.",
+          "Personal enjoyment reflects intrinsic reward, not relief from distress."
+        ],
+        "learningObjective": "Apply principles of reward and reinforcement to common clinical behaviors such as adherence, lifestyle change, and addiction.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      },
+      {
+        "id": "ipm3-q20",
+        "question": "A healthcare team wants to increase physical activity among employees. Which intervention is most consistent with principles of reward systems and environmental design?",
+        "options": [
+          "Distributing information about the exercise benefits",
+          "Increasing consequences for missed activities",
+          "Creating visible and convenient movement opportunities",
+          "Requiring attendance at wellness presentations"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Distributing information rarely produces lasting change alone.",
+          "Increasing consequences relies on external pressure.",
+          "Sustainable behavior change requires reducing friction and supporting environmental cues — not just information or pressure.",
+          "Requiring attendance increases information exposure without modifying the environmental conditions that drive daily behavior."
+        ],
+        "learningObjective": "Analyze how reward pathways, reinforcement patterns, and environmental cues shape health and healthcare behaviors and integrate behavior change strategies into the longitudinal project framework.",
+        "brickTitle": "Neurobiology of Reward, Anti-Reward, Behavior, and Habit Formation"
+      }
+    ]
+  },
+  {
+    "id": "ipm3-w4-habenula-stress",
+    "title": "Habenula, Stress, Helplessness and Know-Do Gaps",
+    "questions": [
+      {
+        "id": "ipm3-q21",
+        "question": "Which statement best describes the primary role of the habenula?",
+        "options": [
+          "Providing pleasurable responses associated with reward",
+          "Coordinating voluntary movements during goal pursuit",
+          "Processing disappointment and failed expectations",
+          "Producing motivational signals that reinforce behavior"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Pleasure is mediated by opioid \"liking\" systems, not the habenula.",
+          "Movement is coordinated by motor networks, not the habenula.",
+          "The habenula becomes active when expected rewards fail to occur and helps the brain process disappointment and negative prediction errors.",
+          "Motivational reinforcement is mediated by dopaminergic pathways that the habenula modulates but does not generate."
+        ],
+        "learningObjective": "Describe the role of the habenula and stress physiology in regulating motivation, reward prediction, and avoidance behaviors.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      },
+      {
+        "id": "ipm3-q22",
+        "question": "What is the \"know-do gap\"?",
+        "options": [
+          "The neurobiological default mode the brain enters after repeated failures to alter outcomes",
+          "The discrepancy between understanding what should be done and consistently doing it",
+          "The transient suppression of approach behavior during acute threat evaluation",
+          "The loss of dopaminergic responsiveness due to lateral habenula activation"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "This describes learned helplessness rather than the know-do gap.",
+          "The know-do gap refers specifically to the discrepancy between understanding what should be done and consistently doing it.",
+          "This describes the acute stress response in motivational circuits.",
+          "This describes the neurobiological consequence of habenular overactivation on reward processing."
+        ],
+        "learningObjective": "Apply the concept of helplessness to clinical scenarios involving chronic illness, depression, trauma, insomnia, or disengagement from care, including factors that influence loss of agency.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      },
+      {
+        "id": "ipm3-q23",
+        "question": "Which statement best describes how chronic stress affects motivation?",
+        "options": [
+          "It amplifies reward sensitivity and reliably increases intrinsic approach behavior.",
+          "It leaves reward pathways unchanged while improving executive functioning.",
+          "It primarily boosts pleasure responses, making healthy habits easier to maintain.",
+          "It reduces dopamine responsiveness, amplifies threat, and promotes avoidance."
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Amplifying reward sensitivity describes enhanced reward responses, which are not typical outcomes of chronic stress.",
+          "Chronic stress impairs executive functioning and significantly alters reward pathways.",
+          "Boosting pleasure responses describes enhanced liking systems, which do not occur with chronic stress.",
+          "Chronic stress is associated with reduced dopamine responsiveness and heightened activation of threat-detection networks, which together bias the brain toward avoidance and withdrawal rather than approach behavior."
+        ],
+        "learningObjective": "Describe the role of the habenula and stress physiology in regulating motivation, reward prediction, and avoidance behaviors.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      },
+      {
+        "id": "ipm3-q24",
+        "question": "Which statement best explains the know-do gap?",
+        "options": [
+          "Individuals lack sufficient information to change behavior",
+          "Individuals possess knowledge but struggle to act on it",
+          "Individuals prioritize novelty over behavioral consistency",
+          "Individuals value external rewards more than internal rewards"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "The know-do gap is driven by stress, habits, environmental barriers, and diminished agency, not information deficits.",
+          "The know-do gap describes the discrepancy between knowing what to do and consistently doing it.",
+          "Novelty-seeking does not account for the systemic failure to act on known health practices.",
+          "Reward source preference does not explain the inability to translate understanding into action."
+        ],
+        "learningObjective": "Apply the concept of helplessness to clinical scenarios involving chronic illness, depression, trauma, insomnia, or disengagement from care, including factors that influence loss of agency.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      },
+      {
+        "id": "ipm3-q25",
+        "question": "Which intervention is most likely to strengthen agency and restore motivation?",
+        "options": [
+          "Providing additional education regarding health risks",
+          "Increasing accountability through external consequences",
+          "Creating opportunities for meaningful early successes",
+          "Encouraging greater discipline during difficult periods"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Education addresses knowledge deficits, not agency or outcome prediction.",
+          "External accountability does not restore an internal belief in efficacy.",
+          "Small early successes rebuild the belief that personal effort influences outcomes.",
+          "Emphasizing discipline misidentifies the problem as a lack of willpower rather than learned helplessness."
+        ],
+        "learningObjective": "Analyze how chronic stress, helplessness, and motivational impairment influence patient and clinician behavior and apply these concepts to systems-level intervention planning within the longitudinal project.",
+        "brickTitle": "Habenula, Stress, Helplessness and Know-Do Gaps"
+      }
+    ]
+  },
+  {
+    "id": "ipm3-w5-burnout-sustainability",
+    "title": "Burnout and Professional Sustainability",
+    "questions": [
+      {
+        "id": "ipm3-q26",
+        "question": "Which component of burnout is characterized by the quote: \"I just don't have the energy to take on another task.\"?",
+        "options": [
+          "Emotional Exhaustion",
+          "Depersonalization",
+          "Reduced Professional Accomplishment",
+          "Moral Injury"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Exhaustion is characterized by feeling physically, emotionally, or mentally depleted.",
+          "Depersonalization is demonstrated by emotional distancing from patients, viewing individuals as diagnoses or tasks rather than people.",
+          "Reduced accomplishment reflects a declining sense of competence or accomplishment despite continued effort.",
+          "Moral injury refers to knowing what a patient needs but being unable to provide it due to systemic constraints."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q27",
+        "question": "Which component of burnout is characterized by the quote: \"The headache in Room 4 needs pain meds.\"?",
+        "options": [
+          "Emotional Exhaustion",
+          "Depersonalization",
+          "Reduced Professional Accomplishment",
+          "Moral Injury"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Exhaustion is characterized by feeling physically, emotionally, or mentally depleted.",
+          "Depersonalization is demonstrated by emotional distancing from patients, in which individuals are viewed as diagnoses or tasks rather than people.",
+          "Reduced accomplishment reflects a declining sense of competence or accomplishment despite continued effort.",
+          "Moral injury refers to knowing what a patient needs but being unable to provide it due to systemic constraints."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q28",
+        "question": "Which component of burnout is characterized by the quote: \"I can't do anything right.\"?",
+        "options": [
+          "Emotional Exhaustion",
+          "Depersonalization",
+          "Reduced Professional Accomplishment",
+          "Moral Injury"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Exhaustion is characterized by feeling physically, emotionally, or mentally depleted.",
+          "Depersonalization is demonstrated by emotional distancing from patients, viewing individuals as diagnoses or tasks rather than people.",
+          "Reduced accomplishment reflects a declining sense of competence or accomplishment despite continued effort.",
+          "Moral injury refers to knowing what a patient needs but being unable to provide it due to systemic constraints."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q29",
+        "question": "A 42-year-old emergency physician reports feeling physically exhausted after months of staffing shortages and increased patient volume. Although she still enjoys caring for patients, she believes that a reduced workload and additional support staff would allow her to recover. Which recovery strategy is most appropriate to address her primary source of burnout?",
+        "options": [
+          "Clarify personal values and redefine professional identity.",
+          "Explore symptoms of major depressive disorder and initiate treatment.",
+          "Reduce workplace demands and restore opportunities for recovery.",
+          "Encourage greater resilience through mindfulness and self-reflection alone."
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Values clarification primarily addresses existential burnout.",
+          "The vignette does not suggest depression affecting all aspects of life.",
+          "This clinician's symptoms are most consistent with circumstantial burnout, in which excessive workload, workplace demands, or moral injury are the primary drivers. Recovery focuses on reducing exposure to these stressors, restoring personal reserves, and improving the work environment.",
+          "Personal resilience alone is unlikely to resolve burnout driven primarily by organizational factors."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q30",
+        "question": "A clinician reports low vitality despite adequate rest, a sense of emotional flatness, and a growing mismatch between who she is becoming and the work she does daily. This most closely reflects:",
+        "options": [
+          "Circumstantial burnout driven by excessive workload",
+          "Existential burnout driven by identity dissonance",
+          "Major depressive disorder",
+          "Ordinary occupational stress"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Circumstantial burnout is primarily driven by external workplace stressors such as workload or staffing.",
+          "Existential burnout is characterized by a progressive loss of meaning, purpose, and alignment between professional identity and daily work.",
+          "Major depressive disorder extends beyond the workplace and affects multiple areas of life.",
+          "Ordinary occupational stress is typically temporary and improves with adequate recovery, unlike burnout."
+        ],
+        "learningObjective": "Describe the key features and contributors to burnout and clinician distress at individual and system levels.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q31",
+        "question": "Which statement best reflects the Whole Health approach to burnout?",
+        "options": [
+          "Burnout develops primarily from inadequate resilience and ineffective personal coping.",
+          "Burnout represents primarily a depressive illness requiring psychiatric treatment.",
+          "Burnout improves primarily through vacation, recovery, and temporary workload reduction.",
+          "Burnout develops through interactions among personal, workplace, and organizational factors."
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Burnout is not simply a failure of resilience.",
+          "Burnout and depression are distinct conditions, although they may coexist and share overlapping symptoms.",
+          "Vacation alone rarely addresses the underlying contributors to burnout.",
+          "Whole Health views burnout as the result of interactions among personal health, workplace culture, organizational systems, and professional meaning."
+        ],
+        "learningObjective": "Apply a validated burnout assessment tool to evaluate risk and identify contributing factors.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      },
+      {
+        "id": "ipm3-q32",
+        "question": "During your longitudinal project, which question would best guide your educational strategy?",
+        "options": [
+          "Which factors contribute most to this audience's workplace stress and burnout?",
+          "Which factors best support this audience's well-being and professional flourishing?",
+          "Which factors place this audience at greatest risk for occupational burnout?",
+          "Which factors determine this audience's readiness for educational interventions?"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Workload alone does not explain burnout or flourishing.",
+          "Effective Whole Health educational strategies begin by understanding the audience's well-being, values, environment, and opportunities to promote professional fulfillment and human flourishing.",
+          "Prevalence data do not identify the needs of a specific audience.",
+          "Interventions should be selected based on audience needs and evidence rather than ease of implementation."
+        ],
+        "learningObjective": "Evaluate how burnout, workforce strain, and culture influence human flourishing and develop audience-specific strategies to support resilience and sustainable well-being within a specific demographic.",
+        "brickTitle": "Burnout and Professional Sustainability"
+      }
+    ]
+  },
+  {
+    "id": "ipm3-w6-art-of-diagnosis",
+    "title": "The Art of Diagnosis: Visual Observation and Clinical Reasoning",
+    "questions": [
+      {
+        "id": "ipm3-q33",
+        "question": "When viewing a colonoscopy finding (such as in Mr. S.'s case), why is it essential to first describe the visual finding as \"a nodular, exophytic mass\" rather than immediately documenting a diagnosis of adenocarcinoma?",
+        "options": [
+          "To ensure the clinical finding can be immediately matched to an available pharmacological treatment",
+          "To adhere to the principle of observing objective features before interpreting meaning or assigning diagnostic labels",
+          "To avoid having to perform an invasive biopsy of the lesion",
+          "To allow the patient to self-diagnose the lesion without clinician influence"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Selecting pharmacological therapies occurs much later in the management sequence and does not explain the initial observational principle.",
+          "Step 1 of the clinical reasoning framework emphasizes observing and cataloging purely objective physical features before making assumptions or assigning diagnostic labels, thereby avoiding cognitive shortcuts like premature closure.",
+          "An objective description identifies the need for targeted tissue sampling rather than bypassing biopsy.",
+          "Describing findings objectively is a fundamental tool for clinician diagnostic reasoning, not a method for patient self-diagnosis."
+        ],
+        "learningObjective": "Apply clinical reasoning and visual observation to clinical scenarios as informed by arts-based approaches",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q34",
+        "question": "In both microscopic tissue analysis and visual art analysis, why is it critical to systematically isolate specific details—such as identifying an abnormal gland with elongated nuclei and luminal \"dirty\" necrosis—before reaching a diagnostic conclusion?",
+        "options": [
+          "To prove that visual analysis is superior to molecular diagnostics",
+          "To provide an exhaustive histological inventory solely for billing purposes",
+          "To ground diagnostic hypotheses in concrete visual evidence and prevent unsupported assumptions",
+          "To bypass the generation of a broad differential diagnosis"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "In both pathology and visual art analysis, careful attention to specific objective details strengthens evidence-based interpretation, grounds clinical reasoning in objective data, and limits unsupported assumptions.",
+          "Visual analysis complements other diagnostic modalities rather than replacing or proving superiority over molecular testing.",
+          "Isolating specific histological details is central to diagnostic reasoning and patient care, not an administrative billing requirement.",
+          "Detailed observation is intended to build and test differential diagnoses accurately, not bypass the differential reasoning process."
+        ],
+        "learningObjective": "Apply clinical reasoning and visual observation to clinical scenarios as informed by arts-based approaches",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q35",
+        "question": "Which type of cognitive error is illustrated by deciding a painting looks sad because of a single figure and overlooking other evidence?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Diagnostic momentum",
+          "Framing effect"
+        ],
+        "correctIndex": 0,
+        "explanations": [
+          "Anchoring bias is defined as fixating on an initial impression or early piece of information and failing to adjust when new evidence emerges.",
+          "Availability heuristic involves judging an explanation to be more likely because it comes readily to mind due to a recent experience or memorable example.",
+          "Confirmation bias involves seeking evidence that supports a favored explanation while overlooking or discounting evidence that contradicts it.",
+          "Diagnostic momentum involves accepting a prior conclusion without independently reassessing the available evidence.",
+          "Framing effect involves allowing the way information is presented to influence interpretation and decision-making."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q36",
+        "question": "Which type of cognitive error is illustrated by diagnosing abdominal pain as appendicitis due to many recent cases and overlooking ectopic pregnancy?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Diagnostic momentum",
+          "Representation error"
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "Anchoring bias involves fixating on an initial impression or early piece of information.",
+          "Availability heuristic is defined as judging an explanation to be more likely because it comes readily to mind, often due to a recent experience or memorable example.",
+          "Confirmation bias involves seeking evidence that supports a favored explanation while ignoring contradictory findings.",
+          "Diagnostic momentum involves accepting and repeating a prior diagnosis without independent re-evaluation.",
+          "Representation error involves failing to consider disease prevalence, epidemiology, or demographic context."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q37",
+        "question": "Which type of cognitive error is illustrated by noticing only details in an artwork that support your interpretation?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Framing effect",
+          "Visceral bias"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Anchoring bias involves fixating on an initial piece of information from the outset.",
+          "Availability heuristic involves overestimating likelihood based on recent or vivid recollections.",
+          "Confirmation bias is defined as seeking evidence that supports a favored explanation while overlooking or discounting evidence that contradicts it.",
+          "Framing effect involves allowing the presentation or framing of a problem to guide conclusions.",
+          "Visceral bias involves allowing personal emotions or subjective feelings to steer judgment."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q38",
+        "question": "Which type of cognitive error is illustrated by continuing a prior diagnosis of irritable bowel syndrome without considering new symptoms of hematochezia and weight loss?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Diagnostic momentum",
+          "Visceral bias"
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Anchoring bias involves fixating on an initial impression rather than carrying an established chart label forward across visits.",
+          "Availability heuristic involves choosing a diagnosis because a recent case readily comes to mind.",
+          "Confirmation bias involves selectively gathering data to prove a hypothesis.",
+          "Diagnostic momentum is defined as accepting a prior conclusion or diagnosis without independently reassessing the available evidence.",
+          "Visceral bias involves allowing personal emotional reactions toward a patient to impact clinical judgment."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q39",
+        "question": "Which type of cognitive error is illustrated by being told a painting represents suffering and interpreting the art through this lens?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Diagnostic momentum",
+          "Framing effect"
+        ],
+        "correctIndex": 4,
+        "explanations": [
+          "Anchoring bias involves locking onto an initial observation made by oneself.",
+          "Availability heuristic involves judging probability based on ease of mental recall.",
+          "Confirmation bias involves actively searching for supporting data while ignoring counterevidence.",
+          "Diagnostic momentum involves carrying forward a previously assigned diagnostic label.",
+          "Framing effect is defined as allowing the way information is presented (such as a colleague's label or a museum placard) to influence interpretation and decision-making."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q40",
+        "question": "Which type of cognitive error is illustrated by placing diverticular disease, common to older individuals, high on the differential diagnosis of an adolescent?",
+        "options": [
+          "Anchoring bias",
+          "Availability heuristic",
+          "Confirmation bias",
+          "Representation error",
+          "Visceral bias"
+        ],
+        "correctIndex": 3,
+        "explanations": [
+          "Anchoring bias involves fixating on an initial piece of information from the patient encounter.",
+          "Availability heuristic involves estimating probability based on easily recalled recent cases.",
+          "Confirmation bias involves selectively emphasizing findings that match a favored idea.",
+          "Representation error is defined as failing to consider disease prevalence, epidemiology, or context when estimating the likelihood of a diagnosis.",
+          "Visceral bias involves letting subjective personal feelings cloud objective decision-making."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q41",
+        "question": "An art therapist is reviewing a painting created by a colon cancer survivor. Which answer choice best reflects observation before interpretation on the part of the therapist?",
+        "options": [
+          "The large dark shape in the center represents the artist's fear of cancer recurrence.",
+          "The large dark shape in the center is surrounded by several red brushstrokes.",
+          "The large dark shape in the center symbolizes the emotional burden of illness."
+        ],
+        "correctIndex": 1,
+        "explanations": [
+          "This choice moves beyond observation and interprets the artist's emotions or intentions.",
+          "Observation involves describing what is directly visible without assigning meaning. Choice B focuses on objective visual features of the artwork. Choices A and C move beyond observation and interpret the artist's emotions or intentions. In both art analysis and clinical reasoning, careful observation should precede interpretation.",
+          "This choice moves beyond observation and interprets symbolic meaning or emotional burden."
+        ],
+        "learningObjective": "Apply clinical reasoning and visual observation to clinical scenarios as informed by arts-based approaches",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      },
+      {
+        "id": "ipm3-q42",
+        "question": "A 24-year-old woman presents with abdominal pain, diarrhea, fatigue, and weight loss. Several prior clinic notes label her symptoms as irritable bowel syndrome (IBS). At today's visit, the clinician continues to treat the symptoms as IBS without reconsidering alternative diagnoses despite the development of new symptoms Which cognitive error is most likely occurring?",
+        "options": [
+          "Anchoring bias",
+          "Cognitive bias",
+          "Diagnostic momentum"
+        ],
+        "correctIndex": 2,
+        "explanations": [
+          "Anchoring bias involves fixation on an initial impression rather than perpetuating an existing chart label over time.",
+          "Cognitive bias is an overarching generic category rather than the specific cognitive failure mode demonstrated.",
+          "Diagnostic momentum occurs when a diagnostic label gains credibility simply because it has been repeated over time, leading subsequent clinicians to accept the diagnosis without independently reassessing the evidence. In this case, the prior IBS diagnosis continues to influence decision-making despite new symptoms that warrant reconsideration of the differential diagnosis."
+        ],
+        "learningObjective": "Categorize cognitive errors in the context of clinical scenarios",
+        "brickTitle": "The Art of Diagnosis: Visual Observation and Clinical Reasoning"
+      }
+    ]
+  }
+];
+
+const STORAGE_KEY = 'MedTime_v2_IPM3_Midterm_2026';
+
+let DB = { quizzes: [] };
+let STATE = {
+  activeId: null,
+  mode: 'normal', // 'normal' | 'missed' | 'flagged' | 'custom'
+  reviewIndices: [],
+  highlightMode: false,
+  shuffledOrders: {}, // quizId -> array of question indices
+};
+let currentZoom = 1;
+let calcString = '';
+
+function isAnswerCorrect(q, sel) {
+  if (sel == null) return false;
+  return sel === q.correctIndex;
+}
+
+// ---- TIMER ----
+STATE.timer = { running: false, elapsedMs: 0, startedAt: 0, interval: null };
+
+function formatElapsed(ms) {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const h = String(Math.floor(s / 3600)).padStart(2, '0');
+  const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+  const sec = String(s % 60).padStart(2, '0');
+  return h + ':' + m + ':' + sec;
+}
+function timerNow() {
+  if (!STATE.timer.running) return STATE.timer.elapsedMs;
+  return Date.now() - STATE.timer.startedAt;
+}
+function updateTimerDisplay() {
+  const el = document.getElementById('timer-display');
+  if (el) el.textContent = formatElapsed(timerNow());
+}
+function startTimer() {
+  if (STATE.timer.running) return;
+  STATE.timer.running = true;
+  STATE.timer.startedAt = Date.now() - STATE.timer.elapsedMs;
+  if (STATE.timer.interval) clearInterval(STATE.timer.interval);
+  STATE.timer.interval = setInterval(updateTimerDisplay, 250);
+  updateTimerDisplay();
+  document.getElementById('view-quiz')?.classList.remove('timer-paused');
+  const pauseLab = document.querySelector('#btn-pause .tool-label');
+  if (pauseLab) pauseLab.textContent = 'Pause';
+}
+function pauseTimer() {
+  if (!STATE.timer.running) return;
+  STATE.timer.elapsedMs = timerNow();
+  STATE.timer.running = false;
+  if (STATE.timer.interval) { clearInterval(STATE.timer.interval); STATE.timer.interval = null; }
+  updateTimerDisplay();
+  document.getElementById('view-quiz')?.classList.add('timer-paused');
+  const pauseLab = document.querySelector('#btn-pause .tool-label');
+  if (pauseLab) pauseLab.textContent = 'Resume';
+}
+function resetTimer() {
+  if (STATE.timer.interval) clearInterval(STATE.timer.interval);
+  STATE.timer = { running: false, elapsedMs: 0, startedAt: 0, interval: null };
+  updateTimerDisplay();
+}
+function togglePause() {
+  if (STATE.timer.running) pauseTimer();
+  else startTimer();
+}
+function toggleReverse() {
+  document.getElementById('view-quiz')?.classList.toggle('nightMode-simulated');
+}
+function toggleHelp() {
+  document.getElementById('nbme-help')?.classList.toggle('open');
+}
+function endExam() {
+  if (confirm('End this exam section and return to the dashboard?')) {
+    pauseTimer();
+    goHome();
+  }
+}
+function finishToReport() {
+  pauseTimer();
+  showSummary();
+}
+
+// ---- INIT ----
+async function initApp() {
+  if (typeof localforage !== 'undefined') {
+    try {
+      const saved = await localforage.getItem(STORAGE_KEY);
+      if (saved && saved.quizzes) {
+        DB = saved;
+      }
+    } catch(e) {}
+  }
+  if (!DB || !DB.quizzes || !DB.quizzes.length) {
+    try {
+      const ls = localStorage.getItem(STORAGE_KEY);
+      if (ls) DB = JSON.parse(ls);
+    } catch(e) {}
+  }
+  if (!DB || !DB.quizzes) {
+    DB = { quizzes: [] };
+  }
+
+  // Merge in quiz data from file, preserving history
+  QUIZZES_DATA.forEach(qd => {
+    let existing = DB.quizzes.find(q => q.id === qd.id);
+    if (!existing) {
+      DB.quizzes.push({
+        id: qd.id,
+        title: qd.title,
+        questions: qd.questions,
+        history: qd.questions.map(() => ({ s: null, f: false, co: [] })),
+        isCustom: false,
+      });
+    } else {
+      existing.questions = qd.questions;
+      while (existing.history.length < qd.questions.length) {
+        existing.history.push({ s: null, f: false, co: [] });
+      }
+      if (existing.history.length > qd.questions.length) {
+        existing.history = existing.history.slice(0, qd.questions.length);
+      }
+    }
+  });
+
+  saveDB();
+  renderMenu();
+  setupDragForModals();
+  setupHighlight();
+  setupMobileSidebar();
+  setupScrollObserver();
+  document.addEventListener('click', handleDocClick);
+}
+
+async function saveDB() {
+  if (typeof localforage !== 'undefined') {
+    try {
+      await localforage.setItem(STORAGE_KEY, DB);
+    } catch(e) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(err) {}
+    }
+  } else {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(err) {}
+  }
+}
+
+// ---- DASHBOARD / MENU ----
+function renderMenu() {
+  const qStr = (document.getElementById('quiz-search')?.value || '').toLowerCase().trim();
+  const sortBy = document.getElementById('sort-select')?.value || 'default';
+  const container = document.getElementById('quiz-list-container');
+  if (!container) return;
+
+  let quizzes = DB.quizzes.filter(q => {
+    if (q.isCustom && !q.keepCustom) return false;
+    if (!qStr) return true;
+    return q.title.toLowerCase().includes(qStr) ||
+      q.questions.some(qn => qn.question.toLowerCase().includes(qStr));
+  });
+
+  if (sortBy === 'alpha') {
+    quizzes = [...quizzes].sort((a, b) => a.title.localeCompare(b.title));
+  } else if (sortBy === 'progress') {
+    quizzes = [...quizzes].sort((a, b) => getProgress(b).pct - getProgress(a).pct);
+  } else if (sortBy === 'score') {
+    quizzes = [...quizzes].sort((a, b) => {
+      const pA = getProgress(a), pB = getProgress(b);
+      const sA = pA.answered ? pA.correct / pA.answered : 0;
+      const sB = pB.answered ? pB.correct / pB.answered : 0;
+      return sB - sA;
+    });
+  }
+
+  // Global stats
+  let totalQ = 0, totalAnswered = 0, totalCorrect = 0;
+  DB.quizzes.forEach(q => {
+    if (q.isCustom && !q.keepCustom) return;
+    const p = getProgress(q);
+    totalQ += q.questions.length;
+    totalAnswered += p.answered;
+    totalCorrect += p.correct;
+  });
+  const globalStatsEl = document.getElementById('global-stats');
+  if (globalStatsEl) {
+    globalStatsEl.innerHTML = `
+      <div class="stat-chip"><span>${DB.quizzes.filter(q=>!q.isCustom||q.keepCustom).length}</span>Quizzes</div>
+      <div class="stat-chip"><span>${totalQ}</span>Total Questions</div>
+      <div class="stat-chip"><span>${totalAnswered}</span>Answered</div>
+      <div class="stat-chip"><span>${totalQ > 0 ? Math.round(totalAnswered/totalQ*100) : 0}%</span>Completion</div>
+      <div class="stat-chip"><span style="color:var(--success-green)">${totalAnswered > 0 ? Math.round(totalCorrect/totalAnswered*100) : 0}%</span>Accuracy</div>
+    `;
+  }
+
+  if (quizzes.length === 0) {
+    container.innerHTML = '';
+    document.getElementById('empty-msg').style.display = 'block';
+    return;
+  }
+  document.getElementById('empty-msg').style.display = 'none';
+
+  const grid = document.createElement('div');
+  grid.className = 'quiz-grid';
+  quizzes.forEach(q => grid.appendChild(createQuizCard(q)));
+  container.innerHTML = '';
+  container.appendChild(grid);
+}
+
+function getProgress(q) {
+  const answered = q.history.filter(h => h.s !== null).length;
+  const correct = q.history.filter((h, i) => h.s !== null && isAnswerCorrect(q.questions[i], h.s)).length;
+  const flagged = q.history.filter(h => h.f).length;
+  const wrong = answered - correct;
+  const pct = q.questions.length > 0 ? Math.round(answered / q.questions.length * 100) : 0;
+  return { answered, correct, wrong, flagged, pct };
+}
+
+function createQuizCard(q) {
+  const p = getProgress(q);
+  const card = document.createElement('div');
+  card.className = 'quiz-card';
+
+  const customTag = q.isCustom ? '<span style="font-size:0.72rem; background:#e8f0fe; color:#3367d6; border-radius:4px; padding:2px 7px; font-weight:700; margin-left:6px;">CUSTOM</span>' : '';
+
+  card.innerHTML = `
+    <div>
+      <div class="quiz-card-title">${q.title}${customTag}</div>
+      <div class="quiz-card-meta">${q.questions.length} Questions${p.flagged > 0 ? ' · ⚑ ' + p.flagged + ' Flagged' : ''}</div>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width:${p.pct}%"></div>
+    </div>
+    <div class="quiz-card-stats">
+      <span>${p.pct}% Complete</span>
+      <span style="color:var(--success-green)">✔ ${p.correct}</span>
+      <span style="color:var(--error-red)">✕ ${p.wrong}</span>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-primary" style="flex:1" onclick="startQuiz('${q.id}')">${p.answered > 0 ? (p.answered === q.questions.length ? '↺ Restart' : '▶ Resume') : '▶ Start'}</button>
+      ${p.answered > 0 ? `<button class="btn btn-danger btn-sm" onclick="resetQuiz('${q.id}')">Reset</button>` : ''}
+      ${q.isCustom ? `<button class="btn btn-sec btn-sm" onclick="removeCustomQuiz('${q.id}')">✕</button>` : ''}
+    </div>
+    ${p.wrong > 0 ? `<button class="btn btn-review btn-full" onclick="startReview('${q.id}','missed')">🔁 Review ${p.wrong} Missed</button>` : ''}
+    ${p.flagged > 0 ? `<button class="btn btn-flag-rev btn-full" onclick="startReview('${q.id}','flagged')">⚑ Review ${p.flagged} Flagged</button>` : ''}
+    ${p.wrong > 0 ? `<button class="btn btn-sec btn-full btn-sm" onclick="printMissed('${q.id}')" style="margin-top:4px;">🖨 Print Missed</button>` : ''}
+  `;
+  return card;
+}
+
+// ---- QUIZ CONTROLS ----
+function startQuiz(id) {
+  STATE.activeId = id;
+  STATE.mode = 'normal';
+  const qObj = DB.quizzes.find(q => q.id === id);
+  if (!qObj) return;
+
+  if (!STATE.shuffledOrders[id]) {
+    STATE.shuffledOrders[id] = qObj.questions.map((_, i) => i);
+  }
+
+  document.getElementById('ex-exam-title').textContent = qObj.title;
+  resetTimer();
+  enterQuiz();
+}
+
+function shuffleAndRestart() {
+  const id = STATE.activeId;
+  const qObj = DB.quizzes.find(q => q.id === id);
+  if (!qObj) return;
+  const arr = qObj.questions.map((_, i) => i);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  STATE.shuffledOrders[id] = arr;
+  renderQuestionList();
+  document.getElementById('q-scroll-area').scrollTop = 0;
+}
+
+function startReview(id, mode) {
+  STATE.activeId = id;
+  STATE.mode = mode;
+  const qObj = DB.quizzes.find(q => q.id === id);
+  if (!qObj) return;
+
+  if (mode === 'missed') {
+    STATE.reviewIndices = qObj.history
+      .map((h, i) => (h.s !== null && !isAnswerCorrect(qObj.questions[i], h.s)) ? i : -1)
+      .filter(i => i !== -1);
+  } else {
+    STATE.reviewIndices = qObj.history
+      .map((h, i) => h.f ? i : -1)
+      .filter(i => i !== -1);
+  }
+
+  document.getElementById('ex-exam-title').textContent = `${qObj.title} — ${mode === 'missed' ? 'Missed' : 'Flagged'} Review`;
+  enterQuiz();
+}
+
+function enterQuiz() {
+  STATE.highlightMode = false;
+  document.body.classList.remove('highlight-mode');
+  const hlBtn = document.getElementById('btn-highlight');
+  if (hlBtn) hlBtn.classList.remove('active');
+
+  showView('view-quiz');
+  document.getElementById('view-quiz').classList.toggle('review-mode', STATE.mode !== 'normal');
+  const banner = document.getElementById('review-banner');
+  if (STATE.mode === 'normal') {
+    banner.style.display = 'none';
+  } else {
+    banner.style.display = 'block';
+    banner.textContent = STATE.mode === 'missed'
+      ? 'Review Mode — Showing Missed Questions'
+      : 'Review Mode — Showing Flagged Questions';
+  }
+  if (!STATE.timer.running) startTimer();
+  renderQuestionList();
+  document.getElementById('q-scroll-area').scrollTop = 0;
+}
+
+function getActiveDataList() {
+  const qObj = DB.quizzes.find(q => q.id === STATE.activeId);
+  if (!qObj) return null;
+  const order = STATE.shuffledOrders[STATE.activeId] || qObj.questions.map((_, i) => i);
+  const activeIndices = STATE.mode === 'normal'
+    ? order
+    : STATE.reviewIndices;
+  return {
+    qObj,
+    activeIndices,
+    total: activeIndices.length,
+  };
+}
+
+// ---- RENDER ALL QUESTIONS ON SINGLE SCROLL-DOWN PAGE ----
+function renderQuestionList() {
+  const data = getActiveDataList();
+  if (!data) return;
+  const { qObj, activeIndices, total } = data;
+
+  const secEl = document.getElementById('section-text');
+  if (secEl) secEl.textContent = `Exam Section 1 · ${total} Questions`;
+
+  populateGoto(total);
+  updateSidebar();
+
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+
+  if (total === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:60px 20px; color:#666;">
+        <h3>No questions found for this review mode.</h3>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="goHome()">Return to Dashboard</button>
+      </div>
+    `;
+    return;
+  }
+
+  activeIndices.forEach((realIdx, dispIdx) => {
+    const q = qObj.questions[realIdx];
+    const h = qObj.history[realIdx];
+    const answered = h.s !== null;
+
+    const card = document.createElement('div');
+    card.className = 'question-paper-wrap question-card';
+    card.id = `question-card-${dispIdx}`;
+    card.setAttribute('data-real-index', realIdx);
+    card.setAttribute('data-display-index', dispIdx);
+
+    // Header
+    const cardHeader = document.createElement('div');
+    cardHeader.className = 'question-card-header';
+    cardHeader.innerHTML = `
+      <div class="question-card-num">
+        <span>Item ${dispIdx + 1} of ${total}</span>
+        ${q.brickTitle ? `<span class="question-brick-tag">${q.brickTitle}</span>` : ''}
+      </div>
+      <button type="button" class="nbme-flag-toggle ${h.f ? 'active' : ''}" onclick="toggleFlagForRealIndex(${realIdx})" title="Mark this question">
+        <span class="flag-icon">⚑</span> <span class="flag-label">${h.f ? 'Marked' : 'Mark'}</span>
+      </button>
+    `;
+    card.appendChild(cardHeader);
+
+    // Stem
+    const stem = document.createElement('div');
+    stem.className = 'ex-question-text question-text';
+    stem.id = `q-content-${realIdx}`;
+    stem.innerHTML = q.question;
+    card.appendChild(stem);
+
+    // Images
+    const urls = (q.imageUrls && q.imageUrls.length) ? q.imageUrls : (q.imageUrl ? [q.imageUrl] : []);
+    if (urls.length) {
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'q-images';
+      urls.forEach(u => {
+        const im = document.createElement('img');
+        im.className = 'question-image';
+        im.src = u;
+        im.alt = 'Question image';
+        im.referrerPolicy = 'no-referrer';
+        imgWrap.appendChild(im);
+      });
+      card.appendChild(imgWrap);
+    }
+
+    // Options Container
+    const optContainer = document.createElement('div');
+    optContainer.className = 'ex-option-container choices-list';
+    optContainer.id = `q-options-${realIdx}`;
+
+    q.options.forEach((opt, optIdx) => {
+      const letter = String.fromCharCode(65 + optIdx);
+      const isCorrect = optIdx === q.correctIndex;
+      const isSelected = h.s === optIdx;
+      const isCrossed = (h.co || []).includes(optIdx);
+
+      const row = document.createElement('div');
+      row.className = 'nbme-choice-row ex-option';
+      if (isCrossed) row.classList.add('crossed-out');
+      if (answered) row.classList.add('disabled');
+      if (isSelected) row.classList.add('selected');
+      if (answered && isCorrect) row.classList.add('correct');
+      else if (answered && isSelected && !isCorrect) row.classList.add('wrong');
+
+      let icon = '';
+      if (answered && isCorrect) icon = '<span class="feedback-icon check">✓</span>';
+      else if (answered && isSelected && !isCorrect) icon = '<span class="feedback-icon cross">✕</span>';
+
+      row.innerHTML = `
+        ${icon}
+        <div class="radio-container"><div class="nbme-radio"></div></div>
+        <div class="nbme-highlight-wrapper">
+          <div class="letter-label">${letter})</div>
+          <div class="nbme-content-block" style="flex:1;">
+            <div class="nbme-text">${opt}</div>
+          </div>
+        </div>
+      `;
+
+      if (!answered) {
+        row.addEventListener('click', (e) => {
+          if (STATE.highlightMode) return;
+          if (!row.classList.contains('crossed-out')) {
+            handleAnswer(realIdx, optIdx);
+          }
+        });
+        row.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          toggleCrossOut(realIdx, optIdx);
+        });
+      }
+
+      optContainer.appendChild(row);
+    });
+    card.appendChild(optContainer);
+
+    // Rationale Box
+    const ratBox = document.createElement('div');
+    ratBox.className = 'rationale-box';
+    ratBox.id = `q-rationale-${realIdx}`;
+    ratBox.style.display = answered ? 'block' : 'none';
+
+    let ratLinesHtml = '';
+    if (q.explanations && q.explanations.length) {
+      q.explanations.forEach((exp, expIdx) => {
+        const isCorr = expIdx === q.correctIndex;
+        const isSel = h.s === expIdx;
+        const lineClass = isCorr ? ' is-correct' : (isSel && !isCorr ? ' is-wrong' : '');
+        const lblColor = isCorr ? 'var(--success-green)' : (isSel && !isCorr ? 'var(--error-red)' : '#777');
+        const lblText = `Choice ${String.fromCharCode(65 + expIdx)}${isCorr ? ' ✔ CORRECT' : ''}${isSel && !isCorr ? ' ✕ YOUR ANSWER' : ''}`;
+
+        ratLinesHtml += `
+          <div class="rationale-line${lineClass}">
+            <div class="rationale-label" style="color:${lblColor};">${lblText}</div>
+            <div>${exp || 'No explanation provided.'}</div>
+          </div>
+        `;
+      });
+    }
+
+    ratBox.innerHTML = `
+      <div class="rationale-header">Instructor Feedback / Rationale</div>
+      <div class="rationale-content">${ratLinesHtml}</div>
+      ${q.learningObjective ? `<div class="lo-visible"><strong>Learning Objective</strong>${q.learningObjective}</div>` : ''}
+    `;
+    card.appendChild(ratBox);
+
+    container.appendChild(card);
+  });
+
+  // Bottom scroll footer
+  const scrollFooter = document.createElement('div');
+  scrollFooter.className = 'quiz-scroll-footer';
+  scrollFooter.innerHTML = `
+    <button class="btn btn-primary btn-lg" style="width:100%;" onclick="finishToReport()">✓ Finish Quiz & View Score Report</button>
+    <button class="btn btn-sec" style="width:100%;" onclick="endExam()">⌂ Return to Dashboard</button>
+  `;
+  container.appendChild(scrollFooter);
+}
+
+function updateQuestionCardDOM(realIdx) {
+  const data = getActiveDataList();
+  if (!data) return;
+  const { qObj } = data;
+  const q = qObj.questions[realIdx];
+  const h = qObj.history[realIdx];
+  const answered = h.s !== null;
+
+  const card = document.querySelector(`[data-real-index="${realIdx}"]`);
+  if (!card) return;
+
+  // Update options
+  const optContainer = card.querySelector('.choices-list');
+  if (optContainer) {
+    const rows = optContainer.querySelectorAll('.nbme-choice-row');
+    rows.forEach((row, optIdx) => {
+      const isCorrect = optIdx === q.correctIndex;
+      const isSelected = h.s === optIdx;
+      const isCrossed = (h.co || []).includes(optIdx);
+
+      row.className = 'nbme-choice-row ex-option';
+      if (isCrossed) row.classList.add('crossed-out');
+      if (answered) row.classList.add('disabled');
+      if (isSelected) row.classList.add('selected');
+      if (answered && isCorrect) row.classList.add('correct');
+      else if (answered && isSelected && !isCorrect) row.classList.add('wrong');
+
+      // Update feedback icon
+      let iconEl = row.querySelector('.feedback-icon');
+      if (iconEl) iconEl.remove();
+      if (answered && isCorrect) {
+        row.insertAdjacentHTML('afterbegin', '<span class="feedback-icon check">✓</span>');
+      } else if (answered && isSelected && !isCorrect) {
+        row.insertAdjacentHTML('afterbegin', '<span class="feedback-icon cross">✕</span>');
+      }
+    });
+  }
+
+  // Update rationale box
+  const ratBox = card.querySelector('.rationale-box');
+  if (ratBox) {
+    if (answered) {
+      ratBox.style.display = 'block';
+      let ratLinesHtml = '';
+      if (q.explanations && q.explanations.length) {
+        q.explanations.forEach((exp, expIdx) => {
+          const isCorr = expIdx === q.correctIndex;
+          const isSel = h.s === expIdx;
+          const lineClass = isCorr ? ' is-correct' : (isSel && !isCorr ? ' is-wrong' : '');
+          const lblColor = isCorr ? 'var(--success-green)' : (isSel && !isCorr ? 'var(--error-red)' : '#777');
+          const lblText = `Choice ${String.fromCharCode(65 + expIdx)}${isCorr ? ' ✔ CORRECT' : ''}${isSel && !isCorr ? ' ✕ YOUR ANSWER' : ''}`;
+
+          ratLinesHtml += `
+            <div class="rationale-line${lineClass}">
+              <div class="rationale-label" style="color:${lblColor};">${lblText}</div>
+              <div>${exp || 'No explanation provided.'}</div>
+            </div>
+          `;
+        });
+      }
+      const contentEl = ratBox.querySelector('.rationale-content');
+      if (contentEl) contentEl.innerHTML = ratLinesHtml;
+    } else {
+      ratBox.style.display = 'none';
+    }
+  }
+}
+
+function handleAnswer(realIdx, optIdx) {
+  if (STATE.highlightMode) return;
+  const qObj = DB.quizzes.find(q => q.id === STATE.activeId);
+  if (!qObj || qObj.history[realIdx].s !== null) return;
+
+  qObj.history[realIdx].s = optIdx;
+  saveDB();
+  updateQuestionCardDOM(realIdx);
+  updateSidebar();
+}
+
+function toggleCrossOut(realIdx, optIdx) {
+  if (STATE.highlightMode) return;
+  const qObj = DB.quizzes.find(q => q.id === STATE.activeId);
+  if (!qObj || qObj.history[realIdx].s !== null) return;
+
+  const co = qObj.history[realIdx].co || [];
+  if (co.includes(optIdx)) {
+    qObj.history[realIdx].co = co.filter(x => x !== optIdx);
+  } else {
+    qObj.history[realIdx].co = [...co, optIdx];
+  }
+  saveDB();
+  updateQuestionCardDOM(realIdx);
+}
+
+function toggleFlagForRealIndex(realIdx) {
+  const qObj = DB.quizzes.find(q => q.id === STATE.activeId);
+  if (!qObj) return;
+
+  qObj.history[realIdx].f = !qObj.history[realIdx].f;
+  saveDB();
+
+  const card = document.querySelector(`[data-real-index="${realIdx}"]`);
+  if (card) {
+    const flagBtn = card.querySelector('.nbme-flag-toggle');
+    if (flagBtn) {
+      flagBtn.classList.toggle('active', qObj.history[realIdx].f);
+      flagBtn.querySelector('.flag-label').textContent = qObj.history[realIdx].f ? 'Marked' : 'Mark';
+    }
+  }
+  updateSidebar();
+}
+
+function scrollToQuestion(dispIdx) {
+  const card = document.getElementById(`question-card-${dispIdx}`);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    card.classList.add('pulse-focus');
+    setTimeout(() => card.classList.remove('pulse-focus'), 1200);
+  }
+}
+
+function updateSidebar() {
+  const data = getActiveDataList();
+  if (!data) return;
+  const { qObj, activeIndices, total } = data;
+
+  const container = document.getElementById('grid-cells');
+  if (!container) return;
+  container.innerHTML = '';
+
+  activeIndices.forEach((realIdx, dispIdx) => {
+    const h = qObj.history[realIdx];
+    const q = qObj.questions[realIdx];
+
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'ex-nav-item';
+    item.id = `sidebar-item-${dispIdx}`;
+    item.textContent = dispIdx + 1;
+    item.title = `Item ${dispIdx + 1}`;
+
+    if (h.s !== null) {
+      if (isAnswerCorrect(q, h.s)) {
+        item.classList.add('correct');
+        item.innerHTML = '✔';
+      } else {
+        item.classList.add('wrong');
+        item.innerHTML = '✕';
+      }
+    }
+    if (h.f) item.classList.add('flagged');
+
+    item.onclick = () => scrollToQuestion(dispIdx);
+    container.appendChild(item);
+  });
+}
+
+function populateGoto(total) {
+  const sel = document.getElementById('goto-question');
+  if (!sel) return;
+  sel.innerHTML = '';
+  const first = document.createElement('option');
+  first.value = '';
+  first.textContent = 'Go to Question';
+  sel.appendChild(first);
+  for (let i = 0; i < total; i++) {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = 'Item ' + (i + 1);
+    sel.appendChild(opt);
+  }
+}
+
+function setupScrollObserver() {
+  const scrollArea = document.getElementById('q-scroll-area');
+  if (!scrollArea) return;
+
+  scrollArea.addEventListener('scroll', () => {
+    const cards = document.querySelectorAll('.question-card');
+    const scrollPos = scrollArea.scrollTop + 120;
+
+    let currentDispIdx = 0;
+    cards.forEach((c, idx) => {
+      if (c.offsetTop <= scrollPos) {
+        currentDispIdx = idx;
+      }
+    });
+
+    document.querySelectorAll('.ex-nav-item').forEach((btn, idx) => {
+      btn.classList.toggle('current', idx === currentDispIdx);
+    });
+  });
+}
+
+// ---- SUMMARY VIEW ----
+function showSummary() {
+  const qObj = DB.quizzes.find(q => q.id === STATE.activeId);
+  if (!qObj) return;
+
+  showView('view-summary');
+  const p = getProgress(qObj);
+  const score = qObj.questions.length > 0 ? Math.round(p.correct / qObj.questions.length * 100) : 0;
+
+  document.getElementById('summary-content').innerHTML = `
+    <div class="summary-title">${qObj.title}</div>
+    <div class="summary-subtitle">Quiz Complete — Performance Summary</div>
+    <div class="summary-score">${score}%</div>
+    <div class="summary-score-label">Overall Accuracy</div>
+    <div class="summary-grid">
+      <div class="summary-stat"><div class="summary-stat-val blue">${qObj.questions.length}</div><div class="summary-stat-label">Total Qs</div></div>
+      <div class="summary-stat"><div class="summary-stat-val green">${p.correct}</div><div class="summary-stat-label">Correct</div></div>
+      <div class="summary-stat"><div class="summary-stat-val red">${p.wrong}</div><div class="summary-stat-label">Incorrect</div></div>
+    </div>
+    <div class="summary-actions">
+      <button class="btn btn-primary" onclick="goHome()">⌂ Dashboard</button>
+      <button class="btn btn-sec" onclick="startQuiz('${qObj.id}')">↺ Resume / Retake</button>
+      ${p.wrong > 0 ? `<button class="btn btn-review" onclick="startReview('${qObj.id}','missed')">🔁 Review Missed (${p.wrong})</button>` : ''}
+      ${p.flagged > 0 ? `<button class="btn btn-flag-rev" onclick="startReview('${qObj.id}','flagged')">⚑ Review Flagged (${p.flagged})</button>` : ''}
+      ${p.wrong > 0 ? `<button class="btn btn-sec" onclick="printMissed('${qObj.id}')">🖨 Print Missed</button>` : ''}
+    </div>
+  `;
+}
+
+// ---- CUSTOM QUIZ BUILDER ----
+function openCreateQuizModal() {
+  const listEl = document.getElementById('custom-quiz-source-list');
+  const modalEl = document.getElementById('create-quiz-modal');
+  const nameInput = document.getElementById('custom-quiz-name');
+
+  if (!listEl || !modalEl || !nameInput) return;
+
+  listEl.innerHTML = '';
+  nameInput.value = '';
+
+  DB.quizzes
+    .filter(q => !q.isCustom && q.id !== 'ipm3-midterm-all')
+    .forEach(q => {
+      const item = document.createElement('div');
+      item.className = 'quiz-select-item';
+      item.innerHTML = `
+        <input type="checkbox" id="cq_${q.id}" data-id="${q.id}" onchange="updateCustomQtyVisibility('${q.id}')">
+        <div class="quiz-select-label">
+          <div class="quiz-select-title">${q.title}</div>
+          <div class="quiz-select-count">${q.questions.length} questions available</div>
+        </div>
+        <div id="cq_qty_${q.id}" style="display:none; align-items:center; gap:6px; flex-shrink:0;">
+          <label style="font-size:0.8rem; color:#666;">Qty:</label>
+          <input type="number" class="qty-input" id="cq_num_${q.id}" value="${q.questions.length}" min="1" max="${q.questions.length}">
+        </div>
+      `;
+      listEl.appendChild(item);
+    });
+
+  modalEl.classList.add('open');
+}
+
+function updateCustomQtyVisibility(id) {
+  const cb = document.getElementById('cq_' + id);
+  const qty = document.getElementById('cq_qty_' + id);
+  if (cb && qty) qty.style.display = cb.checked ? 'flex' : 'none';
+}
+
+function closeCreateQuizModal() {
+  document.getElementById('create-quiz-modal').classList.remove('open');
+}
+
+function buildCustomQuiz() {
+  const nameInput = document.getElementById('custom-quiz-name');
+  const modalList = document.getElementById('custom-quiz-source-list');
+  const name = (nameInput?.value || '').trim() || 'My Custom Quiz';
+  const selected = [];
+
+  if (!modalList) return;
+
+  const selectedItems = [...modalList.querySelectorAll('.quiz-select-item')];
+  selectedItems.forEach(item => {
+    const cb = item.querySelector('input[type="checkbox"]');
+    if (!cb || !cb.checked) return;
+
+    const id = cb.getAttribute('data-id');
+    const qObj = DB.quizzes.find(q => q.id === id);
+    if (!qObj) return;
+
+    const numEl = document.getElementById('cq_num_' + id);
+    let num = numEl ? parseInt(numEl.value, 10) : qObj.questions.length;
+    num = Math.min(Math.max(1, num || 1), qObj.questions.length);
+
+    const pool = [...qObj.questions];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    selected.push(...pool.slice(0, num));
+  });
+
+  if (selected.length === 0) {
+    alert('Please select at least one module and choose a quantity.');
+    return;
+  }
+
+  const customId = `custom_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  DB.quizzes.unshift({
+    id: customId,
+    title: name,
+    questions: selected,
+    history: selected.map(() => ({ s: null, f: false, co: [] })),
+    isCustom: true,
+    keepCustom: true,
+  });
+
+  saveDB();
+  closeCreateQuizModal();
+  renderMenu();
+  startQuiz(customId);
+}
+
+function removeCustomQuiz(id) {
+  if (!confirm('Remove this custom quiz?')) return;
+  DB.quizzes = DB.quizzes.filter(q => q.id !== id);
+  saveDB();
+  renderMenu();
+}
+
+// ---- RESET / NAV ----
+function resetQuiz(id) {
+  if (!confirm('Reset all progress for this quiz?')) return;
+  const qObj = DB.quizzes.find(q => q.id === id);
+  if (!qObj) return;
+  qObj.history = qObj.questions.map(() => ({ s: null, f: false, co: [] }));
+  delete STATE.shuffledOrders[id];
+  saveDB();
+  renderMenu();
+  if (STATE.activeId === id && document.getElementById('view-quiz').classList.contains('active')) {
+    renderQuestionList();
+  }
+}
+
+function goHome() {
+  pauseTimer();
+  STATE.highlightMode = false;
+  document.body.classList.remove('highlight-mode');
+  const hlBtn = document.getElementById('btn-highlight');
+  if (hlBtn) hlBtn.classList.remove('active');
+
+  showView('view-menu');
+  closeMobileSidebar();
+  renderMenu();
+}
+
+function showView(id) {
+  document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function adjustZoom(amt) {
+  currentZoom = Math.min(2.0, Math.max(0.5, currentZoom + amt));
+  document.getElementById('app-wrapper').style.transform = `scale(${currentZoom})`;
+  document.getElementById('app-wrapper').style.width = `${100 / currentZoom}%`;
+}
+
+// ---- PRINT MISSED ----
+function printMissed(id) {
+  const qObj = DB.quizzes.find(q => q.id === id);
+  if (!qObj) return;
+  const pa = document.getElementById('print-area');
+  pa.innerHTML = `<h1>${qObj.title} — Missed Questions</h1><hr style="margin:12px 0">`;
+  let count = 0;
+  qObj.history.forEach((h, i) => {
+    if (h.s !== null && !isAnswerCorrect(qObj.questions[i], h.s)) {
+      count++;
+      const q = qObj.questions[i];
+      const yours = q.options[h.s] || '?';
+      const right = q.options[q.correctIndex] || '?';
+      pa.innerHTML += `
+        <div class="print-item">
+          <div class="print-q">Q${i+1}: ${q.question}</div>
+          <div class="print-a">Your Answer: ${yours}</div>
+          <div class="print-correct">Correct: ${right}</div>
+          <div class="print-exp">${(q.explanations || []).join('<br>')}</div>
+        </div>
+      `;
+    }
+  });
+  if (count === 0) { alert('No missed questions to print!'); return; }
+  window.print();
+}
+
+// ---- MOBILE SIDEBAR ----
+function setupMobileSidebar() {
+  const btn = document.getElementById('btn-toggle-sidebar');
+  if (window.innerWidth <= 800 && btn) btn.style.display = 'inline-block';
+}
+function toggleMobileSidebar() {
+  document.getElementById('ex-sidebar').classList.toggle('open');
+}
+function closeMobileSidebar() {
+  document.getElementById('ex-sidebar').classList.remove('open');
+}
+
+// ---- HIGHLIGHT ----
+function setupHighlight() {
+  document.addEventListener('mouseup', function() {
+    if (!STATE.highlightMode) return;
+    const sel = window.getSelection();
+    if (!sel || !sel.toString().trim()) return;
+    const range = sel.getRangeAt(0);
+    const container = document.getElementById('q-scroll-area');
+    if (container && container.contains(range.commonAncestorContainer)) {
+      try {
+        const span = document.createElement('span');
+        span.className = 'highlight-span';
+        range.surroundContents(span);
+        sel.removeAllRanges();
+      } catch(err) {}
+    }
+  });
+}
+
+function toggleHighlightMode() {
+  STATE.highlightMode = !STATE.highlightMode;
+  const btn = document.getElementById('btn-highlight');
+  document.body.classList.toggle('highlight-mode', STATE.highlightMode);
+  if (btn) btn.classList.toggle('active', STATE.highlightMode);
+}
+
+document.addEventListener('click', function(e) {
+  if (STATE.highlightMode && e.target.classList.contains('highlight-span')) {
+    const text = document.createTextNode(e.target.textContent);
+    e.target.parentNode.replaceChild(text, e.target);
+  }
+});
+
+function handleDocClick(e) {
+  if (e.target.id === 'create-quiz-modal') closeCreateQuizModal();
+}
+
+// ---- TOOLS ----
+function openTool(id) {
+  const el = document.getElementById(id);
+  el.style.display = 'flex';
+  if (!el.style.top || el.style.top === '0px') { el.style.top = '110px'; el.style.left = '180px'; }
+}
+function closeTool(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function calcCmd(val) {
+  const disp = document.getElementById('calc-display');
+  if (!disp) return;
+  if (val === 'C') { calcString = ''; disp.textContent = '0'; }
+  else if (val === 'back') { calcString = calcString.slice(0, -1); disp.textContent = calcString || '0'; }
+  else if (val === '=') {
+    try {
+      if (/^[0-9+\-*/(). ]*$/.test(calcString)) {
+        let res = Function('"use strict";return (' + calcString + ')')();
+        res = Math.round(res * 1000000) / 1000000;
+        disp.textContent = res;
+        calcString = String(res);
+      } else { disp.textContent = 'Err'; calcString = ''; }
+    } catch(e) { disp.textContent = 'Err'; calcString = ''; }
+  } else { calcString += val; disp.textContent = calcString; }
+}
+
+function filterLabs() {
+  const q = document.getElementById('lab-search').value.toUpperCase();
+  document.querySelectorAll('#lab-list-content .lab-row').forEach(r => {
+    r.style.display = r.textContent.toUpperCase().includes(q) ? '' : 'none';
+  });
+}
+
+function setupDragForModals() {
+  ['modal-calculator','modal-labs','modal-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    const header = document.getElementById(id.replace('modal-','') + '-header');
+    if (!el || !header) return;
+    let x=0,y=0,mx=0,my=0;
+    header.onmousedown = function(e) {
+      e.preventDefault();
+      mx = e.clientX; my = e.clientY;
+      document.onmousemove = function(e2) {
+        x = mx - e2.clientX; y = my - e2.clientY;
+        mx = e2.clientX; my = e2.clientY;
+        el.style.top = (el.offsetTop - y) + 'px';
+        el.style.left = (el.offsetLeft - x) + 'px';
+      };
+      document.onmouseup = function() { document.onmousemove = null; document.onmouseup = null; };
+    };
+  });
+}
+
+// ---- BOOT ----
+window.addEventListener('load', initApp);
+</script>
+</body>
+</html>
