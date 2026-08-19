@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Endocrine Embryology & Clinical Correlations</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Lexend',sans-serif;background:#0f172a;color:#f1f5f9;padding:20px;min-height:100vh;}
+  .container{max-width:1600px;margin:0 auto;}
+  h1{text-align:center;color:#2dd4bf;margin-bottom:8px;font-size:1.8em;text-shadow:0 0 15px rgba(45,212,191,0.3);}
+  .subtitle{text-align:center;color:#94a3b8;margin-bottom:20px;font-size:.95em;}
+  
+  .stats-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+  .stats{display:flex;gap:18px;flex-wrap:wrap;}
+  .stat-item{background:rgba(45,212,191,0.1);padding:9px 16px;border-radius:8px;border:1px solid rgba(45,212,191,0.35);}
+  .stat-label{color:#2dd4bf;font-weight:700;margin-right:6px;font-size:.9em;}
+  
+  .controls{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn{padding:8px 18px;border:none;border-radius:8px;cursor:pointer;font-size:.85em;font-weight:600;transition:.2s;}
+  .btn-secondary{background:#1e293b;color:#f1f5f9;border:1px solid rgba(45,212,191,0.4);}
+  .btn-secondary:hover{background:#334155;}
+  .btn-danger{background:#1e293b;color:#94a3b8;border:1px solid #1e293b;}
+  .btn-danger:hover{color:#ef4444;border-color:#ef4444;}
+  
+  .main-content{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start;}
+  
+  /* Single Active Card Deck Drawer */
+  .card-deck-container{position:sticky;top:20px;background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155;box-shadow:0 4px 20px rgba(0,0,0,.4);text-align:center;}
+  .card-deck-title{color:#2dd4bf;font-size:1.1em;margin-bottom:12px;font-weight:700;}
+  .deck-progress{color:#94a3b8;font-size:0.85em;margin-bottom:15px;font-weight:600;}
+  
+  .active-card-slot{min-height:150px;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,0.6);border:2px dashed #334155;border-radius:8px;padding:12px;}
+  
+  .draggable-item{background:#ccfbf1;color:#115e59;padding:12px 14px;border-radius:8px;cursor:grab;border:2px solid #0d9488;font-size:.85em;font-weight:600;text-align:center;box-shadow:0 4px 8px rgba(0,0,0,0.3);transition:transform 0.1s;width:100%;user-select:none;}
+  .draggable-item:active{cursor:grabbing;}
+  .draggable-item:hover:not(.locked){transform:scale(1.02);background:#99f6e4;}
+  .draggable-item.dragging{opacity:0.4;}
+  .draggable-item img{max-width:100%;max-height:160px;border-radius:6px;margin-top:6px;display:block;margin-left:auto;margin-right:auto;}
+  
+  /* High Contrast Locked State in Target Grid */
+  .draggable-item.locked{cursor:default;background:#0f766e;color:#ffffff;border:1px solid #5eead4;box-shadow:none;transform:none;width:100%;font-weight:600;text-align:center;padding:8px 10px;margin-bottom:6px;display:block;font-size:0.8em;border-radius:6px;}
+  .draggable-item.locked img{max-height:100px;}
+
+  /* Grid Table */
+  table{width:100%;border-collapse:separate;border-spacing:6px;table-layout:fixed;background:transparent;}
+  th, td{border-radius:8px;padding:8px;vertical-align:top; border: 1px solid rgba(255,255,255,0.08);}
+  
+  th{background:#2dd4bf;color:#0f172a;font-size:0.95em;font-weight:700;text-align:center;padding:12px;}
+  .side-header{background:#1e293b;color:#f8fafc;font-size:.85em;font-weight:700;text-align:center;vertical-align:middle;width:18%; border:1px solid #334155;}
+  
+  .drop-zone{min-height:95px;height:100%;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;transition:0.2s;padding:6px;background:rgba(255,255,255,0.03);border:2px dashed transparent;border-radius:6px;}
+  .drop-zone.drag-over{background:rgba(45,212,191,0.15);border-color:#2dd4bf;}
+  
+  .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #ef4444 !important; box-shadow: 0 0 12px rgba(239,68,68,0.8); background: #fca5a5 !important; color:#7f1d1d !important;}
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(3px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+    40%, 60% { transform: translate3d(5px, 0, 0); }
+  }
+
+  /* Persistent red state: a card first dropped in the wrong zone, then later
+     placed correctly, stays red so the learner can spot their mistake. */
+  .draggable-item.locked-red{cursor:default;background:#7f1d1d;color:#fecaca;border:1px solid #ef4444;box-shadow:0 0 12px rgba(239,68,68,0.8);transform:none;width:100%;font-weight:600;text-align:center;padding:8px 10px;margin-bottom:6px;display:block;font-size:0.8em;border-radius:6px;}
+  .draggable-item.locked-red img{max-height:100px;}
+
+  /* Modal */
+  .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;}
+  .modal-content{background:#1e293b;padding:35px;border-radius:12px;max-width:900px;width:95%;max-height:90vh;overflow-y:auto;color:#f1f5f9;border:2px solid #2dd4bf;}
+  .modal-content h2{color:#2dd4bf;margin-bottom:20px;text-align:center;}
+  .modal-content h3{color:#5eead4;margin:15px 0 8px 0;font-size:1.15em;}
+  .modal-content p{margin-bottom:12px;line-height:1.6;font-size:0.92em;}
+  .modal-close{display:block;margin:25px auto 0;padding:12px 25px;background:#2dd4bf;color:#000;border:none;border-radius:6px;font-weight:bold;cursor:pointer;}
+
+  @media(max-width:1100px){
+    .main-content{grid-template-columns:1fr;}
+    .card-deck-container{position:relative;top:0;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Endocrine Embryology & Clinical Correlations</h1>
+  <p class="subtitle">Drag the active card into its matching cell. Only one card is shown at a time.</p>
+  
+  <div class="stats-controls">
+    <div class="stats">
+      <div class="stat-item"><span class="stat-label">Locked Items:</span><span id="score">0</span> / <span id="total">0</span></div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="showAllAnswers()">Show Answers</button>
+      <button class="btn btn-secondary" id="btn-explain" style="display:none;" onclick="openModal()">View Explanation</button>
+      <button class="btn btn-danger" onclick="resetGame()">Reset Deck</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Active Single-Card Drawer -->
+    <div class="card-deck-container">
+      <div class="card-deck-title">🎴 Current Active Card</div>
+      <div class="deck-progress" id="deck-progress">Card 1 of --</div>
+      <div class="active-card-slot" id="card-slot"></div>
+    </div>
+    
+    <!-- Target Grid -->
+    <table id="quiz-table">
+      <thead>
+        <tr>
+          <th style="background:transparent; border:none; width:18%;"></th>
+          <th>Adult Hormone(s)</th>
+          <th>Embryologic Origin</th>
+          <th>Clinical Correlation(s)</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="explanation-modal">
+  <div class="modal-content">
+    <h2>Endocrine Embryology & Pathology Review</h2>
+    <p>Connecting the embryologic germ layer origin directly explains congenital abnormalities and neuroendocrine tumors:</p>
+    
+    <h3>1. Pituitary Gland: Dual Origin</h3>
+    <p><strong>Anterior Pituitary (Adenohypophysis):</strong> Derived from <strong>Oral Ectoderm</strong> via <em>Rathke pouch</em>. Remnants of Rathke pouch can calcify and give rise to <strong>Craniopharyngiomas</strong> (cystic suprasellar mass with 'motor oil' fluid). Secretes FSH, LH, ACTH, TSH, PRL, GH, and β-endorphin.</p>
+    <p><strong>Posterior Pituitary (Neurohypophysis):</strong> Derived from <strong>Neuroectoderm</strong> (infundibulum from the diencephalon). Stores and releases Oxytocin and ADH synthesized in the hypothalamus. Pathology includes Central Diabetes Insipidus and SIADH.</p>
+    
+    <h3>2. Thyroid & Parathyroid Glands</h3>
+    <p><strong>Thyroid:</strong> Follicular cells originate from the <strong>Endoderm</strong> (floor of primitive pharynx descending via the thyroglossal duct). Persistent remnants lead to <strong>thyroglossal duct cysts</strong> (midline, moves up with swallowing) or <strong>lingual thyroid</strong>. Parafollicular (C cells) derive from <strong>Neural Crest</strong>.</p>
+    <p><strong>Parathyroid:</strong> Derived from the <strong>Endoderm</strong> of the 3rd (inferior) and 4th (superior) pharyngeal pouches. Defective 3rd/4th pouch development in <strong>DiGeorge Syndrome (22q11.2 deletion)</strong> causes congenital absence of parathyroids (hypocalcemia) and thymus (T-cell immunodeficiency).</p>
+
+    <h3>3. Adrenal Gland: Dual Origin</h3>
+    <p><strong>Adrenal Cortex:</strong> Derived from <strong>Mesoderm</strong>. Synthesizes steroid hormones: Aldosterone (GFR - Glomerulosa), Cortisol (Fasciculata), and Androgens/DHEA (Reticularis). Defects in steroidogenesis cause <strong>Congenital Adrenal Hyperplasia (CAH)</strong>.</p>
+    <p><strong>Adrenal Medulla:</strong> Derived from <strong>Neural Crest cells</strong> (Chromaffin cells). Synthesizes catecholamines (Epinephrine, Norepinephrine). Tumors include adult <strong>Pheochromocytoma</strong> (rule of 10s, episodic headaches/palpitations/sweating) and pediatric <strong>Neuroblastoma</strong> (N-myc amplification, opsoclonus-myoclonus).</p>
+
+    <button class="modal-close" onclick="closeModal()">Back to Study</button>
+  </div>
+</div>
+
+<script>
+const organs = [
+  "Anterior pituitary", 
+  "Posterior pituitary", 
+  "Thyroid", 
+  "Parathyroid", 
+  "Endocrine pancreas", 
+  "Adrenal cortex", 
+  "Adrenal medulla"
+];
+
+const categories = ["Adult Hormone", "Embryologic Origin", "Clinical Correlation"];
+
+// Discretized items (each multiple is its own separate card)
+const rawData = [
+  // --- Anterior Pituitary ---
+  { organ: "Anterior pituitary", cat: "Adult Hormone", text: "FSH (Follicle-stimulating hormone)" },
+  { organ: "Anterior pituitary", cat: "Adult Hormone", text: "LH (Luteinizing hormone)" },
+  { organ: "Anterior pituitary", cat: "Adult Hormone", text: "ACTH (Adrenocorticotropic hormone)" },
+  { organ: "Anterior pituitary", cat: "Adult Hormone", text: "TSH (Thyroid-stimulating hormone)" },
+  { organ: "Anterior pituitary", cat: "Adult Hormone", text: "PRL (Prolactin)" },
+  { organ: "Anterior pituitary", cat: "Adult Hormone", text: "GH (Growth hormone)" },
+  { organ: "Anterior pituitary", cat: "Adult Hormone", text: "β-endorphin" },
+  { organ: "Anterior pituitary", cat: "Embryologic Origin", text: "Oral ectoderm (Rathke pouch)" },
+  { organ: "Anterior pituitary", cat: "Clinical Correlation", text: "Craniopharyngioma" },
+  { organ: "Anterior pituitary", cat: "Clinical Correlation", text: "Pituitary adenoma" },
+
+  // --- Posterior Pituitary ---
+  { organ: "Posterior pituitary", cat: "Adult Hormone", text: "Oxytocin" },
+  { organ: "Posterior pituitary", cat: "Adult Hormone", text: "ADH (Vasopressin)" },
+  { organ: "Posterior pituitary", cat: "Embryologic Origin", text: "Neuroectoderm (Diencephalon)" },
+  { organ: "Posterior pituitary", cat: "Clinical Correlation", text: "Central diabetes insipidus" },
+  { organ: "Posterior pituitary", cat: "Clinical Correlation", text: "SIADH" },
+
+  // --- Thyroid ---
+  { organ: "Thyroid", cat: "Adult Hormone", text: "T3 (Triiodothyronine)" },
+  { organ: "Thyroid", cat: "Adult Hormone", text: "T4 (Thyroxine)" },
+  { organ: "Thyroid", cat: "Adult Hormone", text: "Calcitonin" },
+  { organ: "Thyroid", cat: "Embryologic Origin", text: "Endoderm (follicular cells)" },
+  { organ: "Thyroid", cat: "Embryologic Origin", text: "Neural crest (C cells / parafollicular)" },
+  { organ: "Thyroid", cat: "Clinical Correlation", text: "Thyroglossal duct cyst" },
+  { organ: "Thyroid", cat: "Clinical Correlation", text: "Lingual thyroid" },
+
+  // --- Parathyroid ---
+  { organ: "Parathyroid", cat: "Adult Hormone", text: "PTH (Parathyroid hormone)" },
+  { organ: "Parathyroid", cat: "Embryologic Origin", text: "Endoderm (3rd & 4th pharyngeal pouches)" },
+  { organ: "Parathyroid", cat: "Clinical Correlation", text: "DiGeorge syndrome" },
+  { organ: "Parathyroid", cat: "Clinical Correlation", text: "Hypoparathyroidism" },
+
+  // --- Endocrine Pancreas ---
+  { organ: "Endocrine pancreas", cat: "Adult Hormone", text: "Insulin" },
+  { organ: "Endocrine pancreas", cat: "Adult Hormone", text: "Glucagon" },
+  { organ: "Endocrine pancreas", cat: "Adult Hormone", text: "Somatostatin" },
+  { organ: "Endocrine pancreas", cat: "Embryologic Origin", text: "Endoderm (Foregut buds)" },
+  { organ: "Endocrine pancreas", cat: "Clinical Correlation", text: "Pancreatic divisum" },
+  { organ: "Endocrine pancreas", cat: "Clinical Correlation", text: "Annular pancreas" },
+
+  // --- Adrenal Cortex ---
+  { organ: "Adrenal cortex", cat: "Adult Hormone", text: "Aldosterone" },
+  { organ: "Adrenal cortex", cat: "Adult Hormone", text: "Cortisol" },
+  { organ: "Adrenal cortex", cat: "Adult Hormone", text: "DHEA (Androgens)" },
+  { organ: "Adrenal cortex", cat: "Embryologic Origin", text: "Mesoderm" },
+  { organ: "Adrenal cortex", cat: "Clinical Correlation", text: "Congenital adrenal hyperplasia (CAH)" },
+
+  // --- Adrenal Medulla ---
+  { organ: "Adrenal medulla", cat: "Adult Hormone", text: "Epinephrine" },
+  { organ: "Adrenal medulla", cat: "Adult Hormone", text: "Norepinephrine (Catecholamines)" },
+  { organ: "Adrenal medulla", cat: "Embryologic Origin", text: "Neural crest" },
+  { organ: "Adrenal medulla", cat: "Clinical Correlation", text: "Pheochromocytoma" },
+  { organ: "Adrenal medulla", cat: "Clinical Correlation", text: "Neuroblastoma" }
+];
+
+let deckQueue = [];
+let currentIndex = 0;
+let score = 0;
+const totalItems = rawData.length;
+// Tracks whether the current active card was ever dropped in the wrong zone,
+// so it stays red even once finally placed correctly.
+let wasIncorrect = false;
+
+function initGame() {
+  score = 0;
+  currentIndex = 0;
+  deckQueue = shuffleArray([...rawData]);
+  
+  document.getElementById('score').innerText = score;
+  document.getElementById('total').innerText = totalItems;
+  document.getElementById('btn-explain').style.display = 'none';
+  
+  const tbody = document.getElementById("table-body");
+  tbody.innerHTML = "";
+  
+  // Build Grid
+  organs.forEach(organ => {
+    const tr = document.createElement("tr");
+    const tdSide = document.createElement("td");
+    tdSide.className = "side-header";
+    tdSide.innerText = organ;
+    tr.appendChild(tdSide);
+    
+    categories.forEach(cat => {
+      const td = document.createElement("td");
+      const dz = document.createElement("div");
+      dz.className = "drop-zone";
+      dz.dataset.organ = organ;
+      dz.dataset.cat = cat;
+      dz.addEventListener("dragover", handleDragOver);
+      dz.addEventListener("dragleave", handleDragLeave);
+      dz.addEventListener("drop", handleDrop);
+      td.appendChild(dz);
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  renderActiveCard();
+}
+
+function renderActiveCard() {
+  const slot = document.getElementById('card-slot');
+  const progress = document.getElementById('deck-progress');
+  slot.innerHTML = '';
+  wasIncorrect = false;
+  
+  if (currentIndex >= deckQueue.length) {
+    progress.innerText = "All cards completed!";
+    slot.innerHTML = `<div style="color:#2dd4bf; font-weight:700; font-size:1.1em;">🎉 Table Complete!</div>`;
+    document.getElementById('btn-explain').style.display = 'inline-block';
+    setTimeout(() => openModal(), 400);
+    return;
+  }
+
+  progress.innerText = `Card ${currentIndex + 1} of ${deckQueue.length}`;
+  const item = deckQueue[currentIndex];
+  
+  const div = document.createElement('div');
+  div.className = 'draggable-item';
+  div.draggable = true;
+  div.id = 'active-drag-card';
+  
+  if (item.isImage) {
+    if (item.imageSrc && item.imageSrc.trim() !== '') {
+      div.innerHTML = `<div>${item.text}</div><img src="${item.imageSrc}" alt="${item.text}">`;
+    } else {
+      div.innerHTML = `<div>📷 <strong>${item.text}</strong></div><div style="font-size:0.75em; margin-top:5px; color:#0d9488;">[Base64 Placeholder]</div>`;
+    }
+  } else {
+    div.innerText = item.text;
+  }
+
+  div.addEventListener('dragstart', e => {
+    div.classList.add('dragging');
+    e.dataTransfer.setData('text/plain', 'active-card');
+  });
+
+  div.addEventListener('dragend', () => {
+    div.classList.remove('dragging');
+  });
+
+  slot.appendChild(div);
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  const dz = e.currentTarget;
+  dz.classList.remove('drag-over');
+  
+  const currentItem = deckQueue[currentIndex];
+  const activeCardEl = document.getElementById('active-drag-card');
+
+  if (currentItem.organ === dz.dataset.organ && currentItem.cat === dz.dataset.cat) {
+    // Correct placement
+    score++;
+    document.getElementById('score').innerText = score;
+    
+    const lockedCard = document.createElement('div');
+    // Cards first dragged to the wrong zone stay RED once finally correct,
+    // so the learner can spot their earlier mistake.
+    lockedCard.className = 'draggable-item ' + (wasIncorrect ? 'locked-red' : 'locked');
+    
+    if (currentItem.isImage) {
+      if (currentItem.imageSrc && currentItem.imageSrc.trim() !== '') {
+        lockedCard.innerHTML = `<div>${currentItem.text}</div><img src="${currentItem.imageSrc}">`;
+      } else {
+        lockedCard.innerHTML = `<div>📷 ${currentItem.text}</div>`;
+      }
+    } else {
+      lockedCard.innerText = currentItem.text;
+    }
+    
+    dz.appendChild(lockedCard);
+    
+    currentIndex++;
+    renderActiveCard();
+  } else {
+    // Incorrect: remember this card was dropped wrong so it stays red
+    // even when (if) it is later placed correctly.
+    wasIncorrect = true;
+    if (activeCardEl) {
+      activeCardEl.classList.remove('shake');
+      void activeCardEl.offsetWidth; // Trigger reflow
+      activeCardEl.classList.add('shake');
+    }
+  }
+}
+
+function shuffleArray(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function showAllAnswers() {
+  if (!confirm("Reveal all remaining placements?")) return;
+  
+  while (currentIndex < deckQueue.length) {
+    const item = deckQueue[currentIndex];
+    const targetZone = document.querySelector(`.drop-zone[data-organ="${item.organ}"][data-cat="${item.cat}"]`);
+    
+    if (targetZone) {
+      const lockedCard = document.createElement('div');
+      lockedCard.className = 'draggable-item locked';
+      if (item.isImage) {
+        if (item.imageSrc && item.imageSrc.trim() !== '') {
+          lockedCard.innerHTML = `<div>${item.text}</div><img src="${item.imageSrc}">`;
+        } else {
+          lockedCard.innerHTML = `<div>📷 ${item.text}</div>`;
+        }
+      } else {
+        lockedCard.innerText = item.text;
+      }
+      targetZone.appendChild(lockedCard);
+    }
+    currentIndex++;
+  }
+  
+  score = totalItems;
+  document.getElementById('score').innerText = score;
+  renderActiveCard();
+}
+
+function resetGame() {
+  if (confirm("Restart and reshuffle the card deck?")) initGame();
+}
+
+function openModal() { document.getElementById('explanation-modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('explanation-modal').style.display = 'none'; }
+
+window.onload = initGame;
+</script>
+</body>
+</html>
