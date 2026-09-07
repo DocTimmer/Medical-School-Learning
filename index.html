@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedTime — Medical School Q-Banks & Learning Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            medtime: {
+              header: '#1c2532',
+              blue: '#3582c4',
+              dark: '#2c3e50',
+              accent: '#0f151c',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="min-h-full flex flex-col text-slate-800 bg-slate-50 antialiased">
+
+  <!-- Main Navigation Header -->
+  <header class="bg-medtime-header text-white sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Brand & Main Logo -->
+        <a href="index.html" class="flex items-center gap-3 group transition-opacity hover:opacity-95">
+          <img
+            src="Image/MedTime_logo.jpeg"
+            alt="MedTime Logo"
+            class="h-10 w-10 rounded-lg object-cover ring-2 ring-white/20 shadow-sm"
+            onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';"
+          />
+          <div id="logo-fallback" class="hidden h-10 w-10 rounded-lg bg-medtime-blue items-center justify-center font-bold text-white text-xl">
+            M
+          </div>
+          <div>
+            <span class="text-xl font-extrabold tracking-tight text-white block leading-none">MedTime</span>
+            <span class="text-xs text-slate-300 font-medium tracking-wide">Organ System Modules & Q-Banks</span>
+          </div>
+        </a>
+
+        <!-- Header Links/Info -->
+        <div class="flex items-center gap-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-300 bg-slate-800/60 px-3 py-1.5 rounded-full border border-slate-700/60">
+            Medical School Learning
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero / Introduction Banner -->
+  <section class="bg-white border-b border-slate-200/80 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+        Organ System Modules
+      </h1>
+      <p class="mt-2 text-sm sm:text-base text-slate-600 max-w-3xl">
+        Select an organ system below to launch the MedTime Question Bank or explore high-yield resources.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Content Grid -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div id="organ-systems-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Organ System Cards are dynamically rendered via JS for clean maintenance -->
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
+      <div>
+        © MedTime Learning Platform
+      </div>
+      <div>
+        Designed for Medical Student Mastery
+      </div>
+    </div>
+  </footer>
+
+  <!-- Organ Systems Data & Render Script for Easy Maintenance -->
+  <script>
+    /**
+     * EASY MAINTENANCE DATA STRUCTURE
+     * To add a new organ system or add High-Yield (HY) resources later,
+     * simply update the array objects below!
+     */
+    const ORGAN_SYSTEMS = [
+      {
+        id: "endocrine",
+        name: "Endocrine System",
+        tagline: "Hormone regulation, pituitary, thyroid, adrenal & diabetes",
+        status: "active", // "active" or "coming_soon"
+        logo: "Image/MedTime_Endocrine.png",
+        iconFallback: "🩺",
+        quizTitle: "Endocrine Q-Bank",
+        quizLink: "MedTime_Quiz_Endocrine.html",
+        hyResources: [
+          /* Add HY Links here in future, e.g.:
+          { title: "MEN Syndromes Master Summary", url: "Endocrine_Dr-Elsi-Congenital-DnD.html" }
+          */
+        ]
+      },
+      {
+        id: "gastrointestinal",
+        name: "Gastrointestinal System",
+        tagline: "GI tract anatomy, motility, hepatic, biliary & pancreatic pathology",
+        status: "active",
+        logo: "Image/MedTime_Gastrointestinal.png",
+        iconFallback: "🔬",
+        quizTitle: "Gastrointestinal Q-Bank",
+        quizLink: "MedTime_Quiz_Gastrointestinal.html",
+        hyResources: []
+      },
+      {
+        id: "renal",
+        name: "Renal System",
+        tagline: "Glomerular filtration, electrolyte disorders & acid-base physiology",
+        status: "active",
+        logo: null, // Will use custom styled icon / badge
+        iconSvg: `<svg class="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L5.602 15.12a2 2 0 00-1.189.176l-.42.21A2 2 0 003 17.292V19a2 2 0 002 2h14a2 2 0 002-2v-1.708a2 2 0 00-.572-1.42l-.422-.21z"/></svg>`,
+        iconFallback: "🫘",
+        quizTitle: "Renal Q-Bank",
+        quizLink: "Renal_MedTime_Quizzer.html",
+        hyResources: []
+      },
+      {
+        id: "respiratory",
+        name: "Respiratory System",
+        tagline: "Pulmonary physiology, gas exchange & airway pathology",
+        status: "coming_soon",
+        logo: null,
+        iconSvg: `<svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2 1m0 0l-2-1m2 1v2.5M4 7l2 1m-2-1l2-1m-2 1v2.5M4 14l2 1m-2-1l2-1m-2 1v2.5"/></svg>`,
+        iconFallback: "🫁",
+        quizTitle: "Respiratory Q-Bank",
+        quizLink: null,
+        hyResources: []
+      },
+      {
+        id: "cardiology",
+        name: "Cardiovascular System",
+        tagline: "Cardiac electrophysiology, hemodynamics & valvular heart disease",
+        status: "coming_soon",
+        logo: null,
+        iconSvg: `<svg class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`,
+        iconFallback: "❤️",
+        quizTitle: "Cardiology Q-Bank",
+        quizLink: null,
+        hyResources: []
+      },
+      {
+        id: "hematology",
+        name: "Hematology System",
+        tagline: "Anemias, leukemias, coagulation cascade & blood pathology",
+        status: "active",
+        logo: "Image/MedTime_Hematology.webp",
+        iconFallback: "🩸",
+        quizTitle: "Hematology Q-Bank",
+        quizLink: "MedTime_Quiz_Hematology.html",
+        hyResources: []
+      }
+    ];
+
+    function renderOrganSystems() {
+      const container = document.getElementById('organ-systems-container');
+      if (!container) return;
+
+      container.innerHTML = ORGAN_SYSTEMS.map(system => {
+        const isActive = system.status === 'active';
+
+        // Logo rendering logic
+        let logoHtml = '';
+        if (system.logo) {
+          logoHtml = `<img src="${system.logo}" alt="${system.name} Logo" class="h-14 w-auto object-contain max-w-[80px]" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" /><div class="hidden text-3xl">${system.iconFallback}</div>`;
+        } else if (system.iconSvg) {
+          logoHtml = `<div class="p-2.5 rounded-xl bg-slate-100 flex items-center justify-center">${system.iconSvg}</div>`;
+        } else {
+          logoHtml = `<div class="text-3xl">${system.iconFallback}</div>`;
+        }
+
+        // Q-Bank Action Link
+        let qbankActionHtml = '';
+        if (isActive && system.quizLink) {
+          qbankActionHtml = `
+            <a href="${system.quizLink}"
+               class="inline-flex items-center justify-between w-full px-4 py-2.5 bg-medtime-blue hover:bg-sky-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm group">
+              <span>▶ Launch ${system.quizTitle}</span>
+              <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+          `;
+        } else {
+          qbankActionHtml = `
+            <button disabled class="inline-flex items-center justify-between w-full px-4 py-2.5 bg-slate-100 text-slate-400 rounded-lg text-sm font-semibold cursor-not-allowed border border-slate-200">
+              <span>🔒 ${system.quizTitle} (Coming Soon)</span>
+              <span class="text-xs font-normal">Pending</span>
+            </button>
+          `;
+        }
+
+        // HY Resources Section
+        let hySectionHtml = '';
+        if (system.hyResources && system.hyResources.length > 0) {
+          const resourceLinks = system.hyResources.map(res => `
+            <li>
+              <a href="${res.url}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-medium text-medtime-blue hover:underline">
+                <span>⚡</span> ${res.title}
+              </a>
+            </li>
+          `).join('');
+
+          hySectionHtml = `
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">High-Yield Resources</span>
+              <ul class="space-y-1.5">
+                ${resourceLinks}
+              </ul>
+            </div>
+          `;
+        } else {
+          // Placeholder infrastructure for expanding HY resources
+          hySectionHtml = `
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                <span class="uppercase tracking-wider font-semibold text-slate-400">High-Yield Resources</span>
+                <span class="italic text-[11px] text-slate-400">Expandable</span>
+              </div>
+            </div>
+          `;
+        }
+
+        // Header link for logo + title
+        const headerInteractive = isActive && system.quizLink ? `
+          <a href="${system.quizLink}" class="flex items-center gap-3 group-hover:opacity-90 transition-opacity flex-1">
+            <div class="flex-shrink-0 flex items-center justify-center min-w-[50px]">
+              ${logoHtml}
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-slate-900 group-hover:text-medtime-blue transition-colors leading-snug">
+                ${system.name}
+              </h2>
+              <p class="text-xs text-slate-500 line-clamp-2 mt-0.5">
+                ${system.tagline}
+              </p>
+            </div>
+          </a>
+        ` : `
+          <div class="flex items-center gap-3 flex-1 opacity-75">
+            <div class="flex-shrink-0 flex items-center justify-center min-w-[50px]">
+              ${logoHtml}
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-slate-800 leading-snug">
+                ${system.name}
+              </h2>
+              <p class="text-xs text-slate-500 line-clamp-2 mt-0.5">
+                ${system.tagline}
+              </p>
+            </div>
+          </div>
+        `;
+
+        return `
+          <div class="bg-white rounded-xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between group">
+            <div>
+              <div class="flex items-start justify-between gap-3 mb-4">
+                ${headerInteractive}
+              </div>
+            </div>
+
+            <div class="mt-2">
+              ${qbankActionHtml}
+              ${hySectionHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Initialize rendering
+    document.addEventListener('DOMContentLoaded', renderOrganSystems);
+  </script>
+</body>
+</html>
