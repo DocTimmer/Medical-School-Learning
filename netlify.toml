@@ -1,2 +1,4 @@
+# Netlify configuration for static site
 [build]
+  command = "echo 'Static site deploy'"
   publish = "."
