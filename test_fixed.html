@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js" defer></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1036,7 +1034,7 @@ html.dark-mode .mobile-swipe-guide-hint {
       </div>
 
       <div class="ex-question-text" id="q-content"></div>
-      <img id="q-image" class="question-image" style="display:none;" alt="Question image">
+      <img id="q-image" class="question-image" src="" style="display:none;" alt="Question image">
       <div class="current-sel-text" id="currently-selected-text"></div>
 
       <div class="ex-option-container" id="q-options"></div>
@@ -1867,7 +1865,7 @@ function renderMenu() {
   const container = document.getElementById('quiz-menu-container');
 
   let quizzes = DB.quizzes.filter(q => !q.isCustom || q.keepCustom);
-  
+
   // Search filter
   if (searchVal) {
     quizzes = quizzes.filter(q => q.title.toLowerCase().includes(searchVal));
@@ -2683,7 +2681,7 @@ function formatQuestionForAnki(q) {
   if (q.imageUrl) {
     const imgSrc = typeof resolveImage === 'function' ? resolveImage(q.imageUrl) : q.imageUrl;
     if (imgSrc) {
-      questionHtml += '<div style="margin-top:10px;"><' + 'img src="' + encodeURI(imgSrc) + '" style="max-width:100%; height:auto;" /></div>';
+      questionHtml += '<div style="margin-top:10px;"><img src="' + imgSrc + '" style="max-width:100%; height:auto;" /></div>';
     }
   }
 
@@ -2762,12 +2760,10 @@ async function buildClientSideApkg(deckTitle, targetQuestions, fileSuffix = '') 
     await loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js');
   }
 
-  if (!window._SQL_INSTANCE) {
-    window._SQL_INSTANCE = await window.initSqlJs({
-      locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/${file}`
-    });
-  }
-  const db = new window._SQL_INSTANCE.Database();
+  const SQL = await window.initSqlJs({
+    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/${file}`
+  });
+  const db = new SQL.Database();
 
   db.run(`
     CREATE TABLE cards (
@@ -2926,16 +2922,6 @@ async function exportQuizToAnki(id, scope = 'missed') {
     raw_questions: ankiFormatted,
     template: 'examplify'
   };
-
-  const isLocalOrigin = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-  if (!isLocalOrigin) {
-    try {
-      await buildClientSideApkg(deckTitle, targetQuestions, fileSuffix);
-      return;
-    } catch (clientErr) {
-      console.warn('Browser APKG builder failed, attempting server endpoints:', clientErr);
-    }
-  }
 
   const endpoints = [];
   if (window.location.origin && window.location.origin.startsWith('http')) {
