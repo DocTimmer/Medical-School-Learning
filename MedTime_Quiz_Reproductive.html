@@ -412,7 +412,7 @@ html.dark-mode .dropdown-divider {
 .ex-table-header-bar {
   display: flex; align-items: center; background: var(--ex-hover); border: 1px solid var(--ex-border);
   border-bottom: 2px solid var(--ex-blue); border-radius: 8px; padding: 8px 16px; margin-bottom: 6px;
-  width: 100%; max-width: 720px; box-sizing: border-box;
+  width: 100%; max-width: 100%; box-sizing: border-box;
 }
 .ex-th-spacer-left { width: 24px; flex-shrink: 0; }
 .ex-th-spacer-right { width: 39px; flex-shrink: 0; }
@@ -427,6 +427,106 @@ html.dark-mode .dropdown-divider {
 }
 .ex-option.correct .ex-td-col { color: #166534 !important; }
 .ex-option.wrong .ex-td-col { color: #991b1b !important; }
+html.dark-mode .ex-option.correct .ex-td-col { color: #86efac !important; }
+html.dark-mode .ex-option.wrong .ex-td-col { color: #fca5a5 !important; }
+
+/* Authentic NBME / USMLE Lab Values Table */
+.nbme-lab-table-container {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0;
+  width: 100%;
+  overflow-x: auto;
+}
+.nbme-lab-table {
+  border-collapse: collapse;
+  margin: 0 auto;
+  width: auto;
+  min-width: 360px;
+  max-width: 96%;
+  font-size: 14px;
+  line-height: 1.45;
+  border-top: 2px solid #111111;
+  border-bottom: 2px solid #111111;
+  background: transparent;
+  color: #111111;
+}
+.nbme-lab-table th {
+  padding: 6px 16px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  border-bottom: 1.5px solid #111111;
+  color: #1b4376;
+  background: #e2e8f0;
+}
+.nbme-lab-table td {
+  padding: 6px 16px;
+  text-align: left;
+  border-bottom: 1px solid #cbd5e1;
+  color: #111111;
+}
+.nbme-lab-table td.lab-name {
+  font-weight: 500;
+  color: #111111;
+}
+.nbme-lab-table td.lab-val {
+  font-weight: 700;
+  color: #000000;
+}
+.nbme-lab-table td.lab-ref {
+  color: #4b5563;
+  font-size: 13px;
+}
+
+/* Dark Mode Lab Table */
+html.dark-mode .nbme-lab-table {
+  border-top-color: #cbd5e1;
+  border-bottom-color: #cbd5e1;
+  color: #e6e8eb;
+}
+html.dark-mode .nbme-lab-table th {
+  background: #25282c;
+  color: #6aaddc;
+  border-bottom-color: #cbd5e1;
+}
+html.dark-mode .nbme-lab-table td {
+  border-bottom-color: #4d535c;
+  color: #e6e8eb;
+}
+html.dark-mode .nbme-lab-table td.lab-name {
+  color: #e6e8eb;
+}
+html.dark-mode .nbme-lab-table td.lab-val {
+  color: #ffffff;
+}
+html.dark-mode .nbme-lab-table td.lab-ref {
+  color: #94a3b8;
+}
+
+/* Authentic NBME Image Presentation */
+.nbme-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 18px auto;
+  width: 100%;
+  text-align: center;
+}
+.nbme-image-container img {
+  max-height: 42vh;
+  max-width: 95%;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  object-fit: contain;
+  background: #ffffff;
+}
+html.dark-mode .nbme-image-container img {
+  border-color: #4d535c;
+  background: #1e2227;
+}
 
 .rationale-box { margin-top: 28px; padding: 18px; border: 1px solid var(--ex-border); border-radius: 8px; background: var(--ex-bg); display: none; }
 .rationale-header { color: var(--ex-blue); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; }
