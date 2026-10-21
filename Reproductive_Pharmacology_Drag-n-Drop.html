@@ -76,7 +76,7 @@
   .cat-badge-side-effects { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
 
   /* Locked State - High Contrast */
-  .draggable-item.locked { cursor:default; background:#78350f; color:#ffffff; border:1px solid #fcd34d; box-shadow:none; transform:none; width:100%; font-weight:400; text-align:left; padding:8px 10px; margin-bottom:2px; display:block; font-size:.74em; height:auto; border-radius:5px; }
+  .draggable-item.locked { cursor:default; background:#78350f; color:#ffffff; border:1px solid #fcd34d; box-shadow:none; transform:none; width:100%; font-weight:400; text-align:left; padding:8px 10px; margin-bottom:0px; display:block; font-size:.74em; height:auto; border-radius:5px; pointer-events:none; }
   .draggable-item.locked strong { color:#fde047; font-weight:600; }
   .draggable-item.locked em { color:#fed7aa; }
   .draggable-item.locked .card-cat-badge { display:none; }
@@ -98,7 +98,7 @@
   .badge-labor { background:rgba(249,115,22,0.2); color:#fed7aa; border:1px solid rgba(249,115,22,0.3); }
   .badge-ed { background:rgba(6,182,212,0.2); color:#a5f3fc; border:1px solid rgba(6,182,212,0.3); }
 
-  .drop-zone { min-height:85px; height:100%; display:flex; flex-direction:column; align-items:stretch; justify-content:center; transition:0.2s; padding:4px; background:rgba(255,255,255,0.03); border-radius:5px; border:1px dashed rgba(255,255,255,0.1); }
+  .drop-zone { min-height:85px; height:100%; display:flex; flex-direction:column; align-items:stretch; justify-content:center; gap:5px; transition:0.2s; padding:5px; background:rgba(255,255,255,0.03); border-radius:5px; border:1px dashed rgba(255,255,255,0.1); }
   .drop-zone.drag-over { background:rgba(245,158,11,0.18); box-shadow:inset 0 0 0 2px #fb923c; border-color:#fb923c; }
   .drop-zone.cell-target { border-color:#38bdf8; background:rgba(56,189,248,0.1); cursor:pointer; }
   .drop-zone.has-item { border-style:solid; border-color:transparent; background:transparent; }
@@ -144,7 +144,7 @@
   <div class="stats-controls">
     <div class="stats">
       <div class="stat-item">
-        <span class="stat-label">Locked Features:</span><span id="score">0</span> / <span id="total">42</span>
+        <span class="stat-label">Locked Features:</span><span id="score">0</span> / <span id="total">44</span>
         <div class="progress-bar-container"><div class="progress-bar-fill" id="progress-bar"></div></div>
       </div>
       <div class="section-filter">
@@ -171,14 +171,14 @@
     <div class="word-bank-container">
       <div class="word-bank-header">
         <div class="word-bank-title">📦 Grouped Word Bank</div>
-        <span class="word-bank-count" id="bank-count">42 items</span>
+        <span class="word-bank-count" id="bank-count">44 items</span>
       </div>
       <input type="text" class="bank-search" id="bank-search" placeholder="🔍 Search mechanisms, indications, toxicities..." oninput="filterBankCards()">
       <div class="click-tip">💡 Tip: Drag card into cell OR click a card to select it, then click cell!</div>
       
       <div class="bank-tabs" id="bank-tabs">
-        <button class="tab-btn active" onclick="switchCategoryTab('all', this)">All Features</button>
-        <button class="tab-btn" onclick="switchCategoryTab('Mechanism of Action', this)">Mechanisms (14)</button>
+        <button class="tab-btn active" onclick="switchCategoryTab('all', this)">All Features (44)</button>
+        <button class="tab-btn" onclick="switchCategoryTab('Mechanism of Action', this)">Mechanisms (16)</button>
         <button class="tab-btn" onclick="switchCategoryTab('Clinical Use & Indications', this)">Clinical Uses (14)</button>
         <button class="tab-btn" onclick="switchCategoryTab('Side Effects & Toxicities', this)">Side Effects (14)</button>
       </div>
@@ -387,6 +387,10 @@ const drugsData = [
     "section_name": "SERMs & Estrogen Modulators",
     "section_badge": "SERM (Breast Antagonist / Endometrial Agonist)",
     "badge_class": "badge-serms",
+    "mechanism_items": [
+      "<strong>SERM</strong>: Estrogen receptor <strong>antagonist at the breast</strong>.",
+      "<strong>SERM</strong>: Partial estrogen receptor <strong>agonist on endometrial tissue and bone</strong>."
+    ],
     "mechanism": "<strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>\u2022 Estrogen receptor <strong>antagonist at the breast</strong>.<br>\u2022 Partial estrogen receptor <strong>agonist on endometrial tissue and bone</strong>.",
     "clinical_use": "Treatment and prevention of <strong>ER-positive (and PR-positive) breast cancer</strong> in both premenopausal and postmenopausal women.",
     "side_effects": "\u2022 <strong>Increased risk of endometrial hyperplasia and endometrial cancer</strong> (agonist at uterus).<br>\u2022 <strong>Deep venous thrombosis (DVT) and pulmonary embolism (PE)</strong> (hepatic procoagulant synthesis).<br>\u2022 Hot flashes.",
@@ -398,6 +402,10 @@ const drugsData = [
     "section_name": "SERMs & Estrogen Modulators",
     "section_badge": "SERM (Bone Agonist / Endometrial Antagonist)",
     "badge_class": "badge-serms",
+    "mechanism_items": [
+      "<strong>SERM</strong>: Estrogen receptor <strong>agonist at bone</strong> (prevents bone resorption).",
+      "<strong>SERM</strong>: Estrogen receptor <strong>antagonist at breast and endometrium</strong>."
+    ],
     "mechanism": "<strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>\u2022 Estrogen receptor <strong>agonist at bone</strong> (inhibits osteoclast resorption).<br>\u2022 Estrogen receptor <strong>antagonist at breast AND endometrium</strong>.",
     "clinical_use": "Treatment and prevention of <strong>postmenopausal osteoporosis</strong>; also reduces risk of invasive breast cancer in high-risk postmenopausal women.",
     "side_effects": "\u2022 <strong>Leg cramps</strong>, hot flashes.<br>\u2022 <strong>Deep venous thrombosis (DVT) and pulmonary embolism (PE)</strong> (increased thromboembolism risk).",
@@ -592,7 +600,14 @@ const rawData = [
     "cat": "Mechanism of Action",
     "cat_slug": "mechanism",
     "section_id": "serms",
-    "text": "<strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>\u2022 Estrogen receptor <strong>antagonist at the breast</strong>.<br>\u2022 Partial estrogen receptor <strong>agonist on endometrial tissue and bone</strong>."
+    "text": "<strong>SERM</strong>: Estrogen receptor <strong>antagonist at the breast</strong>."
+  },
+  {
+    "drug": "Tamoxifen",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "serms",
+    "text": "<strong>SERM</strong>: Partial estrogen receptor <strong>agonist on endometrial tissue and bone</strong>."
   },
   {
     "drug": "Tamoxifen",
@@ -613,7 +628,14 @@ const rawData = [
     "cat": "Mechanism of Action",
     "cat_slug": "mechanism",
     "section_id": "serms",
-    "text": "<strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>\u2022 Estrogen receptor <strong>agonist at bone</strong> (inhibits osteoclast resorption).<br>\u2022 Estrogen receptor <strong>antagonist at breast AND endometrium</strong>."
+    "text": "<strong>SERM</strong>: Estrogen receptor <strong>agonist at bone</strong> (prevents bone resorption)."
+  },
+  {
+    "drug": "Raloxifene",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "serms",
+    "text": "<strong>SERM</strong>: Estrogen receptor <strong>antagonist at breast and endometrium</strong>."
   },
   {
     "drug": "Raloxifene",
@@ -857,8 +879,21 @@ function initQuizTable() {
       dz.dataset.drug = d.drug;
       dz.dataset.cat = cat;
       
+      const expectedCount = rawData.filter(item => item.drug === d.drug && item.cat === cat).length;
+      dz.dataset.required = expectedCount;
+      if (expectedCount > 1) {
+        dz.setAttribute("title", `Drop ${expectedCount} features here`);
+      }
+      
       // Drag events
-      dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("drag-over"); });
+      dz.addEventListener("dragover", e => {
+        const currentLocked = dz.querySelectorAll(".draggable-item.locked").length;
+        const requiredCount = parseInt(dz.dataset.required || "1", 10);
+        if (currentLocked < requiredCount) {
+          e.preventDefault();
+          dz.classList.add("drag-over");
+        }
+      });
       dz.addEventListener("dragleave", () => { dz.classList.remove("drag-over"); });
       dz.addEventListener("drop", handleDropEvent);
       
@@ -919,8 +954,10 @@ function selectCard(cardElement) {
     document.querySelectorAll(".draggable-item").forEach(c => c.classList.remove("selected"));
     selectedItemId = cardElement.id;
     cardElement.classList.add("selected");
-    document.querySelectorAll(".drop-zone:not(.has-item)").forEach(z => {
-      if (z.dataset.cat === cardElement.dataset.cat) {
+    document.querySelectorAll(".drop-zone").forEach(z => {
+      const currentLocked = z.querySelectorAll(".draggable-item.locked").length;
+      const requiredCount = parseInt(z.dataset.required || "1", 10);
+      if (currentLocked < requiredCount && z.dataset.cat === cardElement.dataset.cat) {
         z.classList.add("cell-target");
       } else {
         z.classList.remove("cell-target");
@@ -947,7 +984,10 @@ function handleDropEvent(e) {
 }
 
 function attemptPlacement(draggedElement, dz) {
-  if (dz.classList.contains("has-item")) return;
+  const currentLocked = dz.querySelectorAll(".draggable-item.locked").length;
+  const requiredCount = parseInt(dz.dataset.required || "1", 10);
+  
+  if (currentLocked >= requiredCount) return;
   
   if (draggedElement.dataset.drug === dz.dataset.drug && draggedElement.dataset.cat === dz.dataset.cat) {
     // Correct Match
@@ -956,8 +996,12 @@ function attemptPlacement(draggedElement, dz) {
     draggedElement.classList.add("locked");
     draggedElement.parentElement.removeChild(draggedElement);
     dz.appendChild(draggedElement);
-    dz.classList.add("has-item");
-    dz.classList.remove("cell-target");
+    
+    const newLocked = dz.querySelectorAll(".draggable-item.locked").length;
+    if (newLocked >= requiredCount) {
+      dz.classList.add("has-item");
+      dz.classList.remove("cell-target");
+    }
     
     selectedItemId = null;
     document.querySelectorAll(".drop-zone").forEach(z => z.classList.remove("cell-target"));
@@ -1046,7 +1090,12 @@ function showAllAnswers() {
       item.classList.add("locked");
       item.parentElement.removeChild(item);
       targetZone.appendChild(item);
-      targetZone.classList.add("has-item");
+      
+      const currentLocked = targetZone.querySelectorAll(".draggable-item.locked").length;
+      const requiredCount = parseInt(targetZone.dataset.required || "1", 10);
+      if (currentLocked >= requiredCount) {
+        targetZone.classList.add("has-item");
+      }
     }
   });
   selectedItemId = null;
