@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Female Cancers & Ovarian Pathologies Drag-n-Drop</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Lexend',sans-serif; background:#0f172a; color:#f1f5f9; padding:15px; min-height:100vh; }
+  .container { max-width:1680px; margin:0 auto; }
+  
+  /* Header styling */
+  header { text-align:center; margin-bottom:14px; }
+  h1 { color:#fb923c; margin-bottom:5px; font-size:1.8em; text-shadow:0 0 15px rgba(245,158,11,0.3); font-weight:700; }
+  .subtitle { color:#94a3b8; font-size:.85em; max-width:1050px; margin:0 auto 12px; line-height:1.4; }
+  
+  /* Controls & Stats Bar */
+  .stats-controls { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; background:#1e293b; padding:10px 16px; border-radius:10px; border:1px solid #334155; }
+  .stats { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .stat-item { background:rgba(245,158,11,0.12); padding:6px 14px; border-radius:6px; border:1px solid rgba(245,158,11,0.4); font-size:0.85em; }
+  .stat-label { color:#fb923c; font-weight:700; margin-right:6px; }
+  .progress-bar-container { width:140px; height:8px; background:#0f172a; border-radius:4px; overflow:hidden; border:1px solid #334155; display:inline-block; vertical-align:middle; margin-left:8px; }
+  .progress-bar-fill { height:100%; width:0%; background:#fb923c; transition:width 0.3s; }
+  
+  /* Section filter pills */
+  .section-filter { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+  .sec-btn { padding:5px 11px; border-radius:6px; border:1px solid #334155; background:#0f172a; color:#94a3b8; font-size:0.75em; font-weight:600; cursor:pointer; transition:0.2s; }
+  .sec-btn:hover { color:#f1f5f9; border-color:#fb923c; }
+  .sec-btn.active { background:rgba(251,146,60,0.22); color:#fed7aa; border-color:#fb923c; font-weight:700; }
+
+  .controls { display:flex; gap:8px; flex-wrap:wrap; }
+  .btn { padding:7px 15px; border:none; border-radius:6px; cursor:pointer; font-size:.8em; font-weight:600; transition:.2s; display:inline-flex; align-items:center; gap:5px; }
+  .btn-primary { background:#fb923c; color:#0f172a; font-weight:700; }
+  .btn-primary:hover { background:#f97316; }
+  .btn-secondary { background:#0f172a; color:#f1f5f9; border:1px solid rgba(245,158,11,0.4); }
+  .btn-secondary:hover { background:#334155; border-color:#fb923c; }
+  .btn-danger { background:#0f172a; color:#94a3b8; border:1px solid #334155; }
+  .btn-danger:hover { color:#ef4444; border-color:#ef4444; background:#1e293b; }
+
+  /* Main Grid Content */
+  .main-content { display:grid; grid-template-columns:380px 1fr; gap:16px; align-items:start; }
+  
+  /* Sticky Word Bank */
+  .word-bank-container { position:sticky; top:15px; background:#1e293b; border-radius:10px; padding:14px; border:1px solid #334155; box-shadow:0 4px 20px rgba(0,0,0,.4); max-height:calc(100vh - 30px); display:flex; flex-direction:column; }
+  .word-bank-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .word-bank-title { color:#fb923c; font-size:1em; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .word-bank-count { font-size:0.75em; background:#0f172a; padding:2px 8px; border-radius:10px; color:#cbd5e1; border:1px solid #334155; }
+  
+  .bank-search { width:100%; padding:7px 10px; border-radius:6px; border:1px solid #334155; background:#0f172a; color:#f1f5f9; font-size:0.75em; margin-bottom:8px; font-family:inherit; }
+  .bank-search:focus { outline:none; border-color:#fb923c; }
+  .click-tip { font-size:0.7em; color:#94a3b8; margin-bottom:8px; text-align:center; background:rgba(0,0,0,0.25); padding:4px 6px; border-radius:4px; }
+  
+  .bank-tabs { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px; border-bottom:1px solid #334155; padding-bottom:8px; }
+  .tab-btn { padding:5px 9px; border-radius:5px; border:1px solid transparent; background:#0f172a; color:#94a3b8; font-size:0.7em; font-weight:700; cursor:pointer; transition:0.2s; }
+  .tab-btn:hover { color:#f1f5f9; }
+  .tab-btn.active { background:#fb923c; color:#0f172a; border-color:#fb923c; }
+  
+  .word-bank { display:flex; flex-direction:column; gap:8px; overflow-y:auto; padding:4px; flex-grow:1; max-height:calc(100vh - 230px); }
+  .word-bank::-webkit-scrollbar { width:5px; }
+  .word-bank::-webkit-scrollbar-thumb { background:#fb923c; border-radius:3px; }
+  
+  /* Draggable Items */
+  .draggable-item { background:#fef3c7; color:#78350f; padding:9px 12px; border-radius:6px; cursor:grab; border:1px solid #d97706; font-size:.75em; font-weight:500; text-align:left; box-shadow:0 2px 4px rgba(0,0,0,0.25); transition:transform 0.1s, box-shadow 0.1s; line-height:1.45; }
+  .draggable-item:active { cursor:grabbing; }
+  .draggable-item:hover:not(.locked) { transform:translateY(-2px); background:#fde68a; box-shadow:0 4px 8px rgba(0,0,0,0.3); }
+  .draggable-item.dragging { opacity:0.35; }
+  .draggable-item.selected { outline:2px solid #38bdf8; box-shadow:0 0 10px rgba(56,189,248,0.7); background:#fef08a; }
+  .draggable-item strong { color:#451a03; }
+  .draggable-item em { color:#78350f; }
+
+  /* Locked State - High Contrast */
+  .draggable-item.locked { cursor:default; background:#78350f; color:#ffffff; border:1px solid #fcd34d; box-shadow:none; transform:none; width:100%; font-weight:400; text-align:left; padding:8px 10px; margin-bottom:2px; display:block; font-size:.74em; height:auto; border-radius:5px; }
+  .draggable-item.locked strong { color:#fde047; font-weight:600; }
+  .draggable-item.locked em { color:#fed7aa; }
+
+  /* Master Table */
+  .table-wrapper { overflow-x:auto; background:#1e293b; border-radius:10px; padding:10px; border:1px solid #334155; box-shadow:0 4px 20px rgba(0,0,0,0.4); }
+  table { width:100%; border-collapse:separate; border-spacing:5px; table-layout:fixed; background:transparent; }
+  th, td { border-radius:6px; padding:4px; vertical-align:top; border:1px solid rgba(255,255,255,0.08); }
+  
+  th { background:#fb923c; color:#0f172a; font-size:0.84em; font-weight:700; text-align:center; padding:11px 8px; position:sticky; top:0; z-index:10; box-shadow:0 2px 4px rgba(0,0,0,0.2); }
+  .side-header { background:#0f172a; color:#fed7aa; font-size:.76em; font-weight:700; text-align:center; vertical-align:middle; width:20%; border:1px solid #334155; padding:8px 8px; line-height:1.35; }
+  .sec-badge { display:block; font-size:0.62em; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:2px 6px; border-radius:4px; margin-bottom:4px; }
+  .badge-germ_cell { background:rgba(168,85,247,0.2); color:#e9d5ff; border:1px solid rgba(168,85,247,0.3); }
+  .badge-sex_cord { background:rgba(236,72,153,0.2); color:#fbcfe8; border:1px solid rgba(236,72,153,0.3); }
+  .badge-epithelial { background:rgba(59,130,246,0.2); color:#bfdbfe; border:1px solid rgba(59,130,246,0.3); }
+  .badge-cysts { background:rgba(34,197,94,0.2); color:#bbf7d0; border:1px solid rgba(34,197,94,0.3); }
+  .badge-uterine { background:rgba(249,115,22,0.2); color:#fed7aa; border:1px solid rgba(249,115,22,0.3); }
+  .badge-breast_benign { background:rgba(20,184,166,0.2); color:#99f6e4; border:1px solid rgba(20,184,166,0.35); }
+  .badge-breast_cancer { background:rgba(244,63,94,0.2); color:#fecdd3; border:1px solid rgba(244,63,94,0.35); }
+
+  .drop-zone { min-height:85px; height:100%; display:flex; flex-direction:column; align-items:stretch; justify-content:center; transition:0.2s; padding:4px; background:rgba(255,255,255,0.03); border-radius:5px; border:1px dashed rgba(255,255,255,0.1); }
+  .drop-zone.drag-over { background:rgba(245,158,11,0.18); box-shadow:inset 0 0 0 2px #fb923c; border-color:#fb923c; }
+  .drop-zone.cell-target { border-color:#38bdf8; background:rgba(56,189,248,0.1); cursor:pointer; }
+  .drop-zone.has-item { border-style:solid; border-color:transparent; background:transparent; }
+
+  /* Shake Animation on Wrong Drop */
+  .shake { animation:shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color:#ef4444 !important; box-shadow:0 0 10px rgba(239,68,68,0.8); background:#fca5a5 !important; color:#7f1d1d !important; }
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(3px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+    40%, 60% { transform: translate3d(5px, 0, 0); }
+  }
+
+  /* Modal */
+  .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; justify-content:center; align-items:center; backdrop-filter:blur(3px); }
+  .modal-content { background:#1e293b; padding:28px; border-radius:12px; max-width:1150px; width:95%; max-height:90vh; overflow-y:auto; color:#f1f5f9; border:2px solid #fb923c; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+  .modal-content h2 { color:#fb923c; margin-bottom:8px; font-size:1.6em; text-align:center; }
+  .modal-content p { color:#94a3b8; font-size:0.88em; margin-bottom:16px; line-height:1.45; text-align:center; }
+  
+  .study-guide-table { width:100%; border-collapse:collapse; font-size:0.78em; margin-top:10px; }
+  .study-guide-table th, .study-guide-table td { border:1px solid #334155; padding:8px 10px; text-align:left; vertical-align:top; line-height:1.45; }
+  .study-guide-table th { background:#0f172a; color:#fb923c; position:sticky; top:0; z-index:2; }
+  .study-guide-table tr:nth-child(even) { background:rgba(255,255,255,0.02); }
+  .study-guide-table strong { color:#fde047; }
+  .study-guide-table em { color:#fed7aa; }
+
+  .modal-close { display:block; margin:20px auto 0; padding:10px 28px; background:#fb923c; color:#0f172a; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-size:0.9em; }
+  .modal-close:hover { background:#f97316; }
+
+  @media(max-width:1150px) {
+    .main-content { grid-template-columns:1fr; }
+    .word-bank-container { position:relative; top:0; max-height:480px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Female Cancers & Ovarian Pathologies Master Table</h1>
+    <p class="subtitle">Direct extraction from your <strong>Female Cancers Running List</strong>. Drag the <em>Key Vignette Clues</em> and <em>Histology / Pathophysiology</em> into their matching tumors, or click a card then click its cell to place.</p>
+  </header>
+
+  <div class="stats-controls">
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-label">Locked Features:</span><span id="score">0</span> / <span id="total">104</span>
+        <div class="progress-bar-container"><div class="progress-bar-fill" id="progress-bar"></div></div>
+      </div>
+      <div class="section-filter">
+        <span style="font-size:0.75em; color:#94a3b8; font-weight:600; margin-right:2px;">Filter:</span>
+        <button class="sec-btn active" onclick="filterSection('all', this)">All (52)</button>
+        <button class="sec-btn" onclick="filterSection('germ_cell', this)">Germ Cell (6)</button>
+        <button class="sec-btn" onclick="filterSection('sex_cord', this)">Sex Cord-Stromal (5)</button>
+        <button class="sec-btn" onclick="filterSection('epithelial', this)">Epithelial (7)</button>
+        <button class="sec-btn" onclick="filterSection('cysts', this)">Cysts & Syndromes (6)</button>
+        <button class="sec-btn" onclick="filterSection('uterine', this)">Cervical & Uterine (7)</button>
+        <button class="sec-btn" onclick="filterSection('breast_benign', this)">Breast Benign (12)</button>
+        <button class="sec-btn" onclick="filterSection('breast_cancer', this)">Breast Cancer (9)</button>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="showAllAnswers()">Show Answers</button>
+      <button class="btn btn-primary" id="btn-explain" onclick="openModal()">View Full Notes / Rx</button>
+      <button class="btn btn-danger" onclick="resetGame()">Reset</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Sticky Word Bank -->
+    <div class="word-bank-container">
+      <div class="word-bank-header">
+        <div class="word-bank-title">📦 Grouped Word Bank</div>
+        <span class="word-bank-count" id="bank-count">104 items</span>
+      </div>
+      <input type="text" class="bank-search" id="bank-search" placeholder="🔍 Search buzzwords or clues..." oninput="filterBankCards()">
+      <div class="click-tip">💡 Tip: Drag card into cell OR click a card to select it, then click cell!</div>
+      
+      <div class="bank-tabs" id="bank-tabs">
+        <button class="tab-btn active" onclick="switchCategoryTab('all', this)">All Features</button>
+        <button class="tab-btn" onclick="switchCategoryTab('Key Vignette Clues', this)">Key Vignette Clues</button>
+        <button class="tab-btn" onclick="switchCategoryTab('Histology / Pathophysiology', this)">Histology / Pathophysiology</button>
+      </div>
+      
+      <div class="word-bank" id="active-word-bank"></div>
+    </div>
+    
+    <!-- Table -->
+    <div class="table-wrapper">
+      <table id="quiz-table">
+        <thead>
+          <tr>
+            <th style="background:#1e293b; color:#fed7aa; width:20%; border:1px solid #334155;">Tumor & Subtype</th>
+            <th style="width:40%;">Key Vignette Clues (Buzzwords)</th>
+            <th style="width:40%;">Histology / Pathophysiology</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Reference Modal -->
+<div class="modal-overlay" id="explanation-modal">
+  <div class="modal-content">
+    <h2>Female Cancers Running List: Complete Master Notes</h2>
+    <p>Complete verbatim notes from your course document, including the <strong>Best Next Step / Treatment / High-Yield Notes</strong> column.</p>
+    
+    <table class="study-guide-table">
+      <thead>
+        <tr>
+          <th style="width:18%;">Tumor & Subtype</th>
+          <th style="width:28%;">Key Vignette Clues</th>
+          <th style="width:28%;">Histology / Pathophysiology</th>
+          <th style="width:26%;">Best Next Step / Treatment / High-Yield Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sec-badge badge-germ_cell">Germ Cell</span><strong>Dysgerminoma</strong></td>
+          <td><strong>Adolescent / young female (10–30 y/o)</strong>; painless adnexal mass; <strong>↑ LDH</strong>, ↑ PLAP, <strong>normal AFP</strong>, +/- mildly ↑ hCG; associated with <strong>Turner syndrome / gonadal dysgenesis</strong>; highly radiosensitive.</td>
+          <td>Sheets of uniform <strong>"fried-egg" cells</strong> (clear cytoplasm, central nuclei) separated by fibrous pseudolobules containing a <strong>lymphocytic infiltrate</strong>.</td>
+          <td><strong>US</strong> → <strong>Unilateral salpingo-oophorectomy</strong> (preserves fertility); exceptionally responsive to chemotherapy if advanced.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-germ_cell">Germ Cell</span><strong>Yolk Sac Tumor (Endodermal Sinus)</strong></td>
+          <td><strong>Young female (<30 y/o)</strong> w/ rapidly expanding, aggressive pelvic mass + abdominal pain; <strong>markedly ↑ AFP</strong>, normal hCG.</td>
+          <td><strong>Schiller-Duval bodies</strong> (glomeruloid-like structures with a central vessel) and intracellular/extracellular hyaline droplets.</td>
+          <td><strong>Surgical resection</strong> (fertility-sparing oophorectomy) + <strong>adjuvant BEP chemotherapy</strong> (Bleomycin, Etoposide, Cisplatin); highly aggressive.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-germ_cell">Germ Cell</span><strong>Mature Cystic Teratoma (Dermoid Cyst)</strong></td>
+          <td><strong>Reproductive-age female (20–30 y/o)</strong>; often asymptomatic or presents with acute pain from <strong>ovarian torsion</strong>; pelvic X-ray or CT shows calcifications/fat densities; <strong>Struma ovarii</strong> variant causes <strong>hyperthyroidism</strong>.</td>
+          <td>Multiple mature germ layers (<strong>calcifications, teeth, hair, sebum</strong>). Malignant transformation is rare but typically presents as <strong>squamous cell carcinoma</strong>.</td>
+          <td><strong>Cystectomy</strong> or oophorectomy; benign in females.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-germ_cell">Germ Cell</span><strong>Immature Teratoma</strong></td>
+          <td><strong>Adolescent / young girl (~18 y/o)</strong>; fast-growing malignant mass; mixed with mature elements (cartilage, bone).</td>
+          <td>Contains <strong>immature/embryonic neural tissue</strong> (neuroectoderm, primitive neuroepithelial tubules). Graded based on amount of immature neuroepithelium.</td>
+          <td><strong>Oophorectomy + combo chemotherapy</strong> (except for Stage I, Grade 1 which can undergo surveillance).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-germ_cell">Germ Cell</span><strong>Choriocarcinoma</strong></td>
+          <td><strong>Young female</strong>; can be gestational or non-gestational; highly malignant with <strong>early hematogenous spread to lungs (hemoptysis / "cannonball" lesions)</strong>; <strong>↑↑↑ [β-hCG]</strong>; mimics hyperthyroidism/precocious puberty due to hCG-TSH/LH homology.</td>
+          <td>Cytotrophoblasts and syncytiotrophoblasts with extensive <strong>hemorrhage & necrosis</strong>; lacks villi.</td>
+          <td><strong>Systemic chemotherapy</strong> (Methotrexate-based for gestational; cisplatin-based BEP for non-gestational) +/- surgical resection.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-germ_cell">Germ Cell</span><strong>Embryonal Carcinoma</strong></td>
+          <td><strong>Adolescent / young female (~15 y/o)</strong>; rare, highly aggressive; <strong>↑ AFP and ↑ hCG</strong>; strongly <strong>CD30 positive</strong>.</td>
+          <td>Sheets of primitive, pleomorphic cells with indistinct borders, extensive sheet-like necrosis, and hemorrhage.</td>
+          <td><strong>Surgical resection + combo chemotherapy</strong>; hematogenous spread is common.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-sex_cord">Sex Cord-Stromal</span><strong>Adult Granulosa Cell Tumor</strong></td>
+          <td><strong>Peri- or Postmenopausal female (~50–54 y/o)</strong>; presents with <strong>abnormal/postmenopausal uterine bleeding</strong> or breast tenderness driven by <strong>↑ estrogen</strong>; large, unilateral mass; <strong>↑ Inhibin (A/B)</strong> and <strong>↑ AMH</strong>.</td>
+          <td><strong>Call-Exner bodies</strong> (microfollicular fluid-filled spaces resembling follicles) and <strong>"coffee-bean" nuclei</strong> (longitudinal nuclear grooves). Driven by a <strong>FOXL2 gene mutation</strong>.</td>
+          <td><strong>Diagnostic</strong><strong>:</strong> Pelvic US → <strong>Endometrial biopsy</strong> (to rule out concurrent endometrial carcinoma).<strong>Treatment</strong><strong>:</strong> TAH-BSO. Characterized by <strong>late recurrence</strong> (10–20 years later).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-sex_cord">Sex Cord-Stromal</span><strong>Juvenile Granulosa Cell Tumor</strong></td>
+          <td><strong>Young girl / Pre-pubertal child (<20 y/o)</strong> presenting with <strong>precocious puberty</strong> (early breast development, pubic hair, vaginal bleeding) or severe menorrhagia; rapidly growing mass; <strong>↑ Inhibin</strong>.</td>
+          <td>Sheets of pleomorphic cells with a high mitotic index; <strong>Call-Exner bodies and "coffee-bean" grooves are absent / rare</strong>. Associated with trisomy 12.</td>
+          <td><strong>Treatment</strong><strong>:</strong> Unilateral salpingo-oophorectomy to preserve fertility (if localized to one ovary). More aggressive early clinical course.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-sex_cord">Sex Cord-Stromal</span><strong>Sertoli-Leydig Cell Tumor</strong></td>
+          <td><strong>Young female (20–30 y/o)</strong> presenting with rapid-onset <strong>virilization / defeminization</strong> driven by <strong>↑ testosterone</strong> (amenorrhea, breast atrophy, <strong>hirsutism, clitomegaly, deep voice</strong>).</td>
+          <td>Tubular structures (Sertoli cells) mixed with interstitial cells containing pink cytoplasm (Leydig cells); may feature <strong>Reinke crystalloids</strong> (rectangular, eosinophilic cytoplasmic inclusions). Associated with <strong>DICER1 mutations</strong>.</td>
+          <td><strong>Diagnostic</strong><strong>:</strong> Ultrasound may reveal a hidden/very small solid adnexal lesion.<strong>Treatment</strong><strong>:</strong> Unilateral oophorectomy. (Voice changes and clitomegaly may partially persist).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-sex_cord">Sex Cord-Stromal</span><strong>Thecoma</strong></td>
+          <td><strong>Postmenopausal female</strong>; benign neoplasm; <strong>produces estrogen</strong> leading to <strong>postmenopausal bleeding</strong> due to endometrial hyperplasia; often paired with fibromas (<em>Fibrothecoma</em>).</td>
+          <td>Plump spindle cells with lipid droplets.</td>
+          <td><strong>Treatment</strong><strong>:</strong> Surgical excision (oophorectomy) is curative; virtually always benign.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-sex_cord">Sex Cord-Stromal</span><strong>Fibroma</strong></td>
+          <td><strong>Middle-aged to older female (~50 y/o)</strong>; hormonally <strong>inactive</strong>; classic vignette pairs this tumor with <strong>Meigs Syndrome</strong> triad: <strong>Ovarian Fibroma + Ascites + Right-sided Hydrothorax</strong>.</td>
+          <td>Composed of bundles of benign spindle-shaped fibroblasts.</td>
+          <td><strong>Treatment</strong><strong>:</strong> Surgical excision is curative. The ascites and pleural effusion completely resolve after the tumor is removed.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-epithelial">Epithelial Ovarian</span><strong>Serous Cystadenoma</strong></td>
+          <td><strong>Premenopausal / Reproductive-age female (30–40 y/o)</strong>; often asymptomatic or mild pelvic pressure; pelvic US shows a <strong>thin-walled, unilocular cystic mass filled with clear, watery fluid</strong>.</td>
+          <td>Lined by a single layer of ciliated columnar epithelium resembling fallopian tube epithelium; <strong>no nuclear atypia, no stromal invasion, no papillary complexity</strong>.</td>
+          <td><strong>Conservative surgical management</strong><strong>:</strong> Ovarian cystectomy or unilateral salpingo-oophorectomy (fertility-sparing).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-epithelial">Epithelial Ovarian</span><strong>Serous Cystadenocarcinoma</strong></td>
+          <td><strong>Postmenopausal female (60–70 y/o)</strong> with <strong>abdominal distention/bloating, early satiety</strong>, or ascites; <strong>most common malignant ovarian tumor overall</strong>; frequently <strong>bilateral</strong> (~66%); <strong>↑ CA-125</strong>; associated with <strong>BRCA1/2</strong> and <strong>Lynch syndrome</strong>.</td>
+          <td>Papillary architecture, cellular pleomorphism, destructive stromal invasion, and concentric laminated calcifications called <strong>Psammoma bodies</strong>. Often originates from the <strong>fimbriated end of the fallopian tube</strong>.</td>
+          <td><strong>Diagnostic</strong><strong>:</strong> Pelvic US → staging laparotomy.<strong>Treatment</strong><strong>:</strong> Surgical debulking (tumor cytoreduction) + <strong>platinum-taxane chemotherapy</strong> (Cisplatin/Carboplatin + Paclitaxel).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-epithelial">Epithelial Ovarian</span><strong>Mucinous Cystadenoma</strong></td>
+          <td><strong>Reproductive-age female (30–50 y/o)</strong>; presents with a remarkably <strong>massive, slow-growing abdominal mass</strong> causing pronounced abdominal fullness or distention.</td>
+          <td>Multilocular mass filled with thick, gelatinous/mucinous fluid; lined by a single layer of tall columnar cells with apical mucin vacuoles resembling <strong>endocervix / GI epithelium</strong>; no stromal invasion.</td>
+          <td><strong>Surgical resection</strong><strong>:</strong> Oophorectomy or cystectomy with careful intraoperative intact removal to avoid spillage of mucinous contents.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-epithelial">Epithelial Ovarian</span><strong>Mucinous Cystadenocarcinoma</strong></td>
+          <td><strong>Postmenopausal female (50–60 y/o)</strong>; rapidly expanding pelvic/abdominal mass with early peritoneal dissemination; rupture/seeding results in <strong>Pseudomyxoma peritonei</strong> (massive intra-abdominal gelatinous ascites / "jelly belly").</td>
+          <td>Marked cellular atypia and destructive stromal invasion of mucin-producing epithelial cells.</td>
+          <td><strong>Treatment</strong><strong>:</strong> Surgical debulking + systemic chemotherapy. <strong>High-Yield Note</strong><strong>:</strong> Must <strong>rule out an appendiceal primary neoplasm</strong> (or GI tract metastasis) with a colonoscopy/appendectomy.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-epithelial">Epithelial Ovarian</span><strong>Endometrioid Carcinoma</strong></td>
+          <td><strong>Perimenopausal or postmenopausal female (50–60 y/o)</strong>; frequently arises on a background of <strong>chronic ovarian endometriosis</strong> (alongside endometriomas); associated with <strong>PTEN mutations</strong> and <strong>Lynch syndrome</strong>.</td>
+          <td>Malignant glandular proliferation containing tubular glands that <strong>mimic proliferative/secretory endometrium</strong>.</td>
+          <td><strong>Treatment</strong><strong>:</strong> TAH-BSO + surgical staging. <strong>High-Yield Association</strong><strong>:</strong> 15–30% of cases are diagnosed with a <strong>synchronous (concurrent) primary endometrial adenocarcinoma of the uterus</strong>.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-epithelial">Epithelial Ovarian</span><strong>Clear Cell Carcinoma</strong></td>
+          <td><strong>Middle-aged to older female (40–60 y/o)</strong>; rare, aggressive epithelial subtype presenting with a large unilateral pelvic mass; strongly associated with <strong>pre-existing pelvic endometriosis</strong>.</td>
+          <td>Features <strong>"hobnail" cells</strong> (prominent atypical nuclei protruding into gland lumens) and glycogen-rich clear cytoplasm.</td>
+          <td><strong>Treatment</strong><strong>:</strong> Surgical debulking + aggressive chemotherapy; frequently demonstrates resistance to standard platinum agents. May trigger paraneoplastic <strong>hypercalcemia</strong>.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-epithelial">Epithelial Ovarian</span><strong>Brenner Tumor</strong></td>
+          <td><strong>Postmenopausal female (~50–70 y/o)</strong>; almost always <strong>benign</strong>, unilateral, and found incidentally as a solid, pale-yellow/tan, circumscribed, fibrous ovarian mass.</td>
+          <td>Nests of <strong>urothelial/transitional epithelium</strong> (resembling the <strong>urinary bladder</strong>) surrounded by dense ovarian stroma; characteristically exhibits <strong>"coffee-bean" nuclei</strong> (longitudinal nuclear grooves).</td>
+          <td><strong>Treatment</strong><strong>:</strong> Simple surgical excision (oophorectomy/cystectomy) is curative. <strong>"B's":</strong> <strong>B</strong>renner = <strong>B</strong>enign, <strong>B</strong>bladder-like epithelium, <strong>B</strong>ecoming encapsulated, with "coffee-<strong>B</strong>ean" nuclei.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-cysts">Non-Neoplastic Cysts</span><strong>Follicular Cyst (Younger / Pre-pubertal)</strong></td>
+          <td><strong>Young girl (<8 y/o)</strong> presenting with sudden-onset <strong>peripheral precocious puberty</strong> (breast buds, pubic hair, early menses) due to autonomous <strong>↑ estrogen</strong>; bone age may be advanced; low/suppressed LH/FSH.</td>
+          <td>Arises when a follicle fails to rupture or an unruptured follicle undergoes fluid distention; lined by granulosa and outerca cells without atypia.</td>
+          <td><strong>Next Step</strong><strong>:</strong> Pelvic ultrasound (shows unilocular, thin-walled simple cyst). <strong>Treatment</strong><strong>:</strong> Reassurance and observation; most spontaneously regress over 2–3 months.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-cysts">Non-Neoplastic Cysts</span><strong>Follicular Cyst (Reproductive-Age)</strong></td>
+          <td><strong>Reproductive-age female</strong> presenting with a sudden delay in menses followed by <strong>heavy, irregular bleeding (menorrhagia/anovulatory bleeding)</strong>; may cause mild unilateral pelvic aching.</td>
+          <td>Arises when a dominant graafian follicle fails to rupture and continues growing; lined by normal granulosa cells.</td>
+          <td><strong>Next Step</strong><strong>:</strong> Pelvic ultrasound to confirm a simple cyst (<5–10 cm). <strong>Treatment</strong><strong>:</strong> <strong>Expectant surveillance</strong> for 6–8 weeks as most self-resolve.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-cysts">Non-Neoplastic Cysts</span><strong>Corpus Luteum Cyst</strong></td>
+          <td><strong>Reproductive-age female</strong> presenting with delayed menses, a palpable adnexal mass, and <strong>unilateral lower quadrant pain</strong> during the <strong>luteal phase</strong> (days 14–28); can rupture causing sudden pain and <strong>hemoperitoneum</strong>.</td>
+          <td>Develops from a failure of the corpus luteum to regress after ovulation; central hemorrhage surrounded by a rim of luteinized granulosa cells.</td>
+          <td><strong>Next Step</strong><strong>:</strong> Pelvic US shows thick-walled cyst with peripheral <strong>"ring of fire"</strong> vascularity. Always obtain a <strong>β-hCG</strong> to rule out ectopic pregnancy. <strong>Treatment</strong><strong>:</strong> Observation if stable; laparoscopy if unstable.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-cysts">Non-Neoplastic Cysts</span><strong>Theca Lutein Cyst</strong></td>
+          <td><strong>Pregnant female</strong> or fertility patient; characteristically <strong>bilateral and massive</strong>; driven by abnormally high levels of <strong>hCG</strong>; associated with <strong>Choriocarcinoma, Complete Hydatidiform Mole</strong>, or twin pregnancies.</td>
+          <td>Hyperplasia and hypertrophy of the theca interna cells driven by massive gonadotropin (hCG) overstimulation.</td>
+          <td><strong>Next Step</strong><strong>:</strong> Quantitative β-hCG and pelvic US (shows multi-cystic, "soap-bubble"/"spoke-wheel" bilateral ovaries). <strong>T</strong><strong>reatment</strong><strong>:</strong> Conservative observation. <strong>Do NOT resect surgically</strong>; they spontaneously regress when hCG drops.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-cysts">Non-Neoplastic Cysts</span><strong>Endometrioma (Chocolate Cyst)</strong></td>
+          <td><strong>Reproductive-age female (20–40 y/o)</strong> presenting with the classic triad of <strong>Dysmenorrhea, Dyspareunia, and Dyschezia</strong>, alongside chronic pelvic pain and infertility; US shows <strong>homogeneous, low-level internal echoes ("ground-glass")</strong>.</td>
+          <td>Ectopic endometrial tissue outside the uterus undergoing cyclic hemorrhage; cyst is filled with thick, dark-brown <strong>altered old blood ("chocolate fluid")</strong>.</td>
+          <td><strong>Next Step</strong><strong>:</strong> Pelvic ultrasound. Laparoscopy/biopsy for definitive diagnosis. <strong>Treatment</strong><strong>:</strong> First-line medical (NSAIDs, continuous OCPs, GnRH agonists). Surgical cystectomy if symptomatic/large.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-cysts">Non-Neoplastic Cysts</span><strong>Polycystic Ovarian Syndrome (PCOS)</strong></td>
+          <td><strong>Adolescent / young reproductive-age female</strong> with <strong>oligomenorrhea/amenorrhea, infertility</strong>, and signs of <strong>hyperandrogenism</strong> (hirsutism, acne, male baldness); associated with <strong>obesity, insulin resistance</strong>, acanthosis nigricans.</td>
+          <td><strong>↑ LH to FSH ratio (>3:1)</strong>; increased androgen production by theca cells. Long-term unopposed estrogen <strong>increases risk of Endometrial Hyperplasia and Adenocarcinoma</strong>.</td>
+          <td><strong>Next Step</strong><strong>:</strong> Pelvic US showing enlarged ovaries with <strong>>12 small subependymal follicles arranged peripherally ("string of pearls")</strong>. <strong>Treatment</strong><strong>:</strong> Weight loss (first-line); OCPs; Metformin; <strong>Clomiphene/Letrozole</strong> for fertility.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-uterine">Cervical & Uterine</span><strong>Cervical Cancer (Squamous vs. Adeno)</strong></td>
+          <td>Female w/ <strong>post-coital</strong> or postmenopausal bleeding; malodorous watery discharge; history of smoking, <strong>HIV/immunosuppression</strong>, or <strong>lack of regular Pap screening</strong>; speculum exam shows a <strong>friable, exophytic mass</strong>; advanced disease causes lateral invasion leading to <strong>ureteral obstruction / hydronephrosis</strong>.</td>
+          <td><strong>Koilocytic atypia</strong> (cells with hyperchromatic, wrinkled nuclei surrounded by a clear halo) indicates precursor HPV 16/18 infection. Squamous cell carcinoma arises from ectocervix/transformation zone; adenocarcinoma arises from endocervix.</td>
+          <td><strong>Diagnostic</strong><strong>:</strong> Pap smear/HPV co-test → Colposcopy with biopsy.<strong>Treatment</strong><strong>:</strong> Localized = Radical hysterectomy or cisplatin-based chemoradiation.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-uterine">Cervical & Uterine</span><strong>Type I Endometrioid Adenocarcinoma (Younger)</strong></td>
+          <td><strong>Younger female (30–50 y/o)</strong> with chronic <strong>anovulatory cycles (PCOS)</strong>; presenting with severe <strong>AUB / menorrhagia</strong>; comorbid with metabolic syndrome, severe obesity, type 2 diabetes.</td>
+          <td>Chronic <strong>unopposed estrogen</strong> stimulation driving a progression from atypical endometrial hyperplasia to invasive carcinoma. Driven by <strong>PTEN loss</strong> (mutations) or KRAS/MSI mutations.</td>
+          <td><strong>Next Step</strong><strong>:</strong> TVUS showing an <strong>endometrial stripe >4 mm</strong> (or focal thickening) → <strong>Endometrial Biopsy (EMB)</strong>. <strong>Treatment</strong><strong>:</strong> Progestin therapy <em>temporarily</em> if fertility preservation is desired; otherwise, hysterectomy.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-uterine">Cervical & Uterine</span><strong>Type I Endometrioid Adenocarcinoma (Older)</strong></td>
+          <td><strong>Postmenopausal female (55–65 y/o)</strong> presenting with classic <strong>painless postmenopausal bleeding</strong>; risk factors include <strong>obesity</strong> (peripheral conversion to estrone), early menarche, nulliparity, or <strong>Tamoxifen use</strong>; associated with <strong>Lynch Syndrome</strong>.</td>
+          <td>Back-to-back neoplastic columnar glands lacking intervening stroma; invades the myometrium.</td>
+          <td><strong>Next Step</strong><strong>:</strong> Any postmenopausal bleeding <em>must</em> be evaluated with <strong>Endometrial Biopsy (EMB)</strong> or D&C. <strong>Treatment</strong><strong>:</strong> Total abdominal hysterectomy with bilateral salpingo-oophorectomy <strong>(TAH-BSO) + pelvic lymphadenectomy</strong>.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-uterine">Cervical & Uterine</span><strong>Type II Non-Endometrioid Carcinoma (Serous/Clear Cell)</strong></td>
+          <td><strong>Elderly, thin postmenopausal female (70–80 y/o)</strong> presenting with postmenopausal bleeding or abnormal discharge; <strong>unrelated to estrogen exposure or obesity</strong>; arises from atrophic endometrium; poor prognosis.</td>
+          <td><strong>Serous type:</strong> Papillary architecture with cellular tufting, marked nuclear atypia, and <strong>Psammoma bodies</strong>. Heavily associated with <strong>p53 mutations</strong> (mutant p53 immunostaining on biopsy).</td>
+          <td><strong>Next Step</strong><strong>:</strong> Endometrial biopsy / D&C. <strong>Treatment</strong><strong>:</strong> Highly aggressive; treated like ovarian cancer with <strong>TAH-BSO + surgical staging/omentecomy + systemic platinum-taxane chemotherapy</strong>.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-uterine">Cervical & Uterine</span><strong>Uterine Leiomyosarcoma</strong></td>
+          <td><strong>Postmenopausal female (50–60 y/o)</strong> presenting with rapid uterine enlargement, pelvic pain, and postmenopausal bleeding; more common in African American patients; metastasizes hematogenously (lungs).</td>
+          <td>Arises <strong>de novo</strong> from smooth muscle (<strong>NOT from a pre-existing fibroid</strong>). Bulky, fleshy mass with <strong>necrosis, hemorrhage</strong>, marked cellular atypia, and a <strong>high mitotic index (>10 mitoses per 10 HPF)</strong>.</td>
+          <td><strong>Next Step</strong><strong>:</strong> Pelvic MRI or biopsy. (Often diagnosed incidentally after hysterectomy for presumed benign fibroids). <strong>Treatment</strong><strong>:</strong> Total hysterectomy. Does not respond well to hormonal therapies.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-uterine">Cervical & Uterine</span><strong>Uterine Leiomyoma (Symptomatic Bleeding)</strong></td>
+          <td><strong>Reproductive-age female (30–40 y/o)</strong>, often of <strong>African American descent</strong> (highest risk), presenting with <strong>menorrhagia (heavy, prolonged bleeding)</strong>, severe pelvic pressure, or back pain; <strong>asymmetrically enlarged, firm, non-tender, irregular ("bumpy") uterus</strong>.</td>
+          <td>Monoclonal proliferation of benign smooth muscle cells arranged in a classic <strong>whorled pattern</strong> with well-demarcated margins; <strong>no cellular atypia or necrosis</strong>. Estrogen/progesterone sensitive.</td>
+          <td><strong>Next Step</strong><strong>:</strong> <strong>Pelvic ultrasound</strong> (shows well-circumscribed, hypoechoic uterine masses). <strong>Treatment</strong><strong>:</strong> OCPs, progestin IUD, or <strong>Leuprolide</strong> (GnRH agonist) to shrink tumors. <strong>Myomectomy</strong> (fertility) or <strong>Hysterectomy</strong> (fertility complete).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-uterine">Cervical & Uterine</span><strong>Uterine Leiomyoma (Infertility / Obstetric)</strong></td>
+          <td><strong>Reproductive-age female</strong> presenting with <strong>recurrent pregnancy loss</strong> or <strong>infertility</strong> (due to <strong>submucosal</strong> or <strong>intramural</strong> fibroids distorting the cavity); OR pregnant patient with sudden localized pain due to <strong>"red degeneration"</strong>.</td>
+          <td><strong>Red degeneration:</strong> Hemorrhagic necrosis of a fibroid outgrowing its blood supply during pregnancy. Submucosal type distorts the endometrial cavity and disrupts embryo implantation.</td>
+          <td><strong>Next Step</strong><strong>:</strong> Pelvic US, <strong>Saline-infusion sonohysterography (SIS)</strong>, or Hysteroscopy.<strong>Treatment</strong><strong>:</strong> Hysteroscopic <strong>myomectomy</strong> to resect submucosal fibroids to restore fertility. For red degeneration in pregnancy: conservative <strong>NSAIDs/analgesics</strong> only.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Fibrocystic Changes</strong></td>
+          <td><strong>Premenopausal female (20–50 y/o, peak 30–50)</strong> with <strong>bilateral, multifocal</strong> breast pain (<strong>cyclic mastalgia</strong>) and diffuse <strong>"lumpy-bumpy" irregularity</strong> that <strong>worsen premenstrually</strong> and improve after menses; intermittent <strong>green-brown nipple discharge</strong>; mammogram shows <strong>heterogeneous, dense parenchyma</strong>.</td>
+          <td>Nonproliferative change showing <strong>cystic dilation of terminal duct lobular units (TDLUs)</strong> (grossly <strong>"blue-dome" cysts</strong>), <strong>papillary apocrine metaplasia</strong>, and <strong>stromal fibrosis</strong>. <strong>No increased risk</strong> of breast cancer.</td>
+          <td><strong>Next Step:</strong> <strong>Re-examination in 2–4 weeks</strong> (follicular phase after next menses) to confirm regression. <strong>Treatment:</strong> Reassurance; <strong>no treatment needed</strong>.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Simple Breast Cyst</strong></td>
+          <td><strong>Premenopausal female (most frequently 30–50 y/o)</strong> with a solitary, <strong>smooth, mobile, tender mass</strong> (worsens before menses); ultrasound shows a <strong>round/oval, well-circumscribed anechoic (fluid-filled) mass with distinct borders and posterior acoustic enhancement</strong>.</td>
+          <td>Fluid-filled <strong>duct dilation</strong> within the TDLU lined by flattened or apocrine-type epithelium without atypia. <strong>No increased risk</strong> of breast cancer.</td>
+          <td><strong>Treatment:</strong> <strong>Reassurance / no treatment needed</strong> if asymptomatic. If painful or patient is anxious: <strong>Fine-needle aspiration (FNA)</strong> is diagnostic & therapeutic (<strong>clear, nonbloody fluid</strong> with complete mass resolution).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Usual Ductal Hyperplasia (UDH)</strong></td>
+          <td><strong>Female (30–60 y/o, mean 54 y/o)</strong>; clinically <strong>asymptomatic</strong> with no specific mammographic abnormality; discovered <strong>incidentally on biopsy</strong> of another breast lesion.</td>
+          <td>Intraductal proliferation of a <strong>heterogeneous (polymorphous) population</strong> of epithelial and myoepithelial cells forming <strong>irregular, slit-like peripheral lumens</strong>.</td>
+          <td><strong>Treatment:</strong> Benign proliferative lesion (slight ~1.5× risk); <strong>no treatment needed</strong>.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Sclerosing Adenosis</strong></td>
+          <td><strong>Female (30–55 y/o)</strong>; clinically <strong>asymptomatic</strong>; detected on screening mammography as a <strong>mass with calcifications</strong> that radiographically <strong>mimics invasive breast carcinoma</strong>.</td>
+          <td>Proliferative lesion within the TDLU showing an <strong>increased number of compressed, distorted acini</strong> surrounded by <strong>dense stromal fibrosis</strong> and calcifications. Slight (~1.5–2×) increased risk for cancer.</td>
+          <td><strong>Next Step:</strong> Core needle biopsy to distinguish from carcinoma. <strong>Treatment:</strong> Benign; <strong>no treatment needed</strong>.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Atypical Hyperplasia (ADH / ALH)</strong></td>
+          <td><strong>Female (40–60 y/o)</strong>; clinically <strong>asymptomatic</strong>; discovered on screening mammography showing <strong>clustered microcalcifications</strong>.</td>
+          <td>Clonal intraductal (<strong>ADH</strong>) or lobular (<strong>ALH</strong>) proliferation of a <strong>monotonous (uniform) population</strong> of dysplastic cells partially filling the duct/lobule. <strong>Major risk factor (~4–5× ↑ risk) for invasive breast cancer</strong>.</td>
+          <td><strong>Management:</strong> <strong>Increased screening</strong> and <strong>possible surgical excision</strong> (to rule out adjacent DCIS/invasive cancer) +/- risk-reducing endocrine therapy (tamoxifen/raloxifene).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Intraductal Papilloma</strong></td>
+          <td><strong>Premenopausal female (20–40 y/o)</strong> presenting with <strong>unilateral bloody or serosanguinous nipple discharge</strong>; <strong>most common cause of nipple discharge</strong>; usually no palpable mass and normal mammogram; <strong>ultrasound shows a solid nodule inside a single dilated subareolar duct</strong>.</td>
+          <td>Small benign <strong>fibroepithelial tumor</strong> within a lactiferous duct composed of <strong>branching fibrovascular cores (papillary fronds)</strong> lined by both <strong>epithelial and myoepithelial cell layers</strong>. Slight ↑ risk for cancer.</td>
+          <td><strong>Next Step:</strong> Breast ultrasound + core needle biopsy (to rule out papillary carcinoma/DCIS). <strong>Treatment:</strong> <strong>Surgical excision</strong> of the involved duct.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Fibroadenoma</strong></td>
+          <td><strong>Young female (<35 y/o; 20–40 y/o)</strong>; <strong>most common benign breast tumor in women <35</strong>; presents as a <strong>solitary, firm, rubbery, well-circumscribed, highly mobile, painless mass</strong>; <strong>grows during pregnancy</strong> and fluctuates with the menstrual cycle (<strong>estrogen-sensitive</strong>).</td>
+          <td>Benign <strong>biphasic fibroepithelial tumor</strong> with a rounded contour composed of <strong>overgrowth of both fibrous stroma and glandular epithelium</strong>. <strong>No increased risk</strong> of breast cancer.</td>
+          <td><strong>Next Step:</strong> Breast ultrasound (shows well-defined homogeneous solid mass). <strong>Treatment:</strong> <strong>Observation</strong>; <strong>surgical excision</strong> for enlarging (>2–4 cm) or symptomatic lesions.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Phyllodes Tumor</strong></td>
+          <td><strong>Female in 5th decade (40–50 y/o)</strong> presenting with a <strong>large (often >3–6 cm), solitary, well-circumscribed, firm, polylobulated mass</strong> with <strong>rapid growth over weeks to months</strong>.</td>
+          <td>Biphasic fibroepithelial tumor arising from periductal connective tissue with characteristic <strong>"leaf-like" projections (lobulations) of hypercellular stroma</strong> lined by epithelium. Some may become malignant.</td>
+          <td><strong>Next Step:</strong> Mammography/US → <strong>Core needle biopsy</strong> (required to differentiate from fibroadenoma). <strong>Treatment:</strong> <strong>Surgical excision</strong> with wide margins.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Fat Necrosis</strong></td>
+          <td><strong>Female of any age</strong> following <strong>breast trauma</strong> (e.g., <strong>seatbelt injury in MVC</strong> or prior surgery; up to 50% may not report trauma); presents with breast pain and a <strong>firm, irregular mass</strong> (+/- ecchymosis or skin retraction mimicking cancer); mammography shows a <strong>calcified oil cyst</strong> (radiolucent center with peripheral calcified rim).</td>
+          <td>Trauma damages adipocytes → <strong>release of cytoplasmic triglycerides and lipase</strong> → <strong>saponification</strong> of fat with calcium → biopsy shows <strong>necrotic fat, lipid-laden foamy macrophages (foam cells), and multinucleated giant cells</strong>.</td>
+          <td><strong>Next Step:</strong> Biopsy if mass mimics malignancy on imaging. <strong>Treatment:</strong> <strong>No treatment / reassurance</strong>; benign and usually <strong>resolves spontaneously</strong>.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Mammary Duct Ectasia</strong></td>
+          <td><strong>Perimenopausal female (45–55 y/o)</strong>; associated with <strong>smoking</strong>; presents with <strong>areolar pain, thick multicolored nipple discharge, inverted nipple, or a periareolar mass</strong>; mammography shows <strong>dilated linear branching densities in the subareolar region</strong>.</td>
+          <td><strong>Dilation of subareolar lactiferous ducts</strong> filled with inspissated debris alongside <strong>periductal chronic inflammation and fibrosis</strong>.</td>
+          <td><strong>Treatment:</strong> Usually <strong>resolves spontaneously</strong>; symptomatic care with <strong>warm compresses and analgesics</strong>, antibiotics if secondary infection, or surgical excision if persistent.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Lactational Mastitis, Breast Abscess & Galactocele</strong></td>
+          <td><strong>Breastfeeding postpartum female:</strong> <strong>Mastitis</strong> = unilateral <strong>wedge-shaped erythema, tenderness, swelling + fever (>38°C)</strong>; <strong>Abscess</strong> = persistent fever + <strong>fluctuant mass</strong> (+/- purplish skin necrosis); <strong>Galactocele</strong> = <strong>afebrile, mobile subareolar mass</strong> after <strong>stopping breastfeeding</strong> (US shows heterogeneous fat/water milk cyst).</td>
+          <td><strong>Mastitis / Abscess:</strong> Nipple fissures + milk stasis allow bacterial entry, most commonly <strong><em>Staphylococcus aureus</em></strong>. <strong>Galactocele:</strong> Non-infectious milk retention cyst caused by duct obstruction after weaning.</td>
+          <td><strong>Mastitis:</strong> Oral <strong>cephalexin or dicloxacillin</strong> + <strong>CONTINUE breastfeeding from both breasts</strong>. <strong>Abscess:</strong> Antibiotics + <strong>needle aspiration</strong> (or <strong>surgical incision & drainage</strong> if skin necrosis/large). <strong>Galactocele:</strong> Reassurance or aspiration.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_benign">Breast Benign</span><strong>Gynecomastia (Physiologic vs. Pathologic)</strong></td>
+          <td><strong>Male</strong> with firm, <strong>rubbery, tender subareolar glandular tissue</strong> bilaterally: <strong>Physiologic</strong> in <strong>newborns, puberty (Tanner 3), and elderly</strong>; <strong>Pathologic</strong> in <strong>cirrhosis</strong>, <strong>CKD</strong>, <strong>Klinefelter syndrome (47,XXY; tall, small firm testes, 15–20× ↑ breast cancer risk)</strong>, <strong>Leydig cell tumor</strong>, or <strong>drugs</strong>.</td>
+          <td>Driven by <strong>↑ estrogen relative to androgen activity</strong>: <strong>Newborn</strong> (placental maternal hormones), <strong>Puberty</strong> (temporary hormone imbalance), <strong>Elderly</strong> (androgen–estrogen mismatch). <strong>Drugs:</strong> <strong>Spironolactone</strong>, finasteride, leuprolide, ketoconazole, <strong>risperidone/antipsychotics</strong> (D2 blockade → ↑ prolactin).</td>
+          <td><strong>Management:</strong> <strong>Pubertal/Physiologic</strong> = reassurance. <strong>Pathologic</strong> = <strong>discontinue offending medication</strong> (e.g., stop spironolactone) and <strong>treat underlying disease</strong> (testosterone replacement in Klinefelter).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_cancer">Breast Cancer</span><strong>Ductal Carcinoma In Situ (DCIS)</strong></td>
+          <td><strong>Asymptomatic female</strong> detected early on screening mammography as <strong>clustered, pleomorphic or linear microcalcifications</strong>; usually <strong>does NOT produce a palpable mass</strong>; increases risk of invasive cancer in the <strong>same breast and quadrant</strong>.</td>
+          <td>Neoplastic ductal epithelial cells <strong>fill the ductal lumen</strong> (e.g., comedo central necrosis) <strong>WITHOUT basement membrane penetration</strong> into surrounding stroma.</td>
+          <td><strong>Next Step:</strong> Stereotactic core needle biopsy + ER/PR testing. <strong>Treatment:</strong> <strong>Lumpectomy + radiation</strong> (or mastectomy) + adjuvant endocrine therapy if ER+.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_cancer">Breast Cancer</span><strong>Lobular Carcinoma In Situ (LCIS)</strong></td>
+          <td><strong>Premenopausal female</strong>; produces <strong>NO palpable mass and NO mammographic calcifications</strong> → discovered as an <strong>incidental biopsy finding</strong>; marker of <strong>↑ risk of invasive carcinoma in EITHER breast</strong> (bilateral risk).</td>
+          <td>Neoplastic proliferation of loosely cohesive cells within terminal duct lobules caused by <strong>↓ E-cadherin expression</strong>; basement membrane remains intact.</td>
+          <td><strong>Management:</strong> Surveillance + risk-reducing endocrine therapy (<strong>tamoxifen or raloxifene</strong>); surgical excision if pleomorphic subtype.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_cancer">Breast Cancer</span><strong>Invasive Ductal Carcinoma (IDC)</strong></td>
+          <td><strong>Most common invasive breast cancer (~75–80%)</strong>; presents with a <strong>firm, fibrous, "rock-hard," irregular, nonmobile mass</strong> in the <strong>upper outer quadrant</strong>; <strong>Cooper ligament infiltration → skin dimpling</strong>; mammogram shows a <strong>spiculated (stellate) mass with microcalcifications</strong>.</td>
+          <td><strong>Nests, cords, and tubules of malignant duct-like glandular cells</strong> that <strong>invade through the basement membrane</strong> into a dense <strong>desmoplastic stroma</strong>; tumor cells <strong>retain E-cadherin expression</strong>.</td>
+          <td><strong>Workup:</strong> <strong>Diagnostic mammogram + breast US → Needle core biopsy → Determine ER, PR, and HER2 status</strong>. <strong>#1 Prognostic Factor:</strong> <strong>Axillary lymph node status</strong> (and tumor size). <em>Surgical Pearl:</em> Axillary dissection can injure the <strong>long thoracic nerve → winged scapula</strong> (serratus anterior palsy).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_cancer">Breast Cancer</span><strong>Invasive Lobular Carcinoma (ILC)</strong></td>
+          <td><strong>Postmenopausal or middle-aged female</strong> with an <strong>ill-defined breast mass/thickening</strong>; <strong>often bilateral and multifocal</strong>; typically <strong>ER-positive</strong>.</td>
+          <td>Small, <strong>discohesive tumor cells infiltrating the stroma in orderly single-file lines ("Indian file")</strong> with <strong>no duct/tubule formation</strong> and minimal desmoplastic response due to <strong>loss of E-cadherin expression</strong>.</td>
+          <td><strong>Management:</strong> Diagnostic imaging + core biopsy + ER/PR/HER2 → surgical resection + endocrine/systemic therapy. (<em>In pregnancy:</em> Surgery + 2nd/3rd-trimester chemo [doxorubicin/cyclophosphamide/5-FU], stopped 3–4 wks before delivery).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_cancer">Breast Cancer</span><strong>Inflammatory Breast Cancer</strong></td>
+          <td><strong>Female (~50–55 y/o)</strong> with a <strong>rapidly enlarging, red, warm, swollen breast</strong> and diffuse <strong>thickened, pitted skin resembling an orange peel (<em>peau d'orange</em>)</strong>; <strong>afebrile and not breastfeeding</strong>; usually lacks a discrete mass; <strong>often mistaken for mastitis</strong>; poor prognosis (50% 5-yr survival).</td>
+          <td><strong>Tumor cells infiltrating and obstructing the dermal lymphatics</strong> in the skin → <strong>localized lymphedema</strong> with skin dimpling/pitting around tethered hair follicles (<em>peau d'orange</em>).</td>
+          <td><strong>Management:</strong> Core needle + skin punch biopsy → aggressive <strong>trimodality therapy</strong> (neoadjuvant chemotherapy + modified radical mastectomy + radiation).</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_cancer">Breast Cancer</span><strong>Paget Disease of the Breast</strong></td>
+          <td><strong>Older female (~60 y/o)</strong> with a chronic, unilateral <strong>red, scaly, crusting, eczematous lesion of the nipple and areola</strong> that <strong>does NOT improve with topical corticosteroids</strong>; associated with an <strong>underlying DCIS or invasive carcinoma in 80–90% of cases</strong>.</td>
+          <td>Extension of underlying ductal adenocarcinoma up the lactiferous ducts into the contiguous skin, showing <strong>intraepithelial adenocarcinoma cells (Paget cells) within the epidermis of the nipple</strong>.</td>
+          <td><strong>Next Step:</strong> Nipple biopsy → <strong>Mammography + breast US</strong> to identify the <strong>underlying in situ or invasive carcinoma (80–90%)</strong> → surgical resection.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_cancer">Breast Cancer</span><strong>Hereditary & Triple-Negative Breast Cancer (BRCA1/2)</strong></td>
+          <td><strong>Hereditary Clues:</strong> <strong>Young age (<45 y/o)</strong>, <strong>1st-degree relative diagnosed <50 y/o</strong>, <strong>triple-negative status (ER⊝/PR⊝/HER2⊝)</strong>, <strong>male relative with breast cancer</strong>, breast + ovarian cancer in family, Ashkenazi Jewish ancestry. <strong>General Risk Factors:</strong> ↑ estrogen exposure (<strong>early menarche, nulliparity, postmenopausal obesity</strong>), <strong>atypical hyperplasia</strong>, <strong>alcohol</strong>, radiation.</td>
+          <td><strong>BRCA1/2</strong> encode tumor suppressor proteins that repair <strong>double-stranded DNA breaks (homologous recombination)</strong>. <strong>BRCA1</strong> → <strong>triple-negative breast cancer</strong> & ovarian cancer; <strong>BRCA2</strong> → <strong>male breast cancer</strong>. Other hereditary genes: <strong>PALB2, ATM, MSH6, PTEN, TP53</strong>.</td>
+          <td><strong>Triple-Negative Treatment:</strong> <strong>Chemotherapy (doxorubicin, cyclophosphamide, paclitaxel) ± Pembrolizumab</strong> (anti-PD-1 mAb that restores antitumor T-cell activity; causes <strong>immune-related colitis, pneumonitis, hepatitis, thyroiditis</strong>). No endocrine or HER2 therapy.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_cancer">Breast Cancer</span><strong>ER/PR+ Endocrine Therapy (Tamoxifen, AIs & GnRH Agonists)</strong></td>
+          <td>Used for <strong>ER+ / PR+ breast cancer</strong> (nuclear staining on IHC): <strong>Tamoxifen</strong> (pre- & postmenopausal); <strong>Aromatase Inhibitors — Anastrozole, Letrozole, Exemestane</strong> (<strong>postmenopausal</strong>); <strong>GnRH Agonists — Leuprolide, Goserelin</strong> (<strong>premenopausal ovarian suppression</strong>).</td>
+          <td><strong>Tamoxifen (SERM):</strong> ER antagonist in breast, <strong>partial agonist in endometrium</strong> and <strong>agonist in bone</strong> (↑ BMD). <strong>AIs:</strong> Inhibit aromatase → <strong>↓ peripheral conversion of androgens to estrogens</strong>. <strong>Leuprolide/Goserelin:</strong> Continuous GnRH receptor stimulation → suppresses ovarian estrogen.</td>
+          <td><strong>Adverse Effects:</strong> <strong>Tamoxifen</strong> → <strong>Venous thromboembolism (VTE)</strong>, <strong>endometrial carcinoma</strong>, & <strong>uterine leiomyosarcoma</strong> (evaluate bleeding with <strong>endometrial biopsy</strong>). <strong>Aromatase Inhibitors</strong> → <strong>↓ bone mineral density / fractures (monitor DEXA)</strong> & vaginal dryness. <strong>Leuprolide/Goserelin</strong> → <strong>hot flashes, vaginal dryness, ↓ libido, ↓ BMD</strong>.</td>
+        </tr>        <tr>
+          <td><span class="sec-badge badge-breast_cancer">Breast Cancer</span><strong>HER2+ Targeted Therapy & Chemotherapy Toxicities</strong></td>
+          <td><strong>Trastuzumab</strong> (used for <strong>HER2 / Erb-B2+</strong> tumors with membranous IHC staining); <strong>Doxorubicin, Cyclophosphamide, and Paclitaxel</strong> (backbone cytotoxic chemotherapy for triple-negative and high-risk invasive breast cancer).</td>
+          <td><strong>Trastuzumab:</strong> Anti-HER2 mAb → inhibits HER2 tyrosine kinase signaling & promotes immune destruction. <strong>Doxorubicin:</strong> Anthracycline (free-radical cardiotoxicity). <strong>Cyclophosphamide:</strong> DNA alkylating agent. <strong>Paclitaxel:</strong> Taxane (<strong>microtubule stabilization</strong>).</td>
+          <td><strong>Signature Toxicities:</strong> <strong>Trastuzumab</strong> → <strong>Cardiomyopathy</strong> (monitor echo). <strong>Doxorubicin</strong> → <strong>Dilated cardiomyopathy / ↓ LVEF</strong> (prevent with <strong>dexrazoxane</strong>). <strong>Cyclophosphamide</strong> → <strong>Hemorrhagic cystitis</strong> (dysuria + hematuria without bacteria). <strong>Paclitaxel</strong> → <strong>Stocking-glove peripheral neuropathy</strong> (↓ pinprick/vibration).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button class="modal-close" onclick="closeModal()">Back to Quiz Table</button>
+  </div>
+</div>
+
+<script>
+const rawData = [
+  {
+    "tumor": "Dysgerminoma",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Adolescent / young female (10\u201330 y/o)</strong>; painless adnexal mass; <strong>\u2191 LDH</strong>, \u2191 PLAP, <strong>normal AFP</strong>, +/- mildly \u2191 hCG; associated with <strong>Turner syndrome / gonadal dysgenesis</strong>; highly radiosensitive."
+  },
+  {
+    "tumor": "Dysgerminoma",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Sheets of uniform <strong>\"fried-egg\" cells</strong> (clear cytoplasm, central nuclei) separated by fibrous pseudolobules containing a <strong>lymphocytic infiltrate</strong>."
+  },
+  {
+    "tumor": "Yolk Sac Tumor (Endodermal Sinus)",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Young female (<30 y/o)</strong> w/ rapidly expanding, aggressive pelvic mass + abdominal pain; <strong>markedly \u2191 AFP</strong>, normal hCG."
+  },
+  {
+    "tumor": "Yolk Sac Tumor (Endodermal Sinus)",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Schiller-Duval bodies</strong> (glomeruloid-like structures with a central vessel) and intracellular/extracellular hyaline droplets."
+  },
+  {
+    "tumor": "Mature Cystic Teratoma (Dermoid Cyst)",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Reproductive-age female (20\u201330 y/o)</strong>; often asymptomatic or presents with acute pain from <strong>ovarian torsion</strong>; pelvic X-ray or CT shows calcifications/fat densities; <strong>Struma ovarii</strong> variant causes <strong>hyperthyroidism</strong>."
+  },
+  {
+    "tumor": "Mature Cystic Teratoma (Dermoid Cyst)",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Multiple mature germ layers (<strong>calcifications, teeth, hair, sebum</strong>). Malignant transformation is rare but typically presents as <strong>squamous cell carcinoma</strong>."
+  },
+  {
+    "tumor": "Immature Teratoma",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Adolescent / young girl (~18 y/o)</strong>; fast-growing malignant mass; mixed with mature elements (cartilage, bone)."
+  },
+  {
+    "tumor": "Immature Teratoma",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Contains <strong>immature/embryonic neural tissue</strong> (neuroectoderm, primitive neuroepithelial tubules). Graded based on amount of immature neuroepithelium."
+  },
+  {
+    "tumor": "Choriocarcinoma",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Young female</strong>; can be gestational or non-gestational; highly malignant with <strong>early hematogenous spread to lungs (hemoptysis / \"cannonball\" lesions)</strong>; <strong>\u2191\u2191\u2191 [\u03b2-hCG]</strong>; mimics hyperthyroidism/precocious puberty due to hCG-TSH/LH homology."
+  },
+  {
+    "tumor": "Choriocarcinoma",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Cytotrophoblasts and syncytiotrophoblasts with extensive <strong>hemorrhage & necrosis</strong>; lacks villi."
+  },
+  {
+    "tumor": "Embryonal Carcinoma",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Adolescent / young female (~15 y/o)</strong>; rare, highly aggressive; <strong>\u2191 AFP and \u2191 hCG</strong>; strongly <strong>CD30 positive</strong>."
+  },
+  {
+    "tumor": "Embryonal Carcinoma",
+    "section_id": "germ_cell",
+    "section_name": "Ovarian Germ Cell Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Sheets of primitive, pleomorphic cells with indistinct borders, extensive sheet-like necrosis, and hemorrhage."
+  },
+  {
+    "tumor": "Adult Granulosa Cell Tumor",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Peri- or Postmenopausal female (~50\u201354 y/o)</strong>; presents with <strong>abnormal/postmenopausal uterine bleeding</strong> or breast tenderness driven by <strong>\u2191 estrogen</strong>; large, unilateral mass; <strong>\u2191 Inhibin (A/B)</strong> and <strong>\u2191 AMH</strong>."
+  },
+  {
+    "tumor": "Adult Granulosa Cell Tumor",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Call-Exner bodies</strong> (microfollicular fluid-filled spaces resembling follicles) and <strong>\"coffee-bean\" nuclei</strong> (longitudinal nuclear grooves). Driven by a <strong>FOXL2 gene mutation</strong>."
+  },
+  {
+    "tumor": "Juvenile Granulosa Cell Tumor",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Young girl / Pre-pubertal child (<20 y/o)</strong> presenting with <strong>precocious puberty</strong> (early breast development, pubic hair, vaginal bleeding) or severe menorrhagia; rapidly growing mass; <strong>\u2191 Inhibin</strong>."
+  },
+  {
+    "tumor": "Juvenile Granulosa Cell Tumor",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Sheets of pleomorphic cells with a high mitotic index; <strong>Call-Exner bodies and \"coffee-bean\" grooves are absent / rare</strong>. Associated with trisomy 12."
+  },
+  {
+    "tumor": "Sertoli-Leydig Cell Tumor",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Young female (20\u201330 y/o)</strong> presenting with rapid-onset <strong>virilization / defeminization</strong> driven by <strong>\u2191 testosterone</strong> (amenorrhea, breast atrophy, <strong>hirsutism, clitomegaly, deep voice</strong>)."
+  },
+  {
+    "tumor": "Sertoli-Leydig Cell Tumor",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Tubular structures (Sertoli cells) mixed with interstitial cells containing pink cytoplasm (Leydig cells); may feature <strong>Reinke crystalloids</strong> (rectangular, eosinophilic cytoplasmic inclusions). Associated with <strong>DICER1 mutations</strong>."
+  },
+  {
+    "tumor": "Thecoma",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Postmenopausal female</strong>; benign neoplasm; <strong>produces estrogen</strong> leading to <strong>postmenopausal bleeding</strong> due to endometrial hyperplasia; often paired with fibromas (<em>Fibrothecoma</em>)."
+  },
+  {
+    "tumor": "Thecoma",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Plump spindle cells with lipid droplets."
+  },
+  {
+    "tumor": "Fibroma",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Middle-aged to older female (~50 y/o)</strong>; hormonally <strong>inactive</strong>; classic vignette pairs this tumor with <strong>Meigs Syndrome</strong> triad: <strong>Ovarian Fibroma + Ascites + Right-sided Hydrothorax</strong>."
+  },
+  {
+    "tumor": "Fibroma",
+    "section_id": "sex_cord",
+    "section_name": "Sex Cord-Stromal Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Composed of bundles of benign spindle-shaped fibroblasts."
+  },
+  {
+    "tumor": "Serous Cystadenoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Premenopausal / Reproductive-age female (30\u201340 y/o)</strong>; often asymptomatic or mild pelvic pressure; pelvic US shows a <strong>thin-walled, unilocular cystic mass filled with clear, watery fluid</strong>."
+  },
+  {
+    "tumor": "Serous Cystadenoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Lined by a single layer of ciliated columnar epithelium resembling fallopian tube epithelium; <strong>no nuclear atypia, no stromal invasion, no papillary complexity</strong>."
+  },
+  {
+    "tumor": "Serous Cystadenocarcinoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Postmenopausal female (60\u201370 y/o)</strong> with <strong>abdominal distention/bloating, early satiety</strong>, or ascites; <strong>most common malignant ovarian tumor overall</strong>; frequently <strong>bilateral</strong> (~66%); <strong>\u2191 CA-125</strong>; associated with <strong>BRCA1/2</strong> and <strong>Lynch syndrome</strong>."
+  },
+  {
+    "tumor": "Serous Cystadenocarcinoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Papillary architecture, cellular pleomorphism, destructive stromal invasion, and concentric laminated calcifications called <strong>Psammoma bodies</strong>. Often originates from the <strong>fimbriated end of the fallopian tube</strong>."
+  },
+  {
+    "tumor": "Mucinous Cystadenoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Reproductive-age female (30\u201350 y/o)</strong>; presents with a remarkably <strong>massive, slow-growing abdominal mass</strong> causing pronounced abdominal fullness or distention."
+  },
+  {
+    "tumor": "Mucinous Cystadenoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Multilocular mass filled with thick, gelatinous/mucinous fluid; lined by a single layer of tall columnar cells with apical mucin vacuoles resembling <strong>endocervix / GI epithelium</strong>; no stromal invasion."
+  },
+  {
+    "tumor": "Mucinous Cystadenocarcinoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Postmenopausal female (50\u201360 y/o)</strong>; rapidly expanding pelvic/abdominal mass with early peritoneal dissemination; rupture/seeding results in <strong>Pseudomyxoma peritonei</strong> (massive intra-abdominal gelatinous ascites / \"jelly belly\")."
+  },
+  {
+    "tumor": "Mucinous Cystadenocarcinoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Marked cellular atypia and destructive stromal invasion of mucin-producing epithelial cells."
+  },
+  {
+    "tumor": "Endometrioid Carcinoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Perimenopausal or postmenopausal female (50\u201360 y/o)</strong>; frequently arises on a background of <strong>chronic ovarian endometriosis</strong> (alongside endometriomas); associated with <strong>PTEN mutations</strong> and <strong>Lynch syndrome</strong>."
+  },
+  {
+    "tumor": "Endometrioid Carcinoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Malignant glandular proliferation containing tubular glands that <strong>mimic proliferative/secretory endometrium</strong>."
+  },
+  {
+    "tumor": "Clear Cell Carcinoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Middle-aged to older female (40\u201360 y/o)</strong>; rare, aggressive epithelial subtype presenting with a large unilateral pelvic mass; strongly associated with <strong>pre-existing pelvic endometriosis</strong>."
+  },
+  {
+    "tumor": "Clear Cell Carcinoma",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Features <strong>\"hobnail\" cells</strong> (prominent atypical nuclei protruding into gland lumens) and glycogen-rich clear cytoplasm."
+  },
+  {
+    "tumor": "Brenner Tumor",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Postmenopausal female (~50\u201370 y/o)</strong>; almost always <strong>benign</strong>, unilateral, and found incidentally as a solid, pale-yellow/tan, circumscribed, fibrous ovarian mass."
+  },
+  {
+    "tumor": "Brenner Tumor",
+    "section_id": "epithelial",
+    "section_name": "Epithelial Ovarian Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Nests of <strong>urothelial/transitional epithelium</strong> (resembling the <strong>urinary bladder</strong>) surrounded by dense ovarian stroma; characteristically exhibits <strong>\"coffee-bean\" nuclei</strong> (longitudinal nuclear grooves)."
+  },
+  {
+    "tumor": "Follicular Cyst (Younger / Pre-pubertal)",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Young girl (<8 y/o)</strong> presenting with sudden-onset <strong>peripheral precocious puberty</strong> (breast buds, pubic hair, early menses) due to autonomous <strong>\u2191 estrogen</strong>; bone age may be advanced; low/suppressed LH/FSH."
+  },
+  {
+    "tumor": "Follicular Cyst (Younger / Pre-pubertal)",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Histology / Pathophysiology",
+    "text": "Arises when a follicle fails to rupture or an unruptured follicle undergoes fluid distention; lined by granulosa and outerca cells without atypia."
+  },
+  {
+    "tumor": "Follicular Cyst (Reproductive-Age)",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Reproductive-age female</strong> presenting with a sudden delay in menses followed by <strong>heavy, irregular bleeding (menorrhagia/anovulatory bleeding)</strong>; may cause mild unilateral pelvic aching."
+  },
+  {
+    "tumor": "Follicular Cyst (Reproductive-Age)",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Histology / Pathophysiology",
+    "text": "Arises when a dominant graafian follicle fails to rupture and continues growing; lined by normal granulosa cells."
+  },
+  {
+    "tumor": "Corpus Luteum Cyst",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Reproductive-age female</strong> presenting with delayed menses, a palpable adnexal mass, and <strong>unilateral lower quadrant pain</strong> during the <strong>luteal phase</strong> (days 14\u201328); can rupture causing sudden pain and <strong>hemoperitoneum</strong>."
+  },
+  {
+    "tumor": "Corpus Luteum Cyst",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Histology / Pathophysiology",
+    "text": "Develops from a failure of the corpus luteum to regress after ovulation; central hemorrhage surrounded by a rim of luteinized granulosa cells."
+  },
+  {
+    "tumor": "Theca Lutein Cyst",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Pregnant female</strong> or fertility patient; characteristically <strong>bilateral and massive</strong>; driven by abnormally high levels of <strong>hCG</strong>; associated with <strong>Choriocarcinoma, Complete Hydatidiform Mole</strong>, or twin pregnancies."
+  },
+  {
+    "tumor": "Theca Lutein Cyst",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Histology / Pathophysiology",
+    "text": "Hyperplasia and hypertrophy of the theca interna cells driven by massive gonadotropin (hCG) overstimulation."
+  },
+  {
+    "tumor": "Endometrioma (Chocolate Cyst)",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Reproductive-age female (20\u201340 y/o)</strong> presenting with the classic triad of <strong>Dysmenorrhea, Dyspareunia, and Dyschezia</strong>, alongside chronic pelvic pain and infertility; US shows <strong>homogeneous, low-level internal echoes (\"ground-glass\")</strong>."
+  },
+  {
+    "tumor": "Endometrioma (Chocolate Cyst)",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Histology / Pathophysiology",
+    "text": "Ectopic endometrial tissue outside the uterus undergoing cyclic hemorrhage; cyst is filled with thick, dark-brown <strong>altered old blood (\"chocolate fluid\")</strong>."
+  },
+  {
+    "tumor": "Polycystic Ovarian Syndrome (PCOS)",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Adolescent / young reproductive-age female</strong> with <strong>oligomenorrhea/amenorrhea, infertility</strong>, and signs of <strong>hyperandrogenism</strong> (hirsutism, acne, male baldness); associated with <strong>obesity, insulin resistance</strong>, acanthosis nigricans."
+  },
+  {
+    "tumor": "Polycystic Ovarian Syndrome (PCOS)",
+    "section_id": "cysts",
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>\u2191 LH to FSH ratio (>3:1)</strong>; increased androgen production by theca cells. Long-term unopposed estrogen <strong>increases risk of Endometrial Hyperplasia and Adenocarcinoma</strong>."
+  },
+  {
+    "tumor": "Cervical Cancer (Squamous vs. Adeno)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "Female w/ <strong>post-coital</strong> or postmenopausal bleeding; malodorous watery discharge; history of smoking, <strong>HIV/immunosuppression</strong>, or <strong>lack of regular Pap screening</strong>; speculum exam shows a <strong>friable, exophytic mass</strong>; advanced disease causes lateral invasion leading to <strong>ureteral obstruction / hydronephrosis</strong>."
+  },
+  {
+    "tumor": "Cervical Cancer (Squamous vs. Adeno)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Koilocytic atypia</strong> (cells with hyperchromatic, wrinkled nuclei surrounded by a clear halo) indicates precursor HPV 16/18 infection. Squamous cell carcinoma arises from ectocervix/transformation zone; adenocarcinoma arises from endocervix."
+  },
+  {
+    "tumor": "Type I Endometrioid Adenocarcinoma (Younger)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Younger female (30\u201350 y/o)</strong> with chronic <strong>anovulatory cycles (PCOS)</strong>; presenting with severe <strong>AUB / menorrhagia</strong>; comorbid with metabolic syndrome, severe obesity, type 2 diabetes."
+  },
+  {
+    "tumor": "Type I Endometrioid Adenocarcinoma (Younger)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Chronic <strong>unopposed estrogen</strong> stimulation driving a progression from atypical endometrial hyperplasia to invasive carcinoma. Driven by <strong>PTEN loss</strong> (mutations) or KRAS/MSI mutations."
+  },
+  {
+    "tumor": "Type I Endometrioid Adenocarcinoma (Older)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Postmenopausal female (55\u201365 y/o)</strong> presenting with classic <strong>painless postmenopausal bleeding</strong>; risk factors include <strong>obesity</strong> (peripheral conversion to estrone), early menarche, nulliparity, or <strong>Tamoxifen use</strong>; associated with <strong>Lynch Syndrome</strong>."
+  },
+  {
+    "tumor": "Type I Endometrioid Adenocarcinoma (Older)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Back-to-back neoplastic columnar glands lacking intervening stroma; invades the myometrium."
+  },
+  {
+    "tumor": "Type II Non-Endometrioid Carcinoma (Serous/Clear Cell)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Elderly, thin postmenopausal female (70\u201380 y/o)</strong> presenting with postmenopausal bleeding or abnormal discharge; <strong>unrelated to estrogen exposure or obesity</strong>; arises from atrophic endometrium; poor prognosis."
+  },
+  {
+    "tumor": "Type II Non-Endometrioid Carcinoma (Serous/Clear Cell)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Serous type:</strong> Papillary architecture with cellular tufting, marked nuclear atypia, and <strong>Psammoma bodies</strong>. Heavily associated with <strong>p53 mutations</strong> (mutant p53 immunostaining on biopsy)."
+  },
+  {
+    "tumor": "Uterine Leiomyosarcoma",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Postmenopausal female (50\u201360 y/o)</strong> presenting with rapid uterine enlargement, pelvic pain, and postmenopausal bleeding; more common in African American patients; metastasizes hematogenously (lungs)."
+  },
+  {
+    "tumor": "Uterine Leiomyosarcoma",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Arises <strong>de novo</strong> from smooth muscle (<strong>NOT from a pre-existing fibroid</strong>). Bulky, fleshy mass with <strong>necrosis, hemorrhage</strong>, marked cellular atypia, and a <strong>high mitotic index (>10 mitoses per 10 HPF)</strong>."
+  },
+  {
+    "tumor": "Uterine Leiomyoma (Symptomatic Bleeding)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Reproductive-age female (30\u201340 y/o)</strong>, often of <strong>African American descent</strong> (highest risk), presenting with <strong>menorrhagia (heavy, prolonged bleeding)</strong>, severe pelvic pressure, or back pain; <strong>asymmetrically enlarged, firm, non-tender, irregular (\"bumpy\") uterus</strong>."
+  },
+  {
+    "tumor": "Uterine Leiomyoma (Symptomatic Bleeding)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "Monoclonal proliferation of benign smooth muscle cells arranged in a classic <strong>whorled pattern</strong> with well-demarcated margins; <strong>no cellular atypia or necrosis</strong>. Estrogen/progesterone sensitive."
+  },
+  {
+    "tumor": "Uterine Leiomyoma (Infertility / Obstetric)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Reproductive-age female</strong> presenting with <strong>recurrent pregnancy loss</strong> or <strong>infertility</strong> (due to <strong>submucosal</strong> or <strong>intramural</strong> fibroids distorting the cavity); OR pregnant patient with sudden localized pain due to <strong>\"red degeneration\"</strong>."
+  },
+  {
+    "tumor": "Uterine Leiomyoma (Infertility / Obstetric)",
+    "section_id": "uterine",
+    "section_name": "Cervical & Uterine Tumors",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Red degeneration:</strong> Hemorrhagic necrosis of a fibroid outgrowing its blood supply during pregnancy. Submucosal type distorts the endometrial cavity and disrupts embryo implantation."
+  },
+  {
+    "tumor": "Fibrocystic Changes",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Premenopausal female (20\u201350 y/o, peak 30\u201350)</strong> with <strong>bilateral, multifocal</strong> breast pain (<strong>cyclic mastalgia</strong>) and diffuse <strong>\"lumpy-bumpy\" irregularity</strong> that <strong>worsen premenstrually</strong> and improve after menses; intermittent <strong>green-brown nipple discharge</strong>; mammogram shows <strong>heterogeneous, dense parenchyma</strong>."
+  },
+  {
+    "tumor": "Fibrocystic Changes",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Nonproliferative change showing <strong>cystic dilation of terminal duct lobular units (TDLUs)</strong> (grossly <strong>\"blue-dome\" cysts</strong>), <strong>papillary apocrine metaplasia</strong>, and <strong>stromal fibrosis</strong>. <strong>No increased risk</strong> of breast cancer."
+  },
+  {
+    "tumor": "Simple Breast Cyst",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Premenopausal female (most frequently 30\u201350 y/o)</strong> with a solitary, <strong>smooth, mobile, tender mass</strong> (worsens before menses); ultrasound shows a <strong>round/oval, well-circumscribed anechoic (fluid-filled) mass with distinct borders and posterior acoustic enhancement</strong>."
+  },
+  {
+    "tumor": "Simple Breast Cyst",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Fluid-filled <strong>duct dilation</strong> within the TDLU lined by flattened or apocrine-type epithelium without atypia. <strong>No increased risk</strong> of breast cancer."
+  },
+  {
+    "tumor": "Usual Ductal Hyperplasia (UDH)",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Female (30\u201360 y/o, mean 54 y/o)</strong>; clinically <strong>asymptomatic</strong> with no specific mammographic abnormality; discovered <strong>incidentally on biopsy</strong> of another breast lesion."
+  },
+  {
+    "tumor": "Usual Ductal Hyperplasia (UDH)",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Intraductal proliferation of a <strong>heterogeneous (polymorphous) population</strong> of epithelial and myoepithelial cells forming <strong>irregular, slit-like peripheral lumens</strong>."
+  },
+  {
+    "tumor": "Sclerosing Adenosis",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Female (30\u201355 y/o)</strong>; clinically <strong>asymptomatic</strong>; detected on screening mammography as a <strong>mass with calcifications</strong> that radiographically <strong>mimics invasive breast carcinoma</strong>."
+  },
+  {
+    "tumor": "Sclerosing Adenosis",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Proliferative lesion within the TDLU showing an <strong>increased number of compressed, distorted acini</strong> surrounded by <strong>dense stromal fibrosis</strong> and calcifications. Slight (~1.5\u20132\u00d7) increased risk for cancer."
+  },
+  {
+    "tumor": "Atypical Hyperplasia (ADH / ALH)",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Female (40\u201360 y/o)</strong>; clinically <strong>asymptomatic</strong>; discovered on screening mammography showing <strong>clustered microcalcifications</strong>."
+  },
+  {
+    "tumor": "Atypical Hyperplasia (ADH / ALH)",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Clonal intraductal (<strong>ADH</strong>) or lobular (<strong>ALH</strong>) proliferation of a <strong>monotonous (uniform) population</strong> of dysplastic cells partially filling the duct/lobule. <strong>Major risk factor (~4\u20135\u00d7 \u2191 risk) for invasive breast cancer</strong>."
+  },
+  {
+    "tumor": "Intraductal Papilloma",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Premenopausal female (20\u201340 y/o)</strong> presenting with <strong>unilateral bloody or serosanguinous nipple discharge</strong>; <strong>most common cause of nipple discharge</strong>; usually no palpable mass and normal mammogram; <strong>ultrasound shows a solid nodule inside a single dilated subareolar duct</strong>."
+  },
+  {
+    "tumor": "Intraductal Papilloma",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Small benign <strong>fibroepithelial tumor</strong> within a lactiferous duct composed of <strong>branching fibrovascular cores (papillary fronds)</strong> lined by both <strong>epithelial and myoepithelial cell layers</strong>. Slight \u2191 risk for cancer."
+  },
+  {
+    "tumor": "Fibroadenoma",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Young female (<35 y/o; 20\u201340 y/o)</strong>; <strong>most common benign breast tumor in women <35</strong>; presents as a <strong>solitary, firm, rubbery, well-circumscribed, highly mobile, painless mass</strong>; <strong>grows during pregnancy</strong> and fluctuates with the menstrual cycle (<strong>estrogen-sensitive</strong>)."
+  },
+  {
+    "tumor": "Fibroadenoma",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Benign <strong>biphasic fibroepithelial tumor</strong> with a rounded contour composed of <strong>overgrowth of both fibrous stroma and glandular epithelium</strong>. <strong>No increased risk</strong> of breast cancer."
+  },
+  {
+    "tumor": "Phyllodes Tumor",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Female in 5th decade (40\u201350 y/o)</strong> presenting with a <strong>large (often >3\u20136 cm), solitary, well-circumscribed, firm, polylobulated mass</strong> with <strong>rapid growth over weeks to months</strong>."
+  },
+  {
+    "tumor": "Phyllodes Tumor",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Biphasic fibroepithelial tumor arising from periductal connective tissue with characteristic <strong>\"leaf-like\" projections (lobulations) of hypercellular stroma</strong> lined by epithelium. Some may become malignant."
+  },
+  {
+    "tumor": "Fat Necrosis",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Female of any age</strong> following <strong>breast trauma</strong> (e.g., <strong>seatbelt injury in MVC</strong> or prior surgery; up to 50% may not report trauma); presents with breast pain and a <strong>firm, irregular mass</strong> (+/- ecchymosis or skin retraction mimicking cancer); mammography shows a <strong>calcified oil cyst</strong> (radiolucent center with peripheral calcified rim)."
+  },
+  {
+    "tumor": "Fat Necrosis",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Trauma damages adipocytes \u2192 <strong>release of cytoplasmic triglycerides and lipase</strong> \u2192 <strong>saponification</strong> of fat with calcium \u2192 biopsy shows <strong>necrotic fat, lipid-laden foamy macrophages (foam cells), and multinucleated giant cells</strong>."
+  },
+  {
+    "tumor": "Mammary Duct Ectasia",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Perimenopausal female (45\u201355 y/o)</strong>; associated with <strong>smoking</strong>; presents with <strong>areolar pain, thick multicolored nipple discharge, inverted nipple, or a periareolar mass</strong>; mammography shows <strong>dilated linear branching densities in the subareolar region</strong>."
+  },
+  {
+    "tumor": "Mammary Duct Ectasia",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Dilation of subareolar lactiferous ducts</strong> filled with inspissated debris alongside <strong>periductal chronic inflammation and fibrosis</strong>."
+  },
+  {
+    "tumor": "Lactational Mastitis, Breast Abscess & Galactocele",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Breastfeeding postpartum female:</strong> <strong>Mastitis</strong> = unilateral <strong>wedge-shaped erythema, tenderness, swelling + fever (>38\u00b0C)</strong>; <strong>Abscess</strong> = persistent fever + <strong>fluctuant mass</strong> (+/- purplish skin necrosis); <strong>Galactocele</strong> = <strong>afebrile, mobile subareolar mass</strong> after <strong>stopping breastfeeding</strong> (US shows heterogeneous fat/water milk cyst)."
+  },
+  {
+    "tumor": "Lactational Mastitis, Breast Abscess & Galactocele",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Mastitis / Abscess:</strong> Nipple fissures + milk stasis allow bacterial entry, most commonly <strong><em>Staphylococcus aureus</em></strong>. <strong>Galactocele:</strong> Non-infectious milk retention cyst caused by duct obstruction after weaning."
+  },
+  {
+    "tumor": "Gynecomastia (Physiologic vs. Pathologic)",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Male</strong> with firm, <strong>rubbery, tender subareolar glandular tissue</strong> bilaterally: <strong>Physiologic</strong> in <strong>newborns, puberty (Tanner 3), and elderly</strong>; <strong>Pathologic</strong> in <strong>cirrhosis</strong>, <strong>CKD</strong>, <strong>Klinefelter syndrome (47,XXY; tall, small firm testes, 15\u201320\u00d7 \u2191 breast cancer risk)</strong>, <strong>Leydig cell tumor</strong>, or <strong>drugs</strong>."
+  },
+  {
+    "tumor": "Gynecomastia (Physiologic vs. Pathologic)",
+    "section_id": "breast_benign",
+    "section_name": "Benign Breast Disorders",
+    "cat": "Histology / Pathophysiology",
+    "text": "Driven by <strong>\u2191 estrogen relative to androgen activity</strong>: <strong>Newborn</strong> (placental maternal hormones), <strong>Puberty</strong> (temporary hormone imbalance), <strong>Elderly</strong> (androgen\u2013estrogen mismatch). <strong>Drugs:</strong> <strong>Spironolactone</strong>, finasteride, leuprolide, ketoconazole, <strong>risperidone/antipsychotics</strong> (D2 blockade \u2192 \u2191 prolactin)."
+  },
+  {
+    "tumor": "Ductal Carcinoma In Situ (DCIS)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Asymptomatic female</strong> detected early on screening mammography as <strong>clustered, pleomorphic or linear microcalcifications</strong>; usually <strong>does NOT produce a palpable mass</strong>; increases risk of invasive cancer in the <strong>same breast and quadrant</strong>."
+  },
+  {
+    "tumor": "Ductal Carcinoma In Situ (DCIS)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Histology / Pathophysiology",
+    "text": "Neoplastic ductal epithelial cells <strong>fill the ductal lumen</strong> (e.g., comedo central necrosis) <strong>WITHOUT basement membrane penetration</strong> into surrounding stroma."
+  },
+  {
+    "tumor": "Lobular Carcinoma In Situ (LCIS)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Premenopausal female</strong>; produces <strong>NO palpable mass and NO mammographic calcifications</strong> \u2192 discovered as an <strong>incidental biopsy finding</strong>; marker of <strong>\u2191 risk of invasive carcinoma in EITHER breast</strong> (bilateral risk)."
+  },
+  {
+    "tumor": "Lobular Carcinoma In Situ (LCIS)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Histology / Pathophysiology",
+    "text": "Neoplastic proliferation of loosely cohesive cells within terminal duct lobules caused by <strong>\u2193 E-cadherin expression</strong>; basement membrane remains intact."
+  },
+  {
+    "tumor": "Invasive Ductal Carcinoma (IDC)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Most common invasive breast cancer (~75\u201380%)</strong>; presents with a <strong>firm, fibrous, \"rock-hard,\" irregular, nonmobile mass</strong> in the <strong>upper outer quadrant</strong>; <strong>Cooper ligament infiltration \u2192 skin dimpling</strong>; mammogram shows a <strong>spiculated (stellate) mass with microcalcifications</strong>."
+  },
+  {
+    "tumor": "Invasive Ductal Carcinoma (IDC)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Nests, cords, and tubules of malignant duct-like glandular cells</strong> that <strong>invade through the basement membrane</strong> into a dense <strong>desmoplastic stroma</strong>; tumor cells <strong>retain E-cadherin expression</strong>."
+  },
+  {
+    "tumor": "Invasive Lobular Carcinoma (ILC)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Postmenopausal or middle-aged female</strong> with an <strong>ill-defined breast mass/thickening</strong>; <strong>often bilateral and multifocal</strong>; typically <strong>ER-positive</strong>."
+  },
+  {
+    "tumor": "Invasive Lobular Carcinoma (ILC)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Histology / Pathophysiology",
+    "text": "Small, <strong>discohesive tumor cells infiltrating the stroma in orderly single-file lines (\"Indian file\")</strong> with <strong>no duct/tubule formation</strong> and minimal desmoplastic response due to <strong>loss of E-cadherin expression</strong>."
+  },
+  {
+    "tumor": "Inflammatory Breast Cancer",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Female (~50\u201355 y/o)</strong> with a <strong>rapidly enlarging, red, warm, swollen breast</strong> and diffuse <strong>thickened, pitted skin resembling an orange peel (<em>peau d'orange</em>)</strong>; <strong>afebrile and not breastfeeding</strong>; usually lacks a discrete mass; <strong>often mistaken for mastitis</strong>; poor prognosis (50% 5-yr survival)."
+  },
+  {
+    "tumor": "Inflammatory Breast Cancer",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Tumor cells infiltrating and obstructing the dermal lymphatics</strong> in the skin \u2192 <strong>localized lymphedema</strong> with skin dimpling/pitting around tethered hair follicles (<em>peau d'orange</em>)."
+  },
+  {
+    "tumor": "Paget Disease of the Breast",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Older female (~60 y/o)</strong> with a chronic, unilateral <strong>red, scaly, crusting, eczematous lesion of the nipple and areola</strong> that <strong>does NOT improve with topical corticosteroids</strong>; associated with an <strong>underlying DCIS or invasive carcinoma in 80\u201390% of cases</strong>."
+  },
+  {
+    "tumor": "Paget Disease of the Breast",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Histology / Pathophysiology",
+    "text": "Extension of underlying ductal adenocarcinoma up the lactiferous ducts into the contiguous skin, showing <strong>intraepithelial adenocarcinoma cells (Paget cells) within the epidermis of the nipple</strong>."
+  },
+  {
+    "tumor": "Hereditary & Triple-Negative Breast Cancer (BRCA1/2)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Hereditary Clues:</strong> <strong>Young age (<45 y/o)</strong>, <strong>1st-degree relative diagnosed <50 y/o</strong>, <strong>triple-negative status (ER\u229d/PR\u229d/HER2\u229d)</strong>, <strong>male relative with breast cancer</strong>, breast + ovarian cancer in family, Ashkenazi Jewish ancestry. <strong>General Risk Factors:</strong> \u2191 estrogen exposure (<strong>early menarche, nulliparity, postmenopausal obesity</strong>), <strong>atypical hyperplasia</strong>, <strong>alcohol</strong>, radiation."
+  },
+  {
+    "tumor": "Hereditary & Triple-Negative Breast Cancer (BRCA1/2)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>BRCA1/2</strong> encode tumor suppressor proteins that repair <strong>double-stranded DNA breaks (homologous recombination)</strong>. <strong>BRCA1</strong> \u2192 <strong>triple-negative breast cancer</strong> & ovarian cancer; <strong>BRCA2</strong> \u2192 <strong>male breast cancer</strong>. Other hereditary genes: <strong>PALB2, ATM, MSH6, PTEN, TP53</strong>."
+  },
+  {
+    "tumor": "ER/PR+ Endocrine Therapy (Tamoxifen, AIs & GnRH Agonists)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Key Vignette Clues",
+    "text": "Used for <strong>ER+ / PR+ breast cancer</strong> (nuclear staining on IHC): <strong>Tamoxifen</strong> (pre- & postmenopausal); <strong>Aromatase Inhibitors \u2014 Anastrozole, Letrozole, Exemestane</strong> (<strong>postmenopausal</strong>); <strong>GnRH Agonists \u2014 Leuprolide, Goserelin</strong> (<strong>premenopausal ovarian suppression</strong>)."
+  },
+  {
+    "tumor": "ER/PR+ Endocrine Therapy (Tamoxifen, AIs & GnRH Agonists)",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Tamoxifen (SERM):</strong> ER antagonist in breast, <strong>partial agonist in endometrium</strong> and <strong>agonist in bone</strong> (\u2191 BMD). <strong>AIs:</strong> Inhibit aromatase \u2192 <strong>\u2193 peripheral conversion of androgens to estrogens</strong>. <strong>Leuprolide/Goserelin:</strong> Continuous GnRH receptor stimulation \u2192 suppresses ovarian estrogen."
+  },
+  {
+    "tumor": "HER2+ Targeted Therapy & Chemotherapy Toxicities",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Key Vignette Clues",
+    "text": "<strong>Trastuzumab</strong> (used for <strong>HER2 / Erb-B2+</strong> tumors with membranous IHC staining); <strong>Doxorubicin, Cyclophosphamide, and Paclitaxel</strong> (backbone cytotoxic chemotherapy for triple-negative and high-risk invasive breast cancer)."
+  },
+  {
+    "tumor": "HER2+ Targeted Therapy & Chemotherapy Toxicities",
+    "section_id": "breast_cancer",
+    "section_name": "Breast Cancer & Pharmacology",
+    "cat": "Histology / Pathophysiology",
+    "text": "<strong>Trastuzumab:</strong> Anti-HER2 mAb \u2192 inhibits HER2 tyrosine kinase signaling & promotes immune destruction. <strong>Doxorubicin:</strong> Anthracycline (free-radical cardiotoxicity). <strong>Cyclophosphamide:</strong> DNA alkylating agent. <strong>Paclitaxel:</strong> Taxane (<strong>microtubule stabilization</strong>)."
+  }
+];
+const tumorsData = [
+  {
+    "section_name": "Ovarian Germ Cell Tumors",
+    "section_id": "germ_cell",
+    "section_badge": "Germ Cell",
+    "tumor": "Dysgerminoma",
+    "clues": "<strong>Adolescent / young female (10\u201330 y/o)</strong>; painless adnexal mass; <strong>\u2191 LDH</strong>, \u2191 PLAP, <strong>normal AFP</strong>, +/- mildly \u2191 hCG; associated with <strong>Turner syndrome / gonadal dysgenesis</strong>; highly radiosensitive.",
+    "hist_path": "Sheets of uniform <strong>\"fried-egg\" cells</strong> (clear cytoplasm, central nuclei) separated by fibrous pseudolobules containing a <strong>lymphocytic infiltrate</strong>.",
+    "mgmt": "<strong>US</strong> \u2192 <strong>Unilateral salpingo-oophorectomy</strong> (preserves fertility); exceptionally responsive to chemotherapy if advanced."
+  },
+  {
+    "section_name": "Ovarian Germ Cell Tumors",
+    "section_id": "germ_cell",
+    "section_badge": "Germ Cell",
+    "tumor": "Yolk Sac Tumor (Endodermal Sinus)",
+    "clues": "<strong>Young female (<30 y/o)</strong> w/ rapidly expanding, aggressive pelvic mass + abdominal pain; <strong>markedly \u2191 AFP</strong>, normal hCG.",
+    "hist_path": "<strong>Schiller-Duval bodies</strong> (glomeruloid-like structures with a central vessel) and intracellular/extracellular hyaline droplets.",
+    "mgmt": "<strong>Surgical resection</strong> (fertility-sparing oophorectomy) + <strong>adjuvant BEP chemotherapy</strong> (Bleomycin, Etoposide, Cisplatin); highly aggressive."
+  },
+  {
+    "section_name": "Ovarian Germ Cell Tumors",
+    "section_id": "germ_cell",
+    "section_badge": "Germ Cell",
+    "tumor": "Mature Cystic Teratoma (Dermoid Cyst)",
+    "clues": "<strong>Reproductive-age female (20\u201330 y/o)</strong>; often asymptomatic or presents with acute pain from <strong>ovarian torsion</strong>; pelvic X-ray or CT shows calcifications/fat densities; <strong>Struma ovarii</strong> variant causes <strong>hyperthyroidism</strong>.",
+    "hist_path": "Multiple mature germ layers (<strong>calcifications, teeth, hair, sebum</strong>). Malignant transformation is rare but typically presents as <strong>squamous cell carcinoma</strong>.",
+    "mgmt": "<strong>Cystectomy</strong> or oophorectomy; benign in females."
+  },
+  {
+    "section_name": "Ovarian Germ Cell Tumors",
+    "section_id": "germ_cell",
+    "section_badge": "Germ Cell",
+    "tumor": "Immature Teratoma",
+    "clues": "<strong>Adolescent / young girl (~18 y/o)</strong>; fast-growing malignant mass; mixed with mature elements (cartilage, bone).",
+    "hist_path": "Contains <strong>immature/embryonic neural tissue</strong> (neuroectoderm, primitive neuroepithelial tubules). Graded based on amount of immature neuroepithelium.",
+    "mgmt": "<strong>Oophorectomy + combo chemotherapy</strong> (except for Stage I, Grade 1 which can undergo surveillance)."
+  },
+  {
+    "section_name": "Ovarian Germ Cell Tumors",
+    "section_id": "germ_cell",
+    "section_badge": "Germ Cell",
+    "tumor": "Choriocarcinoma",
+    "clues": "<strong>Young female</strong>; can be gestational or non-gestational; highly malignant with <strong>early hematogenous spread to lungs (hemoptysis / \"cannonball\" lesions)</strong>; <strong>\u2191\u2191\u2191 [\u03b2-hCG]</strong>; mimics hyperthyroidism/precocious puberty due to hCG-TSH/LH homology.",
+    "hist_path": "Cytotrophoblasts and syncytiotrophoblasts with extensive <strong>hemorrhage & necrosis</strong>; lacks villi.",
+    "mgmt": "<strong>Systemic chemotherapy</strong> (Methotrexate-based for gestational; cisplatin-based BEP for non-gestational) +/- surgical resection."
+  },
+  {
+    "section_name": "Ovarian Germ Cell Tumors",
+    "section_id": "germ_cell",
+    "section_badge": "Germ Cell",
+    "tumor": "Embryonal Carcinoma",
+    "clues": "<strong>Adolescent / young female (~15 y/o)</strong>; rare, highly aggressive; <strong>\u2191 AFP and \u2191 hCG</strong>; strongly <strong>CD30 positive</strong>.",
+    "hist_path": "Sheets of primitive, pleomorphic cells with indistinct borders, extensive sheet-like necrosis, and hemorrhage.",
+    "mgmt": "<strong>Surgical resection + combo chemotherapy</strong>; hematogenous spread is common."
+  },
+  {
+    "section_name": "Sex Cord-Stromal Tumors",
+    "section_id": "sex_cord",
+    "section_badge": "Sex Cord-Stromal",
+    "tumor": "Adult Granulosa Cell Tumor",
+    "clues": "<strong>Peri- or Postmenopausal female (~50\u201354 y/o)</strong>; presents with <strong>abnormal/postmenopausal uterine bleeding</strong> or breast tenderness driven by <strong>\u2191 estrogen</strong>; large, unilateral mass; <strong>\u2191 Inhibin (A/B)</strong> and <strong>\u2191 AMH</strong>.",
+    "hist_path": "<strong>Call-Exner bodies</strong> (microfollicular fluid-filled spaces resembling follicles) and <strong>\"coffee-bean\" nuclei</strong> (longitudinal nuclear grooves). Driven by a <strong>FOXL2 gene mutation</strong>.",
+    "mgmt": "<strong>Diagnostic</strong><strong>:</strong> Pelvic US \u2192 <strong>Endometrial biopsy</strong> (to rule out concurrent endometrial carcinoma).<strong>Treatment</strong><strong>:</strong> TAH-BSO. Characterized by <strong>late recurrence</strong> (10\u201320 years later)."
+  },
+  {
+    "section_name": "Sex Cord-Stromal Tumors",
+    "section_id": "sex_cord",
+    "section_badge": "Sex Cord-Stromal",
+    "tumor": "Juvenile Granulosa Cell Tumor",
+    "clues": "<strong>Young girl / Pre-pubertal child (<20 y/o)</strong> presenting with <strong>precocious puberty</strong> (early breast development, pubic hair, vaginal bleeding) or severe menorrhagia; rapidly growing mass; <strong>\u2191 Inhibin</strong>.",
+    "hist_path": "Sheets of pleomorphic cells with a high mitotic index; <strong>Call-Exner bodies and \"coffee-bean\" grooves are absent / rare</strong>. Associated with trisomy 12.",
+    "mgmt": "<strong>Treatment</strong><strong>:</strong> Unilateral salpingo-oophorectomy to preserve fertility (if localized to one ovary). More aggressive early clinical course."
+  },
+  {
+    "section_name": "Sex Cord-Stromal Tumors",
+    "section_id": "sex_cord",
+    "section_badge": "Sex Cord-Stromal",
+    "tumor": "Sertoli-Leydig Cell Tumor",
+    "clues": "<strong>Young female (20\u201330 y/o)</strong> presenting with rapid-onset <strong>virilization / defeminization</strong> driven by <strong>\u2191 testosterone</strong> (amenorrhea, breast atrophy, <strong>hirsutism, clitomegaly, deep voice</strong>).",
+    "hist_path": "Tubular structures (Sertoli cells) mixed with interstitial cells containing pink cytoplasm (Leydig cells); may feature <strong>Reinke crystalloids</strong> (rectangular, eosinophilic cytoplasmic inclusions). Associated with <strong>DICER1 mutations</strong>.",
+    "mgmt": "<strong>Diagnostic</strong><strong>:</strong> Ultrasound may reveal a hidden/very small solid adnexal lesion.<strong>Treatment</strong><strong>:</strong> Unilateral oophorectomy. (Voice changes and clitomegaly may partially persist)."
+  },
+  {
+    "section_name": "Sex Cord-Stromal Tumors",
+    "section_id": "sex_cord",
+    "section_badge": "Sex Cord-Stromal",
+    "tumor": "Thecoma",
+    "clues": "<strong>Postmenopausal female</strong>; benign neoplasm; <strong>produces estrogen</strong> leading to <strong>postmenopausal bleeding</strong> due to endometrial hyperplasia; often paired with fibromas (<em>Fibrothecoma</em>).",
+    "hist_path": "Plump spindle cells with lipid droplets.",
+    "mgmt": "<strong>Treatment</strong><strong>:</strong> Surgical excision (oophorectomy) is curative; virtually always benign."
+  },
+  {
+    "section_name": "Sex Cord-Stromal Tumors",
+    "section_id": "sex_cord",
+    "section_badge": "Sex Cord-Stromal",
+    "tumor": "Fibroma",
+    "clues": "<strong>Middle-aged to older female (~50 y/o)</strong>; hormonally <strong>inactive</strong>; classic vignette pairs this tumor with <strong>Meigs Syndrome</strong> triad: <strong>Ovarian Fibroma + Ascites + Right-sided Hydrothorax</strong>.",
+    "hist_path": "Composed of bundles of benign spindle-shaped fibroblasts.",
+    "mgmt": "<strong>Treatment</strong><strong>:</strong> Surgical excision is curative. The ascites and pleural effusion completely resolve after the tumor is removed."
+  },
+  {
+    "section_name": "Epithelial Ovarian Tumors",
+    "section_id": "epithelial",
+    "section_badge": "Epithelial Ovarian",
+    "tumor": "Serous Cystadenoma",
+    "clues": "<strong>Premenopausal / Reproductive-age female (30\u201340 y/o)</strong>; often asymptomatic or mild pelvic pressure; pelvic US shows a <strong>thin-walled, unilocular cystic mass filled with clear, watery fluid</strong>.",
+    "hist_path": "Lined by a single layer of ciliated columnar epithelium resembling fallopian tube epithelium; <strong>no nuclear atypia, no stromal invasion, no papillary complexity</strong>.",
+    "mgmt": "<strong>Conservative surgical management</strong><strong>:</strong> Ovarian cystectomy or unilateral salpingo-oophorectomy (fertility-sparing)."
+  },
+  {
+    "section_name": "Epithelial Ovarian Tumors",
+    "section_id": "epithelial",
+    "section_badge": "Epithelial Ovarian",
+    "tumor": "Serous Cystadenocarcinoma",
+    "clues": "<strong>Postmenopausal female (60\u201370 y/o)</strong> with <strong>abdominal distention/bloating, early satiety</strong>, or ascites; <strong>most common malignant ovarian tumor overall</strong>; frequently <strong>bilateral</strong> (~66%); <strong>\u2191 CA-125</strong>; associated with <strong>BRCA1/2</strong> and <strong>Lynch syndrome</strong>.",
+    "hist_path": "Papillary architecture, cellular pleomorphism, destructive stromal invasion, and concentric laminated calcifications called <strong>Psammoma bodies</strong>. Often originates from the <strong>fimbriated end of the fallopian tube</strong>.",
+    "mgmt": "<strong>Diagnostic</strong><strong>:</strong> Pelvic US \u2192 staging laparotomy.<strong>Treatment</strong><strong>:</strong> Surgical debulking (tumor cytoreduction) + <strong>platinum-taxane chemotherapy</strong> (Cisplatin/Carboplatin + Paclitaxel)."
+  },
+  {
+    "section_name": "Epithelial Ovarian Tumors",
+    "section_id": "epithelial",
+    "section_badge": "Epithelial Ovarian",
+    "tumor": "Mucinous Cystadenoma",
+    "clues": "<strong>Reproductive-age female (30\u201350 y/o)</strong>; presents with a remarkably <strong>massive, slow-growing abdominal mass</strong> causing pronounced abdominal fullness or distention.",
+    "hist_path": "Multilocular mass filled with thick, gelatinous/mucinous fluid; lined by a single layer of tall columnar cells with apical mucin vacuoles resembling <strong>endocervix / GI epithelium</strong>; no stromal invasion.",
+    "mgmt": "<strong>Surgical resection</strong><strong>:</strong> Oophorectomy or cystectomy with careful intraoperative intact removal to avoid spillage of mucinous contents."
+  },
+  {
+    "section_name": "Epithelial Ovarian Tumors",
+    "section_id": "epithelial",
+    "section_badge": "Epithelial Ovarian",
+    "tumor": "Mucinous Cystadenocarcinoma",
+    "clues": "<strong>Postmenopausal female (50\u201360 y/o)</strong>; rapidly expanding pelvic/abdominal mass with early peritoneal dissemination; rupture/seeding results in <strong>Pseudomyxoma peritonei</strong> (massive intra-abdominal gelatinous ascites / \"jelly belly\").",
+    "hist_path": "Marked cellular atypia and destructive stromal invasion of mucin-producing epithelial cells.",
+    "mgmt": "<strong>Treatment</strong><strong>:</strong> Surgical debulking + systemic chemotherapy. <strong>High-Yield Note</strong><strong>:</strong> Must <strong>rule out an appendiceal primary neoplasm</strong> (or GI tract metastasis) with a colonoscopy/appendectomy."
+  },
+  {
+    "section_name": "Epithelial Ovarian Tumors",
+    "section_id": "epithelial",
+    "section_badge": "Epithelial Ovarian",
+    "tumor": "Endometrioid Carcinoma",
+    "clues": "<strong>Perimenopausal or postmenopausal female (50\u201360 y/o)</strong>; frequently arises on a background of <strong>chronic ovarian endometriosis</strong> (alongside endometriomas); associated with <strong>PTEN mutations</strong> and <strong>Lynch syndrome</strong>.",
+    "hist_path": "Malignant glandular proliferation containing tubular glands that <strong>mimic proliferative/secretory endometrium</strong>.",
+    "mgmt": "<strong>Treatment</strong><strong>:</strong> TAH-BSO + surgical staging. <strong>High-Yield Association</strong><strong>:</strong> 15\u201330% of cases are diagnosed with a <strong>synchronous (concurrent) primary endometrial adenocarcinoma of the uterus</strong>."
+  },
+  {
+    "section_name": "Epithelial Ovarian Tumors",
+    "section_id": "epithelial",
+    "section_badge": "Epithelial Ovarian",
+    "tumor": "Clear Cell Carcinoma",
+    "clues": "<strong>Middle-aged to older female (40\u201360 y/o)</strong>; rare, aggressive epithelial subtype presenting with a large unilateral pelvic mass; strongly associated with <strong>pre-existing pelvic endometriosis</strong>.",
+    "hist_path": "Features <strong>\"hobnail\" cells</strong> (prominent atypical nuclei protruding into gland lumens) and glycogen-rich clear cytoplasm.",
+    "mgmt": "<strong>Treatment</strong><strong>:</strong> Surgical debulking + aggressive chemotherapy; frequently demonstrates resistance to standard platinum agents. May trigger paraneoplastic <strong>hypercalcemia</strong>."
+  },
+  {
+    "section_name": "Epithelial Ovarian Tumors",
+    "section_id": "epithelial",
+    "section_badge": "Epithelial Ovarian",
+    "tumor": "Brenner Tumor",
+    "clues": "<strong>Postmenopausal female (~50\u201370 y/o)</strong>; almost always <strong>benign</strong>, unilateral, and found incidentally as a solid, pale-yellow/tan, circumscribed, fibrous ovarian mass.",
+    "hist_path": "Nests of <strong>urothelial/transitional epithelium</strong> (resembling the <strong>urinary bladder</strong>) surrounded by dense ovarian stroma; characteristically exhibits <strong>\"coffee-bean\" nuclei</strong> (longitudinal nuclear grooves).",
+    "mgmt": "<strong>Treatment</strong><strong>:</strong> Simple surgical excision (oophorectomy/cystectomy) is curative. <strong>\"B's\":</strong> <strong>B</strong>renner = <strong>B</strong>enign, <strong>B</strong>bladder-like epithelium, <strong>B</strong>ecoming encapsulated, with \"coffee-<strong>B</strong>ean\" nuclei."
+  },
+  {
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "section_id": "cysts",
+    "section_badge": "Non-Neoplastic Cysts",
+    "tumor": "Follicular Cyst (Younger / Pre-pubertal)",
+    "clues": "<strong>Young girl (<8 y/o)</strong> presenting with sudden-onset <strong>peripheral precocious puberty</strong> (breast buds, pubic hair, early menses) due to autonomous <strong>\u2191 estrogen</strong>; bone age may be advanced; low/suppressed LH/FSH.",
+    "hist_path": "Arises when a follicle fails to rupture or an unruptured follicle undergoes fluid distention; lined by granulosa and outerca cells without atypia.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Pelvic ultrasound (shows unilocular, thin-walled simple cyst). <strong>Treatment</strong><strong>:</strong> Reassurance and observation; most spontaneously regress over 2\u20133 months."
+  },
+  {
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "section_id": "cysts",
+    "section_badge": "Non-Neoplastic Cysts",
+    "tumor": "Follicular Cyst (Reproductive-Age)",
+    "clues": "<strong>Reproductive-age female</strong> presenting with a sudden delay in menses followed by <strong>heavy, irregular bleeding (menorrhagia/anovulatory bleeding)</strong>; may cause mild unilateral pelvic aching.",
+    "hist_path": "Arises when a dominant graafian follicle fails to rupture and continues growing; lined by normal granulosa cells.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Pelvic ultrasound to confirm a simple cyst (<5\u201310 cm). <strong>Treatment</strong><strong>:</strong> <strong>Expectant surveillance</strong> for 6\u20138 weeks as most self-resolve."
+  },
+  {
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "section_id": "cysts",
+    "section_badge": "Non-Neoplastic Cysts",
+    "tumor": "Corpus Luteum Cyst",
+    "clues": "<strong>Reproductive-age female</strong> presenting with delayed menses, a palpable adnexal mass, and <strong>unilateral lower quadrant pain</strong> during the <strong>luteal phase</strong> (days 14\u201328); can rupture causing sudden pain and <strong>hemoperitoneum</strong>.",
+    "hist_path": "Develops from a failure of the corpus luteum to regress after ovulation; central hemorrhage surrounded by a rim of luteinized granulosa cells.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Pelvic US shows thick-walled cyst with peripheral <strong>\"ring of fire\"</strong> vascularity. Always obtain a <strong>\u03b2-hCG</strong> to rule out ectopic pregnancy. <strong>Treatment</strong><strong>:</strong> Observation if stable; laparoscopy if unstable."
+  },
+  {
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "section_id": "cysts",
+    "section_badge": "Non-Neoplastic Cysts",
+    "tumor": "Theca Lutein Cyst",
+    "clues": "<strong>Pregnant female</strong> or fertility patient; characteristically <strong>bilateral and massive</strong>; driven by abnormally high levels of <strong>hCG</strong>; associated with <strong>Choriocarcinoma, Complete Hydatidiform Mole</strong>, or twin pregnancies.",
+    "hist_path": "Hyperplasia and hypertrophy of the theca interna cells driven by massive gonadotropin (hCG) overstimulation.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Quantitative \u03b2-hCG and pelvic US (shows multi-cystic, \"soap-bubble\"/\"spoke-wheel\" bilateral ovaries). <strong>T</strong><strong>reatment</strong><strong>:</strong> Conservative observation. <strong>Do NOT resect surgically</strong>; they spontaneously regress when hCG drops."
+  },
+  {
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "section_id": "cysts",
+    "section_badge": "Non-Neoplastic Cysts",
+    "tumor": "Endometrioma (Chocolate Cyst)",
+    "clues": "<strong>Reproductive-age female (20\u201340 y/o)</strong> presenting with the classic triad of <strong>Dysmenorrhea, Dyspareunia, and Dyschezia</strong>, alongside chronic pelvic pain and infertility; US shows <strong>homogeneous, low-level internal echoes (\"ground-glass\")</strong>.",
+    "hist_path": "Ectopic endometrial tissue outside the uterus undergoing cyclic hemorrhage; cyst is filled with thick, dark-brown <strong>altered old blood (\"chocolate fluid\")</strong>.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Pelvic ultrasound. Laparoscopy/biopsy for definitive diagnosis. <strong>Treatment</strong><strong>:</strong> First-line medical (NSAIDs, continuous OCPs, GnRH agonists). Surgical cystectomy if symptomatic/large."
+  },
+  {
+    "section_name": "Non-Neoplastic Ovarian Cysts & Syndromes",
+    "section_id": "cysts",
+    "section_badge": "Non-Neoplastic Cysts",
+    "tumor": "Polycystic Ovarian Syndrome (PCOS)",
+    "clues": "<strong>Adolescent / young reproductive-age female</strong> with <strong>oligomenorrhea/amenorrhea, infertility</strong>, and signs of <strong>hyperandrogenism</strong> (hirsutism, acne, male baldness); associated with <strong>obesity, insulin resistance</strong>, acanthosis nigricans.",
+    "hist_path": "<strong>\u2191 LH to FSH ratio (>3:1)</strong>; increased androgen production by theca cells. Long-term unopposed estrogen <strong>increases risk of Endometrial Hyperplasia and Adenocarcinoma</strong>.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Pelvic US showing enlarged ovaries with <strong>>12 small subependymal follicles arranged peripherally (\"string of pearls\")</strong>. <strong>Treatment</strong><strong>:</strong> Weight loss (first-line); OCPs; Metformin; <strong>Clomiphene/Letrozole</strong> for fertility."
+  },
+  {
+    "section_name": "Cervical & Uterine Tumors",
+    "section_id": "uterine",
+    "section_badge": "Cervical & Uterine",
+    "tumor": "Cervical Cancer (Squamous vs. Adeno)",
+    "clues": "Female w/ <strong>post-coital</strong> or postmenopausal bleeding; malodorous watery discharge; history of smoking, <strong>HIV/immunosuppression</strong>, or <strong>lack of regular Pap screening</strong>; speculum exam shows a <strong>friable, exophytic mass</strong>; advanced disease causes lateral invasion leading to <strong>ureteral obstruction / hydronephrosis</strong>.",
+    "hist_path": "<strong>Koilocytic atypia</strong> (cells with hyperchromatic, wrinkled nuclei surrounded by a clear halo) indicates precursor HPV 16/18 infection. Squamous cell carcinoma arises from ectocervix/transformation zone; adenocarcinoma arises from endocervix.",
+    "mgmt": "<strong>Diagnostic</strong><strong>:</strong> Pap smear/HPV co-test \u2192 Colposcopy with biopsy.<strong>Treatment</strong><strong>:</strong> Localized = Radical hysterectomy or cisplatin-based chemoradiation."
+  },
+  {
+    "section_name": "Cervical & Uterine Tumors",
+    "section_id": "uterine",
+    "section_badge": "Cervical & Uterine",
+    "tumor": "Type I Endometrioid Adenocarcinoma (Younger)",
+    "clues": "<strong>Younger female (30\u201350 y/o)</strong> with chronic <strong>anovulatory cycles (PCOS)</strong>; presenting with severe <strong>AUB / menorrhagia</strong>; comorbid with metabolic syndrome, severe obesity, type 2 diabetes.",
+    "hist_path": "Chronic <strong>unopposed estrogen</strong> stimulation driving a progression from atypical endometrial hyperplasia to invasive carcinoma. Driven by <strong>PTEN loss</strong> (mutations) or KRAS/MSI mutations.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> TVUS showing an <strong>endometrial stripe >4 mm</strong> (or focal thickening) \u2192 <strong>Endometrial Biopsy (EMB)</strong>. <strong>Treatment</strong><strong>:</strong> Progestin therapy <em>temporarily</em> if fertility preservation is desired; otherwise, hysterectomy."
+  },
+  {
+    "section_name": "Cervical & Uterine Tumors",
+    "section_id": "uterine",
+    "section_badge": "Cervical & Uterine",
+    "tumor": "Type I Endometrioid Adenocarcinoma (Older)",
+    "clues": "<strong>Postmenopausal female (55\u201365 y/o)</strong> presenting with classic <strong>painless postmenopausal bleeding</strong>; risk factors include <strong>obesity</strong> (peripheral conversion to estrone), early menarche, nulliparity, or <strong>Tamoxifen use</strong>; associated with <strong>Lynch Syndrome</strong>.",
+    "hist_path": "Back-to-back neoplastic columnar glands lacking intervening stroma; invades the myometrium.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Any postmenopausal bleeding <em>must</em> be evaluated with <strong>Endometrial Biopsy (EMB)</strong> or D&C. <strong>Treatment</strong><strong>:</strong> Total abdominal hysterectomy with bilateral salpingo-oophorectomy <strong>(TAH-BSO) + pelvic lymphadenectomy</strong>."
+  },
+  {
+    "section_name": "Cervical & Uterine Tumors",
+    "section_id": "uterine",
+    "section_badge": "Cervical & Uterine",
+    "tumor": "Type II Non-Endometrioid Carcinoma (Serous/Clear Cell)",
+    "clues": "<strong>Elderly, thin postmenopausal female (70\u201380 y/o)</strong> presenting with postmenopausal bleeding or abnormal discharge; <strong>unrelated to estrogen exposure or obesity</strong>; arises from atrophic endometrium; poor prognosis.",
+    "hist_path": "<strong>Serous type:</strong> Papillary architecture with cellular tufting, marked nuclear atypia, and <strong>Psammoma bodies</strong>. Heavily associated with <strong>p53 mutations</strong> (mutant p53 immunostaining on biopsy).",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Endometrial biopsy / D&C. <strong>Treatment</strong><strong>:</strong> Highly aggressive; treated like ovarian cancer with <strong>TAH-BSO + surgical staging/omentecomy + systemic platinum-taxane chemotherapy</strong>."
+  },
+  {
+    "section_name": "Cervical & Uterine Tumors",
+    "section_id": "uterine",
+    "section_badge": "Cervical & Uterine",
+    "tumor": "Uterine Leiomyosarcoma",
+    "clues": "<strong>Postmenopausal female (50\u201360 y/o)</strong> presenting with rapid uterine enlargement, pelvic pain, and postmenopausal bleeding; more common in African American patients; metastasizes hematogenously (lungs).",
+    "hist_path": "Arises <strong>de novo</strong> from smooth muscle (<strong>NOT from a pre-existing fibroid</strong>). Bulky, fleshy mass with <strong>necrosis, hemorrhage</strong>, marked cellular atypia, and a <strong>high mitotic index (>10 mitoses per 10 HPF)</strong>.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Pelvic MRI or biopsy. (Often diagnosed incidentally after hysterectomy for presumed benign fibroids). <strong>Treatment</strong><strong>:</strong> Total hysterectomy. Does not respond well to hormonal therapies."
+  },
+  {
+    "section_name": "Cervical & Uterine Tumors",
+    "section_id": "uterine",
+    "section_badge": "Cervical & Uterine",
+    "tumor": "Uterine Leiomyoma (Symptomatic Bleeding)",
+    "clues": "<strong>Reproductive-age female (30\u201340 y/o)</strong>, often of <strong>African American descent</strong> (highest risk), presenting with <strong>menorrhagia (heavy, prolonged bleeding)</strong>, severe pelvic pressure, or back pain; <strong>asymmetrically enlarged, firm, non-tender, irregular (\"bumpy\") uterus</strong>.",
+    "hist_path": "Monoclonal proliferation of benign smooth muscle cells arranged in a classic <strong>whorled pattern</strong> with well-demarcated margins; <strong>no cellular atypia or necrosis</strong>. Estrogen/progesterone sensitive.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> <strong>Pelvic ultrasound</strong> (shows well-circumscribed, hypoechoic uterine masses). <strong>Treatment</strong><strong>:</strong> OCPs, progestin IUD, or <strong>Leuprolide</strong> (GnRH agonist) to shrink tumors. <strong>Myomectomy</strong> (fertility) or <strong>Hysterectomy</strong> (fertility complete)."
+  },
+  {
+    "section_name": "Cervical & Uterine Tumors",
+    "section_id": "uterine",
+    "section_badge": "Cervical & Uterine",
+    "tumor": "Uterine Leiomyoma (Infertility / Obstetric)",
+    "clues": "<strong>Reproductive-age female</strong> presenting with <strong>recurrent pregnancy loss</strong> or <strong>infertility</strong> (due to <strong>submucosal</strong> or <strong>intramural</strong> fibroids distorting the cavity); OR pregnant patient with sudden localized pain due to <strong>\"red degeneration\"</strong>.",
+    "hist_path": "<strong>Red degeneration:</strong> Hemorrhagic necrosis of a fibroid outgrowing its blood supply during pregnancy. Submucosal type distorts the endometrial cavity and disrupts embryo implantation.",
+    "mgmt": "<strong>Next Step</strong><strong>:</strong> Pelvic US, <strong>Saline-infusion sonohysterography (SIS)</strong>, or Hysteroscopy.<strong>Treatment</strong><strong>:</strong> Hysteroscopic <strong>myomectomy</strong> to resect submucosal fibroids to restore fertility. For red degeneration in pregnancy: conservative <strong>NSAIDs/analgesics</strong> only."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Fibrocystic Changes",
+    "clues": "<strong>Premenopausal female (20\u201350 y/o, peak 30\u201350)</strong> with <strong>bilateral, multifocal</strong> breast pain (<strong>cyclic mastalgia</strong>) and diffuse <strong>\"lumpy-bumpy\" irregularity</strong> that <strong>worsen premenstrually</strong> and improve after menses; intermittent <strong>green-brown nipple discharge</strong>; mammogram shows <strong>heterogeneous, dense parenchyma</strong>.",
+    "hist_path": "Nonproliferative change showing <strong>cystic dilation of terminal duct lobular units (TDLUs)</strong> (grossly <strong>\"blue-dome\" cysts</strong>), <strong>papillary apocrine metaplasia</strong>, and <strong>stromal fibrosis</strong>. <strong>No increased risk</strong> of breast cancer.",
+    "mgmt": "<strong>Next Step:</strong> <strong>Re-examination in 2\u20134 weeks</strong> (follicular phase after next menses) to confirm regression. <strong>Treatment:</strong> Reassurance; <strong>no treatment needed</strong>."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Simple Breast Cyst",
+    "clues": "<strong>Premenopausal female (most frequently 30\u201350 y/o)</strong> with a solitary, <strong>smooth, mobile, tender mass</strong> (worsens before menses); ultrasound shows a <strong>round/oval, well-circumscribed anechoic (fluid-filled) mass with distinct borders and posterior acoustic enhancement</strong>.",
+    "hist_path": "Fluid-filled <strong>duct dilation</strong> within the TDLU lined by flattened or apocrine-type epithelium without atypia. <strong>No increased risk</strong> of breast cancer.",
+    "mgmt": "<strong>Treatment:</strong> <strong>Reassurance / no treatment needed</strong> if asymptomatic. If painful or patient is anxious: <strong>Fine-needle aspiration (FNA)</strong> is diagnostic & therapeutic (<strong>clear, nonbloody fluid</strong> with complete mass resolution)."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Usual Ductal Hyperplasia (UDH)",
+    "clues": "<strong>Female (30\u201360 y/o, mean 54 y/o)</strong>; clinically <strong>asymptomatic</strong> with no specific mammographic abnormality; discovered <strong>incidentally on biopsy</strong> of another breast lesion.",
+    "hist_path": "Intraductal proliferation of a <strong>heterogeneous (polymorphous) population</strong> of epithelial and myoepithelial cells forming <strong>irregular, slit-like peripheral lumens</strong>.",
+    "mgmt": "<strong>Treatment:</strong> Benign proliferative lesion (slight ~1.5\u00d7 risk); <strong>no treatment needed</strong>."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Sclerosing Adenosis",
+    "clues": "<strong>Female (30\u201355 y/o)</strong>; clinically <strong>asymptomatic</strong>; detected on screening mammography as a <strong>mass with calcifications</strong> that radiographically <strong>mimics invasive breast carcinoma</strong>.",
+    "hist_path": "Proliferative lesion within the TDLU showing an <strong>increased number of compressed, distorted acini</strong> surrounded by <strong>dense stromal fibrosis</strong> and calcifications. Slight (~1.5\u20132\u00d7) increased risk for cancer.",
+    "mgmt": "<strong>Next Step:</strong> Core needle biopsy to distinguish from carcinoma. <strong>Treatment:</strong> Benign; <strong>no treatment needed</strong>."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Atypical Hyperplasia (ADH / ALH)",
+    "clues": "<strong>Female (40\u201360 y/o)</strong>; clinically <strong>asymptomatic</strong>; discovered on screening mammography showing <strong>clustered microcalcifications</strong>.",
+    "hist_path": "Clonal intraductal (<strong>ADH</strong>) or lobular (<strong>ALH</strong>) proliferation of a <strong>monotonous (uniform) population</strong> of dysplastic cells partially filling the duct/lobule. <strong>Major risk factor (~4\u20135\u00d7 \u2191 risk) for invasive breast cancer</strong>.",
+    "mgmt": "<strong>Management:</strong> <strong>Increased screening</strong> and <strong>possible surgical excision</strong> (to rule out adjacent DCIS/invasive cancer) +/- risk-reducing endocrine therapy (tamoxifen/raloxifene)."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Intraductal Papilloma",
+    "clues": "<strong>Premenopausal female (20\u201340 y/o)</strong> presenting with <strong>unilateral bloody or serosanguinous nipple discharge</strong>; <strong>most common cause of nipple discharge</strong>; usually no palpable mass and normal mammogram; <strong>ultrasound shows a solid nodule inside a single dilated subareolar duct</strong>.",
+    "hist_path": "Small benign <strong>fibroepithelial tumor</strong> within a lactiferous duct composed of <strong>branching fibrovascular cores (papillary fronds)</strong> lined by both <strong>epithelial and myoepithelial cell layers</strong>. Slight \u2191 risk for cancer.",
+    "mgmt": "<strong>Next Step:</strong> Breast ultrasound + core needle biopsy (to rule out papillary carcinoma/DCIS). <strong>Treatment:</strong> <strong>Surgical excision</strong> of the involved duct."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Fibroadenoma",
+    "clues": "<strong>Young female (<35 y/o; 20\u201340 y/o)</strong>; <strong>most common benign breast tumor in women <35</strong>; presents as a <strong>solitary, firm, rubbery, well-circumscribed, highly mobile, painless mass</strong>; <strong>grows during pregnancy</strong> and fluctuates with the menstrual cycle (<strong>estrogen-sensitive</strong>).",
+    "hist_path": "Benign <strong>biphasic fibroepithelial tumor</strong> with a rounded contour composed of <strong>overgrowth of both fibrous stroma and glandular epithelium</strong>. <strong>No increased risk</strong> of breast cancer.",
+    "mgmt": "<strong>Next Step:</strong> Breast ultrasound (shows well-defined homogeneous solid mass). <strong>Treatment:</strong> <strong>Observation</strong>; <strong>surgical excision</strong> for enlarging (>2\u20134 cm) or symptomatic lesions."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Phyllodes Tumor",
+    "clues": "<strong>Female in 5th decade (40\u201350 y/o)</strong> presenting with a <strong>large (often >3\u20136 cm), solitary, well-circumscribed, firm, polylobulated mass</strong> with <strong>rapid growth over weeks to months</strong>.",
+    "hist_path": "Biphasic fibroepithelial tumor arising from periductal connective tissue with characteristic <strong>\"leaf-like\" projections (lobulations) of hypercellular stroma</strong> lined by epithelium. Some may become malignant.",
+    "mgmt": "<strong>Next Step:</strong> Mammography/US \u2192 <strong>Core needle biopsy</strong> (required to differentiate from fibroadenoma). <strong>Treatment:</strong> <strong>Surgical excision</strong> with wide margins."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Fat Necrosis",
+    "clues": "<strong>Female of any age</strong> following <strong>breast trauma</strong> (e.g., <strong>seatbelt injury in MVC</strong> or prior surgery; up to 50% may not report trauma); presents with breast pain and a <strong>firm, irregular mass</strong> (+/- ecchymosis or skin retraction mimicking cancer); mammography shows a <strong>calcified oil cyst</strong> (radiolucent center with peripheral calcified rim).",
+    "hist_path": "Trauma damages adipocytes \u2192 <strong>release of cytoplasmic triglycerides and lipase</strong> \u2192 <strong>saponification</strong> of fat with calcium \u2192 biopsy shows <strong>necrotic fat, lipid-laden foamy macrophages (foam cells), and multinucleated giant cells</strong>.",
+    "mgmt": "<strong>Next Step:</strong> Biopsy if mass mimics malignancy on imaging. <strong>Treatment:</strong> <strong>No treatment / reassurance</strong>; benign and usually <strong>resolves spontaneously</strong>."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Mammary Duct Ectasia",
+    "clues": "<strong>Perimenopausal female (45\u201355 y/o)</strong>; associated with <strong>smoking</strong>; presents with <strong>areolar pain, thick multicolored nipple discharge, inverted nipple, or a periareolar mass</strong>; mammography shows <strong>dilated linear branching densities in the subareolar region</strong>.",
+    "hist_path": "<strong>Dilation of subareolar lactiferous ducts</strong> filled with inspissated debris alongside <strong>periductal chronic inflammation and fibrosis</strong>.",
+    "mgmt": "<strong>Treatment:</strong> Usually <strong>resolves spontaneously</strong>; symptomatic care with <strong>warm compresses and analgesics</strong>, antibiotics if secondary infection, or surgical excision if persistent."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Lactational Mastitis, Breast Abscess & Galactocele",
+    "clues": "<strong>Breastfeeding postpartum female:</strong> <strong>Mastitis</strong> = unilateral <strong>wedge-shaped erythema, tenderness, swelling + fever (>38\u00b0C)</strong>; <strong>Abscess</strong> = persistent fever + <strong>fluctuant mass</strong> (+/- purplish skin necrosis); <strong>Galactocele</strong> = <strong>afebrile, mobile subareolar mass</strong> after <strong>stopping breastfeeding</strong> (US shows heterogeneous fat/water milk cyst).",
+    "hist_path": "<strong>Mastitis / Abscess:</strong> Nipple fissures + milk stasis allow bacterial entry, most commonly <strong><em>Staphylococcus aureus</em></strong>. <strong>Galactocele:</strong> Non-infectious milk retention cyst caused by duct obstruction after weaning.",
+    "mgmt": "<strong>Mastitis:</strong> Oral <strong>cephalexin or dicloxacillin</strong> + <strong>CONTINUE breastfeeding from both breasts</strong>. <strong>Abscess:</strong> Antibiotics + <strong>needle aspiration</strong> (or <strong>surgical incision & drainage</strong> if skin necrosis/large). <strong>Galactocele:</strong> Reassurance or aspiration."
+  },
+  {
+    "section_name": "Benign Breast Disorders",
+    "section_id": "breast_benign",
+    "section_badge": "Breast Benign",
+    "tumor": "Gynecomastia (Physiologic vs. Pathologic)",
+    "clues": "<strong>Male</strong> with firm, <strong>rubbery, tender subareolar glandular tissue</strong> bilaterally: <strong>Physiologic</strong> in <strong>newborns, puberty (Tanner 3), and elderly</strong>; <strong>Pathologic</strong> in <strong>cirrhosis</strong>, <strong>CKD</strong>, <strong>Klinefelter syndrome (47,XXY; tall, small firm testes, 15\u201320\u00d7 \u2191 breast cancer risk)</strong>, <strong>Leydig cell tumor</strong>, or <strong>drugs</strong>.",
+    "hist_path": "Driven by <strong>\u2191 estrogen relative to androgen activity</strong>: <strong>Newborn</strong> (placental maternal hormones), <strong>Puberty</strong> (temporary hormone imbalance), <strong>Elderly</strong> (androgen\u2013estrogen mismatch). <strong>Drugs:</strong> <strong>Spironolactone</strong>, finasteride, leuprolide, ketoconazole, <strong>risperidone/antipsychotics</strong> (D2 blockade \u2192 \u2191 prolactin).",
+    "mgmt": "<strong>Management:</strong> <strong>Pubertal/Physiologic</strong> = reassurance. <strong>Pathologic</strong> = <strong>discontinue offending medication</strong> (e.g., stop spironolactone) and <strong>treat underlying disease</strong> (testosterone replacement in Klinefelter)."
+  },
+  {
+    "section_name": "Breast Cancer & Pharmacology",
+    "section_id": "breast_cancer",
+    "section_badge": "Breast Cancer",
+    "tumor": "Ductal Carcinoma In Situ (DCIS)",
+    "clues": "<strong>Asymptomatic female</strong> detected early on screening mammography as <strong>clustered, pleomorphic or linear microcalcifications</strong>; usually <strong>does NOT produce a palpable mass</strong>; increases risk of invasive cancer in the <strong>same breast and quadrant</strong>.",
+    "hist_path": "Neoplastic ductal epithelial cells <strong>fill the ductal lumen</strong> (e.g., comedo central necrosis) <strong>WITHOUT basement membrane penetration</strong> into surrounding stroma.",
+    "mgmt": "<strong>Next Step:</strong> Stereotactic core needle biopsy + ER/PR testing. <strong>Treatment:</strong> <strong>Lumpectomy + radiation</strong> (or mastectomy) + adjuvant endocrine therapy if ER+."
+  },
+  {
+    "section_name": "Breast Cancer & Pharmacology",
+    "section_id": "breast_cancer",
+    "section_badge": "Breast Cancer",
+    "tumor": "Lobular Carcinoma In Situ (LCIS)",
+    "clues": "<strong>Premenopausal female</strong>; produces <strong>NO palpable mass and NO mammographic calcifications</strong> \u2192 discovered as an <strong>incidental biopsy finding</strong>; marker of <strong>\u2191 risk of invasive carcinoma in EITHER breast</strong> (bilateral risk).",
+    "hist_path": "Neoplastic proliferation of loosely cohesive cells within terminal duct lobules caused by <strong>\u2193 E-cadherin expression</strong>; basement membrane remains intact.",
+    "mgmt": "<strong>Management:</strong> Surveillance + risk-reducing endocrine therapy (<strong>tamoxifen or raloxifene</strong>); surgical excision if pleomorphic subtype."
+  },
+  {
+    "section_name": "Breast Cancer & Pharmacology",
+    "section_id": "breast_cancer",
+    "section_badge": "Breast Cancer",
+    "tumor": "Invasive Ductal Carcinoma (IDC)",
+    "clues": "<strong>Most common invasive breast cancer (~75\u201380%)</strong>; presents with a <strong>firm, fibrous, \"rock-hard,\" irregular, nonmobile mass</strong> in the <strong>upper outer quadrant</strong>; <strong>Cooper ligament infiltration \u2192 skin dimpling</strong>; mammogram shows a <strong>spiculated (stellate) mass with microcalcifications</strong>.",
+    "hist_path": "<strong>Nests, cords, and tubules of malignant duct-like glandular cells</strong> that <strong>invade through the basement membrane</strong> into a dense <strong>desmoplastic stroma</strong>; tumor cells <strong>retain E-cadherin expression</strong>.",
+    "mgmt": "<strong>Workup:</strong> <strong>Diagnostic mammogram + breast US \u2192 Needle core biopsy \u2192 Determine ER, PR, and HER2 status</strong>. <strong>#1 Prognostic Factor:</strong> <strong>Axillary lymph node status</strong> (and tumor size). <em>Surgical Pearl:</em> Axillary dissection can injure the <strong>long thoracic nerve \u2192 winged scapula</strong> (serratus anterior palsy)."
+  },
+  {
+    "section_name": "Breast Cancer & Pharmacology",
+    "section_id": "breast_cancer",
+    "section_badge": "Breast Cancer",
+    "tumor": "Invasive Lobular Carcinoma (ILC)",
+    "clues": "<strong>Postmenopausal or middle-aged female</strong> with an <strong>ill-defined breast mass/thickening</strong>; <strong>often bilateral and multifocal</strong>; typically <strong>ER-positive</strong>.",
+    "hist_path": "Small, <strong>discohesive tumor cells infiltrating the stroma in orderly single-file lines (\"Indian file\")</strong> with <strong>no duct/tubule formation</strong> and minimal desmoplastic response due to <strong>loss of E-cadherin expression</strong>.",
+    "mgmt": "<strong>Management:</strong> Diagnostic imaging + core biopsy + ER/PR/HER2 \u2192 surgical resection + endocrine/systemic therapy. (<em>In pregnancy:</em> Surgery + 2nd/3rd-trimester chemo [doxorubicin/cyclophosphamide/5-FU], stopped 3\u20134 wks before delivery)."
+  },
+  {
+    "section_name": "Breast Cancer & Pharmacology",
+    "section_id": "breast_cancer",
+    "section_badge": "Breast Cancer",
+    "tumor": "Inflammatory Breast Cancer",
+    "clues": "<strong>Female (~50\u201355 y/o)</strong> with a <strong>rapidly enlarging, red, warm, swollen breast</strong> and diffuse <strong>thickened, pitted skin resembling an orange peel (<em>peau d'orange</em>)</strong>; <strong>afebrile and not breastfeeding</strong>; usually lacks a discrete mass; <strong>often mistaken for mastitis</strong>; poor prognosis (50% 5-yr survival).",
+    "hist_path": "<strong>Tumor cells infiltrating and obstructing the dermal lymphatics</strong> in the skin \u2192 <strong>localized lymphedema</strong> with skin dimpling/pitting around tethered hair follicles (<em>peau d'orange</em>).",
+    "mgmt": "<strong>Management:</strong> Core needle + skin punch biopsy \u2192 aggressive <strong>trimodality therapy</strong> (neoadjuvant chemotherapy + modified radical mastectomy + radiation)."
+  },
+  {
+    "section_name": "Breast Cancer & Pharmacology",
+    "section_id": "breast_cancer",
+    "section_badge": "Breast Cancer",
+    "tumor": "Paget Disease of the Breast",
+    "clues": "<strong>Older female (~60 y/o)</strong> with a chronic, unilateral <strong>red, scaly, crusting, eczematous lesion of the nipple and areola</strong> that <strong>does NOT improve with topical corticosteroids</strong>; associated with an <strong>underlying DCIS or invasive carcinoma in 80\u201390% of cases</strong>.",
+    "hist_path": "Extension of underlying ductal adenocarcinoma up the lactiferous ducts into the contiguous skin, showing <strong>intraepithelial adenocarcinoma cells (Paget cells) within the epidermis of the nipple</strong>.",
+    "mgmt": "<strong>Next Step:</strong> Nipple biopsy \u2192 <strong>Mammography + breast US</strong> to identify the <strong>underlying in situ or invasive carcinoma (80\u201390%)</strong> \u2192 surgical resection."
+  },
+  {
+    "section_name": "Breast Cancer & Pharmacology",
+    "section_id": "breast_cancer",
+    "section_badge": "Breast Cancer",
+    "tumor": "Hereditary & Triple-Negative Breast Cancer (BRCA1/2)",
+    "clues": "<strong>Hereditary Clues:</strong> <strong>Young age (<45 y/o)</strong>, <strong>1st-degree relative diagnosed <50 y/o</strong>, <strong>triple-negative status (ER\u229d/PR\u229d/HER2\u229d)</strong>, <strong>male relative with breast cancer</strong>, breast + ovarian cancer in family, Ashkenazi Jewish ancestry. <strong>General Risk Factors:</strong> \u2191 estrogen exposure (<strong>early menarche, nulliparity, postmenopausal obesity</strong>), <strong>atypical hyperplasia</strong>, <strong>alcohol</strong>, radiation.",
+    "hist_path": "<strong>BRCA1/2</strong> encode tumor suppressor proteins that repair <strong>double-stranded DNA breaks (homologous recombination)</strong>. <strong>BRCA1</strong> \u2192 <strong>triple-negative breast cancer</strong> & ovarian cancer; <strong>BRCA2</strong> \u2192 <strong>male breast cancer</strong>. Other hereditary genes: <strong>PALB2, ATM, MSH6, PTEN, TP53</strong>.",
+    "mgmt": "<strong>Triple-Negative Treatment:</strong> <strong>Chemotherapy (doxorubicin, cyclophosphamide, paclitaxel) \u00b1 Pembrolizumab</strong> (anti-PD-1 mAb that restores antitumor T-cell activity; causes <strong>immune-related colitis, pneumonitis, hepatitis, thyroiditis</strong>). No endocrine or HER2 therapy."
+  },
+  {
+    "section_name": "Breast Cancer & Pharmacology",
+    "section_id": "breast_cancer",
+    "section_badge": "Breast Cancer",
+    "tumor": "ER/PR+ Endocrine Therapy (Tamoxifen, AIs & GnRH Agonists)",
+    "clues": "Used for <strong>ER+ / PR+ breast cancer</strong> (nuclear staining on IHC): <strong>Tamoxifen</strong> (pre- & postmenopausal); <strong>Aromatase Inhibitors \u2014 Anastrozole, Letrozole, Exemestane</strong> (<strong>postmenopausal</strong>); <strong>GnRH Agonists \u2014 Leuprolide, Goserelin</strong> (<strong>premenopausal ovarian suppression</strong>).",
+    "hist_path": "<strong>Tamoxifen (SERM):</strong> ER antagonist in breast, <strong>partial agonist in endometrium</strong> and <strong>agonist in bone</strong> (\u2191 BMD). <strong>AIs:</strong> Inhibit aromatase \u2192 <strong>\u2193 peripheral conversion of androgens to estrogens</strong>. <strong>Leuprolide/Goserelin:</strong> Continuous GnRH receptor stimulation \u2192 suppresses ovarian estrogen.",
+    "mgmt": "<strong>Adverse Effects:</strong> <strong>Tamoxifen</strong> \u2192 <strong>Venous thromboembolism (VTE)</strong>, <strong>endometrial carcinoma</strong>, & <strong>uterine leiomyosarcoma</strong> (evaluate bleeding with <strong>endometrial biopsy</strong>). <strong>Aromatase Inhibitors</strong> \u2192 <strong>\u2193 bone mineral density / fractures (monitor DEXA)</strong> & vaginal dryness. <strong>Leuprolide/Goserelin</strong> \u2192 <strong>hot flashes, vaginal dryness, \u2193 libido, \u2193 BMD</strong>."
+  },
+  {
+    "section_name": "Breast Cancer & Pharmacology",
+    "section_id": "breast_cancer",
+    "section_badge": "Breast Cancer",
+    "tumor": "HER2+ Targeted Therapy & Chemotherapy Toxicities",
+    "clues": "<strong>Trastuzumab</strong> (used for <strong>HER2 / Erb-B2+</strong> tumors with membranous IHC staining); <strong>Doxorubicin, Cyclophosphamide, and Paclitaxel</strong> (backbone cytotoxic chemotherapy for triple-negative and high-risk invasive breast cancer).",
+    "hist_path": "<strong>Trastuzumab:</strong> Anti-HER2 mAb \u2192 inhibits HER2 tyrosine kinase signaling & promotes immune destruction. <strong>Doxorubicin:</strong> Anthracycline (free-radical cardiotoxicity). <strong>Cyclophosphamide:</strong> DNA alkylating agent. <strong>Paclitaxel:</strong> Taxane (<strong>microtubule stabilization</strong>).",
+    "mgmt": "<strong>Signature Toxicities:</strong> <strong>Trastuzumab</strong> \u2192 <strong>Cardiomyopathy</strong> (monitor echo). <strong>Doxorubicin</strong> \u2192 <strong>Dilated cardiomyopathy / \u2193 LVEF</strong> (prevent with <strong>dexrazoxane</strong>). <strong>Cyclophosphamide</strong> \u2192 <strong>Hemorrhagic cystitis</strong> (dysuria + hematuria without bacteria). <strong>Paclitaxel</strong> \u2192 <strong>Stocking-glove peripheral neuropathy</strong> (\u2193 pinprick/vibration)."
+  }
+];
+const categories = ["Key Vignette Clues", "Histology / Pathophysiology"];
+
+let currentSectionFilter = 'all';
+let currentCategoryFilter = 'all';
+let selectedItemId = null;
+let score = 0;
+const totalItems = rawData.length;
+
+function initApp() {
+  initQuizTable();
+}
+
+function initQuizTable() {
+  score = 0;
+  selectedItemId = null;
+  updateScoreUI();
+  
+  const tbody = document.getElementById("table-body");
+  const bank = document.getElementById("active-word-bank");
+  
+  tbody.innerHTML = "";
+  bank.innerHTML = "";
+  
+  // Build Grid Rows
+  tumorsData.forEach(t => {
+    const tr = document.createElement("tr");
+    tr.dataset.section = t.section_id;
+    tr.id = "row-" + t.tumor.replace(/[^a-zA-Z0-9]/g, '-');
+    
+    const tdSide = document.createElement("td");
+    tdSide.className = "side-header";
+    tdSide.innerHTML = `<span class="sec-badge badge-${t.section_id}">${t.section_badge}</span><strong>${t.tumor}</strong>`;
+    tr.appendChild(tdSide);
+    
+    categories.forEach(cat => {
+      const td = document.createElement("td");
+      const dz = document.createElement("div");
+      dz.className = "drop-zone";
+      dz.dataset.tumor = t.tumor;
+      dz.dataset.cat = cat;
+      
+      // Drag events
+      dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("drag-over"); });
+      dz.addEventListener("dragleave", () => { dz.classList.remove("drag-over"); });
+      dz.addEventListener("drop", handleDropEvent);
+      
+      // Click-to-place event
+      dz.addEventListener("click", () => handleCellClick(dz));
+      
+      td.appendChild(dz);
+      tr.appendChild(td);
+    });
+    
+    tbody.appendChild(tr);
+  });
+
+  // Populate Shuffled Items into Word Bank
+  shuffleArray(rawData).forEach((item, idx) => {
+    const div = document.createElement("div");
+    div.className = "draggable-item";
+    div.draggable = true;
+    div.id = `item-${idx}`;
+    div.dataset.tumor = item.tumor;
+    div.dataset.cat = item.cat;
+    div.dataset.section = item.section_id;
+    div.innerHTML = item.text;
+    
+    div.addEventListener("dragstart", e => {
+      if (div.classList.contains("locked")) return;
+      div.classList.add("dragging");
+      e.dataTransfer.setData("text/plain", div.id);
+    });
+    div.addEventListener("dragend", () => div.classList.remove("dragging"));
+    
+    // Click selection
+    div.addEventListener("click", e => {
+      e.stopPropagation();
+      selectCard(div);
+    });
+    
+    bank.appendChild(div);
+  });
+
+  updateBankCount();
+  applyFilters();
+}
+
+function selectCard(cardElement) {
+  if (cardElement.classList.contains("locked")) return;
+  
+  if (selectedItemId === cardElement.id) {
+    selectedItemId = null;
+    cardElement.classList.remove("selected");
+    document.querySelectorAll(".drop-zone").forEach(z => z.classList.remove("cell-target"));
+  } else {
+    document.querySelectorAll(".draggable-item").forEach(c => c.classList.remove("selected"));
+    selectedItemId = cardElement.id;
+    cardElement.classList.add("selected");
+    document.querySelectorAll(".drop-zone:not(.has-item)").forEach(z => z.classList.add("cell-target"));
+  }
+}
+
+function handleCellClick(dz) {
+  if (!selectedItemId) return;
+  const draggedElement = document.getElementById(selectedItemId);
+  if (!draggedElement) return;
+  attemptPlacement(draggedElement, dz);
+}
+
+function handleDropEvent(e) {
+  e.preventDefault();
+  const dz = e.currentTarget;
+  dz.classList.remove("drag-over");
+  const itemId = e.dataTransfer.getData("text/plain");
+  const draggedElement = document.getElementById(itemId);
+  if (!draggedElement) return;
+  attemptPlacement(draggedElement, dz);
+}
+
+function attemptPlacement(draggedElement, dz) {
+  if (dz.classList.contains("has-item")) return;
+  
+  if (draggedElement.dataset.tumor === dz.dataset.tumor && draggedElement.dataset.cat === dz.dataset.cat) {
+    // Correct Match
+    draggedElement.draggable = false;
+    draggedElement.classList.remove("selected");
+    draggedElement.classList.add("locked");
+    draggedElement.parentElement.removeChild(draggedElement);
+    dz.appendChild(draggedElement);
+    dz.classList.add("has-item");
+    dz.classList.remove("cell-target");
+    
+    selectedItemId = null;
+    document.querySelectorAll(".drop-zone").forEach(z => z.classList.remove("cell-target"));
+    
+    score++;
+    updateScoreUI();
+    updateBankCount();
+    
+    if (score === totalItems) {
+      setTimeout(() => openModal(), 500);
+    }
+  } else {
+    // Wrong Match - Shake animation
+    draggedElement.classList.remove("shake"); 
+    void draggedElement.offsetWidth; 
+    draggedElement.classList.add("shake");
+    setTimeout(() => draggedElement.classList.remove("shake"), 600);
+  }
+}
+
+function updateScoreUI() {
+  document.getElementById('score').innerText = score;
+  document.getElementById('total').innerText = totalItems;
+  const pct = Math.round((score / totalItems) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function updateBankCount() {
+  const remaining = document.querySelectorAll("#active-word-bank .draggable-item:not(.locked)").length;
+  document.getElementById('bank-count').innerText = `${remaining} items left`;
+}
+
+function switchCategoryTab(cat, btn) {
+  document.querySelectorAll(".bank-tabs .tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentCategoryFilter = cat;
+  applyFilters();
+}
+
+function filterSection(secId, btn) {
+  document.querySelectorAll(".section-filter .sec-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentSectionFilter = secId;
+  
+  // Filter table rows
+  document.querySelectorAll("#table-body tr").forEach(tr => {
+    if (secId === 'all' || tr.dataset.section === secId) {
+      tr.style.display = "";
+    } else {
+      tr.style.display = "none";
+    }
+  });
+  
+  applyFilters();
+}
+
+function filterBankCards() {
+  applyFilters();
+}
+
+function applyFilters() {
+  const query = (document.getElementById('bank-search')?.value || '').toLowerCase();
+  
+  document.querySelectorAll("#active-word-bank .draggable-item").forEach(item => {
+    const matchesCat = (currentCategoryFilter === 'all' || item.dataset.cat === currentCategoryFilter);
+    const matchesSec = (currentSectionFilter === 'all' || item.dataset.section === currentSectionFilter);
+    const matchesQuery = query === '' || item.innerText.toLowerCase().includes(query) || item.dataset.tumor.toLowerCase().includes(query);
+    
+    if (matchesCat && matchesSec && matchesQuery) {
+      item.style.display = "";
+    } else {
+      item.style.display = "none";
+    }
+  });
+}
+
+function showAllAnswers() {
+  if (!confirm("Reveal all correct placements on the table?")) return;
+  document.querySelectorAll(".draggable-item:not(.locked)").forEach(item => {
+    const targetZone = document.querySelector(`.drop-zone[data-tumor="${item.dataset.tumor}"][data-cat="${item.dataset.cat}"]`);
+    if (targetZone) {
+      item.draggable = false;
+      item.classList.remove("selected");
+      item.classList.add("locked");
+      item.parentElement.removeChild(item);
+      targetZone.appendChild(item);
+      targetZone.classList.add("has-item");
+    }
+  });
+  selectedItemId = null;
+  document.querySelectorAll(".drop-zone").forEach(z => z.classList.remove("cell-target"));
+  score = totalItems;
+  updateScoreUI();
+  updateBankCount();
+}
+
+function resetGame() {
+  if (confirm("Restart the table? All placements will be cleared.")) {
+    initQuizTable();
+  }
+}
+
+function shuffleArray(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function openModal() { document.getElementById('explanation-modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('explanation-modal').style.display = 'none'; }
+
+window.onload = initApp;
+</script>
+</body>
+</html>

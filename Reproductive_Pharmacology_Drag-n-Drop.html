@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reproductive Pharmacology Drag-n-Drop Master Table</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Lexend',sans-serif; background:#0f172a; color:#f1f5f9; padding:15px; min-height:100vh; }
+  .container { max-width:1720px; margin:0 auto; }
+  
+  /* Header styling */
+  header { text-align:center; margin-bottom:14px; }
+  h1 { color:#fb923c; margin-bottom:5px; font-size:1.8em; text-shadow:0 0 15px rgba(245,158,11,0.3); font-weight:700; }
+  .subtitle { color:#94a3b8; font-size:.85em; max-width:1100px; margin:0 auto 12px; line-height:1.45; }
+  
+  /* Controls & Stats Bar */
+  .stats-controls { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; background:#1e293b; padding:10px 16px; border-radius:10px; border:1px solid #334155; }
+  .stats { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .stat-item { background:rgba(245,158,11,0.12); padding:6px 14px; border-radius:6px; border:1px solid rgba(245,158,11,0.4); font-size:0.85em; }
+  .stat-label { color:#fb923c; font-weight:700; margin-right:6px; }
+  .progress-bar-container { width:140px; height:8px; background:#0f172a; border-radius:4px; overflow:hidden; border:1px solid #334155; display:inline-block; vertical-align:middle; margin-left:8px; }
+  .progress-bar-fill { height:100%; width:0%; background:#fb923c; transition:width 0.3s; }
+  
+  /* Section filter pills */
+  .section-filter { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+  .sec-btn { padding:5px 11px; border-radius:6px; border:1px solid #334155; background:#0f172a; color:#94a3b8; font-size:0.75em; font-weight:600; cursor:pointer; transition:0.2s; }
+  .sec-btn:hover { color:#f1f5f9; border-color:#fb923c; }
+  .sec-btn.active { background:rgba(251,146,60,0.22); color:#fed7aa; border-color:#fb923c; font-weight:700; }
+
+  .controls { display:flex; gap:8px; flex-wrap:wrap; }
+  .btn { padding:7px 15px; border:none; border-radius:6px; cursor:pointer; font-size:.8em; font-weight:600; transition:.2s; display:inline-flex; align-items:center; gap:5px; }
+  .btn-primary { background:#fb923c; color:#0f172a; font-weight:700; }
+  .btn-primary:hover { background:#f97316; }
+  .btn-secondary { background:#0f172a; color:#f1f5f9; border:1px solid rgba(245,158,11,0.4); }
+  .btn-secondary:hover { background:#334155; border-color:#fb923c; }
+  .btn-danger { background:#0f172a; color:#94a3b8; border:1px solid #334155; }
+  .btn-danger:hover { color:#ef4444; border-color:#ef4444; background:#1e293b; }
+
+  /* Main Grid Content */
+  .main-content { display:grid; grid-template-columns:390px 1fr; gap:16px; align-items:start; }
+  
+  /* Sticky Word Bank */
+  .word-bank-container { position:sticky; top:15px; background:#1e293b; border-radius:10px; padding:14px; border:1px solid #334155; box-shadow:0 4px 20px rgba(0,0,0,.4); max-height:calc(100vh - 30px); display:flex; flex-direction:column; }
+  .word-bank-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .word-bank-title { color:#fb923c; font-size:1em; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .word-bank-count { font-size:0.75em; background:#0f172a; padding:2px 8px; border-radius:10px; color:#cbd5e1; border:1px solid #334155; }
+  
+  .bank-search { width:100%; padding:7px 10px; border-radius:6px; border:1px solid #334155; background:#0f172a; color:#f1f5f9; font-size:0.75em; margin-bottom:8px; font-family:inherit; }
+  .bank-search:focus { outline:none; border-color:#fb923c; }
+  .click-tip { font-size:0.7em; color:#94a3b8; margin-bottom:8px; text-align:center; background:rgba(0,0,0,0.25); padding:4px 6px; border-radius:4px; }
+  
+  .bank-tabs { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px; border-bottom:1px solid #334155; padding-bottom:8px; }
+  .tab-btn { padding:5px 9px; border-radius:5px; border:1px solid transparent; background:#0f172a; color:#94a3b8; font-size:0.7em; font-weight:700; cursor:pointer; transition:0.2s; }
+  .tab-btn:hover { color:#f1f5f9; }
+  .tab-btn.active { background:#fb923c; color:#0f172a; border-color:#fb923c; }
+  
+  .word-bank { display:flex; flex-direction:column; gap:8px; overflow-y:auto; padding:4px; flex-grow:1; max-height:calc(100vh - 230px); }
+  .word-bank::-webkit-scrollbar { width:5px; }
+  .word-bank::-webkit-scrollbar-thumb { background:#fb923c; border-radius:3px; }
+  
+  /* Draggable Items */
+  .draggable-item { background:#fef3c7; color:#78350f; padding:9px 12px; border-radius:6px; cursor:grab; border:1px solid #d97706; font-size:.75em; font-weight:500; text-align:left; box-shadow:0 2px 4px rgba(0,0,0,0.25); transition:transform 0.1s, box-shadow 0.1s; line-height:1.45; position:relative; }
+  .draggable-item:active { cursor:grabbing; }
+  .draggable-item:hover:not(.locked) { transform:translateY(-2px); background:#fde68a; box-shadow:0 4px 8px rgba(0,0,0,0.3); }
+  .draggable-item.dragging { opacity:0.35; }
+  .draggable-item.selected { outline:2px solid #38bdf8; box-shadow:0 0 10px rgba(56,189,248,0.7); background:#fef08a; }
+  .draggable-item strong { color:#451a03; }
+  .draggable-item em { color:#78350f; }
+
+  /* Category Badge inside Card */
+  .card-cat-badge { display:inline-block; font-size:0.62em; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:1px 6px; border-radius:3px; margin-bottom:5px; }
+  .cat-badge-mechanism { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+  .cat-badge-clinical-use { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+  .cat-badge-side-effects { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
+
+  /* Locked State - High Contrast */
+  .draggable-item.locked { cursor:default; background:#78350f; color:#ffffff; border:1px solid #fcd34d; box-shadow:none; transform:none; width:100%; font-weight:400; text-align:left; padding:8px 10px; margin-bottom:2px; display:block; font-size:.74em; height:auto; border-radius:5px; }
+  .draggable-item.locked strong { color:#fde047; font-weight:600; }
+  .draggable-item.locked em { color:#fed7aa; }
+  .draggable-item.locked .card-cat-badge { display:none; }
+
+  /* Master Table */
+  .table-wrapper { overflow-x:auto; background:#1e293b; border-radius:10px; padding:10px; border:1px solid #334155; box-shadow:0 4px 20px rgba(0,0,0,0.4); }
+  table { width:100%; border-collapse:separate; border-spacing:5px; table-layout:fixed; background:transparent; }
+  th, td { border-radius:6px; padding:4px; vertical-align:top; border:1px solid rgba(255,255,255,0.08); }
+  
+  th { background:#fb923c; color:#0f172a; font-size:0.84em; font-weight:700; text-align:center; padding:11px 8px; position:sticky; top:0; z-index:10; box-shadow:0 2px 4px rgba(0,0,0,0.2); }
+  .side-header { background:#0f172a; color:#fed7aa; font-size:.76em; font-weight:700; text-align:center; vertical-align:middle; width:19%; border:1px solid #334155; padding:8px 8px; line-height:1.35; }
+  .sec-badge { display:block; font-size:0.62em; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:2px 6px; border-radius:4px; margin-bottom:5px; }
+  
+  /* Class badges */
+  .badge-gnrh { background:rgba(168,85,247,0.2); color:#e9d5ff; border:1px solid rgba(168,85,247,0.3); }
+  .badge-antiandrogens { background:rgba(59,130,246,0.2); color:#bfdbfe; border:1px solid rgba(59,130,246,0.3); }
+  .badge-serms { background:rgba(236,72,153,0.2); color:#fbcfe8; border:1px solid rgba(236,72,153,0.3); }
+  .badge-aromatase { background:rgba(16,185,129,0.2); color:#a7f3d0; border:1px solid rgba(16,185,129,0.3); }
+  .badge-labor { background:rgba(249,115,22,0.2); color:#fed7aa; border:1px solid rgba(249,115,22,0.3); }
+  .badge-ed { background:rgba(6,182,212,0.2); color:#a5f3fc; border:1px solid rgba(6,182,212,0.3); }
+
+  .drop-zone { min-height:85px; height:100%; display:flex; flex-direction:column; align-items:stretch; justify-content:center; transition:0.2s; padding:4px; background:rgba(255,255,255,0.03); border-radius:5px; border:1px dashed rgba(255,255,255,0.1); }
+  .drop-zone.drag-over { background:rgba(245,158,11,0.18); box-shadow:inset 0 0 0 2px #fb923c; border-color:#fb923c; }
+  .drop-zone.cell-target { border-color:#38bdf8; background:rgba(56,189,248,0.1); cursor:pointer; }
+  .drop-zone.has-item { border-style:solid; border-color:transparent; background:transparent; }
+
+  /* Shake Animation on Wrong Drop */
+  .shake { animation:shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color:#ef4444 !important; box-shadow:0 0 10px rgba(239,68,68,0.8); background:#fca5a5 !important; color:#7f1d1d !important; }
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(3px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+    40%, 60% { transform: translate3d(5px, 0, 0); }
+  }
+
+  /* Modal */
+  .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; justify-content:center; align-items:center; backdrop-filter:blur(3px); }
+  .modal-content { background:#1e293b; padding:28px; border-radius:12px; max-width:1380px; width:96%; max-height:92vh; overflow-y:auto; color:#f1f5f9; border:2px solid #fb923c; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+  .modal-content h2 { color:#fb923c; margin-bottom:8px; font-size:1.6em; text-align:center; }
+  .modal-content p { color:#94a3b8; font-size:0.88em; margin-bottom:16px; line-height:1.45; text-align:center; }
+  
+  .study-guide-table { width:100%; border-collapse:collapse; font-size:0.78em; margin-top:10px; }
+  .study-guide-table th, .study-guide-table td { border:1px solid #334155; padding:8px 10px; text-align:left; vertical-align:top; line-height:1.45; }
+  .study-guide-table th { background:#0f172a; color:#fb923c; position:sticky; top:0; z-index:2; }
+  .study-guide-table tr:nth-child(even) { background:rgba(255,255,255,0.02); }
+  .study-guide-table strong { color:#fde047; }
+  .study-guide-table em { color:#fed7aa; }
+
+  .modal-close { display:block; margin:20px auto 0; padding:10px 28px; background:#fb923c; color:#0f172a; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-size:0.9em; }
+  .modal-close:hover { background:#f97316; }
+
+  @media(max-width:1150px) {
+    .main-content { grid-template-columns:1fr; }
+    .word-bank-container { position:relative; top:0; max-height:480px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Reproductive Pharmacology Master Table</h1>
+    <p class="subtitle">Direct extraction from <strong>Table 16.6: Summary of Reproductive Pharmacology</strong>. Drag each drug's <em>Mechanism of Action</em>, <em>Clinical Use & Indications</em>, and <em>Side Effects & Toxicities</em> into its matching row, or click a card then click its cell to place.</p>
+  </header>
+
+  <div class="stats-controls">
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-label">Locked Features:</span><span id="score">0</span> / <span id="total">42</span>
+        <div class="progress-bar-container"><div class="progress-bar-fill" id="progress-bar"></div></div>
+      </div>
+      <div class="section-filter">
+        <span style="font-size:0.75em; color:#94a3b8; font-weight:600; margin-right:2px;">Filter:</span>
+        <button class="sec-btn active" onclick="filterSection('all', this)">All (14)</button>
+        <button class="sec-btn" onclick="filterSection('gnrh', this)">GnRH (1)</button>
+        <button class="sec-btn" onclick="filterSection('antiandrogens', this)">Antiandrogens (4)</button>
+        <button class="sec-btn" onclick="filterSection('serms', this)">SERMs (3)</button>
+        <button class="sec-btn" onclick="filterSection('aromatase_progestins', this)">Aromatase & Progestins (3)</button>
+        <button class="sec-btn" onclick="filterSection('labor_tocolytics', this)">Uterine Motility (2)</button>
+        <button class="sec-btn" onclick="filterSection('ed_pde5', this)">PDE-5 Inhibitors (1)</button>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="showAllAnswers()">Show Answers</button>
+      <button class="btn btn-primary" id="btn-explain" onclick="openModal()">View Full Notes / Rx</button>
+      <button class="btn btn-danger" onclick="resetGame()">Reset</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Sticky Word Bank -->
+    <div class="word-bank-container">
+      <div class="word-bank-header">
+        <div class="word-bank-title">📦 Grouped Word Bank</div>
+        <span class="word-bank-count" id="bank-count">42 items</span>
+      </div>
+      <input type="text" class="bank-search" id="bank-search" placeholder="🔍 Search mechanisms, indications, toxicities..." oninput="filterBankCards()">
+      <div class="click-tip">💡 Tip: Drag card into cell OR click a card to select it, then click cell!</div>
+      
+      <div class="bank-tabs" id="bank-tabs">
+        <button class="tab-btn active" onclick="switchCategoryTab('all', this)">All Features</button>
+        <button class="tab-btn" onclick="switchCategoryTab('Mechanism of Action', this)">Mechanisms (14)</button>
+        <button class="tab-btn" onclick="switchCategoryTab('Clinical Use & Indications', this)">Clinical Uses (14)</button>
+        <button class="tab-btn" onclick="switchCategoryTab('Side Effects & Toxicities', this)">Side Effects (14)</button>
+      </div>
+      
+      <div class="word-bank" id="active-word-bank"></div>
+    </div>
+    
+    <!-- Table -->
+    <div class="table-wrapper">
+      <table id="quiz-table">
+        <thead>
+          <tr>
+            <th style="background:#1e293b; color:#fed7aa; width:19%; border:1px solid #334155;">Drug & Class</th>
+            <th style="width:27%;">Mechanism of Action</th>
+            <th style="width:27%;">Clinical Use & Indications</th>
+            <th style="width:27%;">Side Effects & Toxicities</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Reference Modal -->
+<div class="modal-overlay" id="explanation-modal">
+  <div class="modal-content">
+    <h2>Reproductive Pharmacology: Complete Master Notes & Board Pearls</h2>
+    <p>Complete verbatim extraction from <strong>Table 16.6 (Summary of Reproductive Pharmacology)</strong> with high-yield board pearls and clinical vignette associations.</p>
+    
+    <table class="study-guide-table">
+      <thead>
+        <tr>
+          <th style="width:16%;">Drug & Class</th>
+          <th style="width:20%;">Mechanism of Action</th>
+          <th style="width:20%;">Clinical Use & Indications</th>
+          <th style="width:20%;">Side Effects & Toxicities</th>
+          <th style="width:24%;">High-Yield Board Pearls & Vignettes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sec-badge badge-gnrh">GnRH Analog</span><strong>Leuprolide</strong></td>
+          <td><strong>GnRH analog</strong>:<br>• <strong>Pulsatile fashion</strong>: Increases <strong>FSH and LH</strong> (stimulates pituitary gonadotropes).<br>• <strong>Continuous fashion</strong>: Inhibits <strong>FSH and LH</strong> (downregulates GnRH receptors → chemical castration / hypogonadism).</td>
+          <td>• <strong>Pulsatile</strong>: Treatment of <strong>infertility</strong> (induces LH surge & ovulation).<br>• <strong>Continuous</strong>: Treatment of <strong>prostate cancer</strong>, <strong>uterine fibroids</strong> (leiomyomas), endometriosis, and <strong>precocious puberty</strong>.</td>
+          <td>• <strong>Nausea, vomiting</strong>.<br>• Transient <strong>tumor flare</strong> during first 1–2 weeks of continuous use.<br>• Antiandrogen/hypoestrogenic effects: <strong>hot flashes, bone loss / osteoporosis</strong>, decreased libido, erectile dysfunction.</td>
+          <td><strong>Pulsatile = Puberty / Pregnancy</strong> (stimulates LH/FSH); <strong>Continuous = Castration</strong> (suppresses LH/FSH). When initiating continuous therapy for metastatic prostate cancer, always co-administer an androgen receptor antagonist (e.g., <strong>flutamide</strong>) for the first 1–2 weeks to prevent tumor flare (bone pain, urinary obstruction) from the initial LH/testosterone spike.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-antiandrogens">5α-Reductase Inhibitor</span><strong>Finasteride</strong></td>
+          <td><strong>5-α-reductase inhibitor</strong>: Competitively blocks the intracellular conversion of testosterone to the more potent androgen <strong>dihydrotestosterone (DHT)</strong> in the prostate, hair follicles, and peripheral tissues.</td>
+          <td>• Treatment of <strong>benign prostatic hyperplasia (BPH)</strong> (slowly reduces prostate size and urinary obstruction over 6–12 months).<br>• Treatment of <strong>male pattern baldness</strong> (androgenetic alopecia at lower doses).</td>
+          <td>• <strong>Gynecomastia</strong>, erectile dysfunction, decreased libido, decreased ejaculate volume.<br>• <strong>Teratogenic</strong>: Category X (inhibits external virilization of male fetuses).</td>
+          <td>Decreases baseline serum <strong>prostate-specific antigen (PSA) by ~50%</strong> (always double the measured PSA value when screening for prostate cancer). <strong>Teratogenic</strong>: Pregnant women must not even handle crushed tablets due to the risk of ambiguous genitalia / hypospadias in a male fetus.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-antiandrogens">Androgen Receptor Blocker</span><strong>Flutamide</strong></td>
+          <td><strong>Competitive inhibitor at testosterone and DHT receptors</strong>: Nonsteroidal competitive antagonist at nuclear androgen receptors, blocking androgen uptake and androgen-driven gene transcription in prostatic tissue.</td>
+          <td>Used in combination with <strong>continuous leuprolide</strong> (GnRH agonist) in the treatment of <strong>advanced / metastatic prostate cancer</strong>.</td>
+          <td>• <strong>Gynecomastia</strong>, hot flashes, decreased libido, and impotence.<br>• <strong>Hepatotoxicity</strong> (black-box warning; requires baseline and periodic liver function tests).</td>
+          <td>Key role: Prevents the dangerous <strong>initial 'tumor flare'</strong> (acute bone pain, spinal cord compression, bladder outlet obstruction) caused by the transient surge of LH and testosterone during the first 1–2 weeks of continuous leuprolide therapy.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-antiandrogens">Aldosterone & Androgen Blocker</span><strong>Spironolactone</strong></td>
+          <td><strong>Blocks testosterone receptors</strong> and inhibits 17α-hydroxylase / 17,20-lyase (suppresses androgen synthesis); also acts as a <strong>potassium-sparing diuretic</strong> by competitively blocking <strong>aldosterone receptors</strong> in the renal cortical collecting tubule.</td>
+          <td>• Used to treat <strong>hirsutism and acne in PCOS</strong> (reduces peripheral androgenic effects).<br>• Also used in <strong>hypertension, congestive heart failure</strong> (reduces mortality in HFrEF), and ascites in hepatic cirrhosis.</td>
+          <td>• <strong>Gynecomastia</strong>, <strong>amenorrhea / menstrual irregularities</strong> (due to progesterone receptor binding).<br>• <strong>Hyperkalemia</strong> (blocks aldosterone-mediated K+ secretion).</td>
+          <td>Classic cause of drug-induced gynecomastia (mnemonic: <em>'Some Drugs Create Awesome Knockers'</em> — Spironolactone, Digoxin, Cimetidine, Alcohol, Ketoconazole). If gynecomastia or menstrual side effects develop, switch to <strong>eplerenone</strong> (selective aldosterone antagonist with no antiandrogenic effects).</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-serms">SERM / Ovulation Inducer</span><strong>Clomiphene</strong></td>
+          <td><strong>Partial agonist / antagonist at estrogen receptors in the hypothalamus</strong>: Prevents estrogen negative feedback → increases pulsatile <strong>GnRH release</strong> → leads to increased <strong>LH and FSH</strong> secretion, which induces follicular growth and <strong>triggers ovulation</strong>.</td>
+          <td>First-line agent to <strong>promote ovulation in PCOS and anovulatory infertility</strong> in women desiring pregnancy.</td>
+          <td>• <strong>Hot flashes</strong>, abdominal discomfort.<br>• <strong>Multiple pregnancies</strong> (twins/triplets due to multiple follicular maturation).<br>• Visual disturbances (scotomas/blurring) and ovarian enlargement.</td>
+          <td>Vignette clue: Infertility in a woman with polycystic ovary syndrome (PCOS). Clomiphene tricks the hypothalamic-pituitary axis into sensing hypoestrogenism, sparking endogenous gonadotropin release. <strong>Letrozole</strong> (aromatase inhibitor) is now also widely used with high live-birth rates.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-serms">SERM (Breast Antagonist / Endometrial Agonist)</span><strong>Tamoxifen</strong></td>
+          <td><strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>• Estrogen receptor <strong>antagonist at the breast</strong>.<br>• Partial estrogen receptor <strong>agonist on endometrial tissue and bone</strong>.</td>
+          <td>Treatment and prevention of <strong>ER-positive (and PR-positive) breast cancer</strong> in both premenopausal and postmenopausal women.</td>
+          <td>• <strong>Increased risk of endometrial hyperplasia and endometrial cancer</strong> (agonist at uterus).<br>• <strong>Deep venous thrombosis (DVT) and pulmonary embolism (PE)</strong> (hepatic procoagulant synthesis).<br>• Hot flashes.</td>
+          <td>Board classic: Any postmenopausal bleeding or abnormal uterine bleeding (AUB) in a patient on tamoxifen demands prompt <strong>endometrial biopsy</strong> to rule out endometrial carcinoma. Agonist action at bone preserves bone mineral density.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-serms">SERM (Bone Agonist / Endometrial Antagonist)</span><strong>Raloxifene</strong></td>
+          <td><strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>• Estrogen receptor <strong>agonist at bone</strong> (inhibits osteoclast resorption).<br>• Estrogen receptor <strong>antagonist at breast AND endometrium</strong>.</td>
+          <td>Treatment and prevention of <strong>postmenopausal osteoporosis</strong>; also reduces risk of invasive breast cancer in high-risk postmenopausal women.</td>
+          <td>• <strong>Leg cramps</strong>, hot flashes.<br>• <strong>Deep venous thrombosis (DVT) and pulmonary embolism (PE)</strong> (increased thromboembolism risk).</td>
+          <td>Mnemonic: <strong>'Raloxifene = Relax in the endometrium'</strong>. Because it is an antagonist at endometrial tissue, it carries <strong>NO increased risk of endometrial cancer</strong>! Favored over tamoxifen when treating postmenopausal osteoporosis, especially in women with intact uteri.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-aromatase">Aromatase Inhibitor</span><strong>Anastrozole</strong></td>
+          <td><strong>Aromatase inhibitor</strong>: Competitively inhibits the <strong>CYP19A1 aromatase enzyme</strong>, preventing the peripheral conversion of androstenedione to estrone and testosterone to estradiol in adipose tissue.</td>
+          <td>First-line adjuvant treatment of <strong>ER-positive breast cancer in postmenopausal women</strong> (also letrozole and exemestane).</td>
+          <td>• <strong>Osteoporosis / bone fractures</strong> (due to profound systemic hypoestrogenism; monitor with baseline DEXA scans).<br>• <strong>Arthralgias / joint pain</strong>, hot flashes, vaginal dryness.</td>
+          <td>Only effective in <strong>postmenopausal</strong> women where estrogen production depends on peripheral aromatization of adrenal androgens. In premenopausal women, ovarian aromatase would easily overcome competitive inhibition through compensatory gonadotropin release.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-aromatase">Progesterone Receptor Antagonist</span><strong>Mifepristone (RU-486)</strong></td>
+          <td><strong>Competitive progesterone receptor antagonist</strong>: Competitively blocks progesterone receptors PR-A and PR-B, depriving the endometrium of progestational support; also acts as a glucocorticoid receptor antagonist at high doses.</td>
+          <td>• <strong>Elective medical abortion</strong> (administered in combination with misoprostol through 10 weeks / 70 days gestation).<br>• Emergency postcoital contraception; hyperglycemia in refractory Cushing syndrome.</td>
+          <td>• <strong>Heavy vaginal bleeding</strong>, severe <strong>abdominal pain / uterine cramping</strong>, nausea, vomiting, anorexia, risk of incomplete abortion.</td>
+          <td>Medical abortion 1–2 punch: <strong>Mifepristone</strong> (blocks progesterone → decidual necrosis, blastocyst detachment, sensitizes myometrium) followed 24–48 hours later by <strong>Misoprostol</strong> (PGE1 analog → induces strong uterine contractions to expel products of conception).</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-aromatase">Combined Oral Contraceptive</span><strong>Oral Contraceptives</strong></td>
+          <td><strong>Prevents estrogen surge and thus the LH surge</strong> by maintaining steady negative feedback levels of estrogen and progesterone → <strong>inhibits ovulation</strong>. Progestins also thicken cervical mucus (blocks sperm) and thin the endometrium.</td>
+          <td>• <strong>Contraception</strong> (<em>does not protect against STDs</em>).<br>• Regulate irregular or painful menses (dysmenorrhea/menorrhagia), endometriosis, acne.<br>• <strong>Protective against ovarian and endometrial cancer</strong>.</td>
+          <td>• <strong>Depression, weight gain, hypertension, deep venous thrombosis (DVT), pulmonary embolism (PE)</strong>, hepatic adenomas.<br>• <strong>Contraindicated in women >35 years who smoke</strong> or have a history of thromboembolic disease, stroke, migraine with aura, or estrogen-sensitive tumors.</td>
+          <td>Smoking + age >35 is an <strong>absolute contraindication</strong> due to high cardiovascular / myocardial infarction / stroke risk. Long-term use reduces the risk of <strong>epithelial ovarian cancer and endometrial cancer by >50%</strong>, but slightly increases the risk of benign hepatic adenomas.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-labor">Prostaglandin E2 Analog</span><strong>Dinoprostone</strong></td>
+          <td><strong>Prostaglandin E₂ analog</strong>: Binds EP prostaglandin receptors to stimulate collagenase breakdown and increase water content in cervical stroma (<strong>cervical ripening</strong>); also stimulates rhythmic myometrial smooth muscle contractions.</td>
+          <td>• <strong>Makes the cervix favorable and induces labor</strong> (ripens/dilates cervix and promotes uterine contractions at term).<br>• Can also be used as an <strong>abortive therapy</strong> (evacuation of uterine contents in fetal demise).</td>
+          <td>• <strong>Nausea, abdominal pain / uterine cramping</strong>, diarrhea, fever.<br>• <strong>Uterine hyperstimulation (tachysystole)</strong> and uterine rupture.</td>
+          <td><strong>Dinoprostone = PGE2</strong> (cervical ripening / labor induction). Contrast with <strong>Misoprostol = PGE1</strong> (abortifacient/labor induction) and <strong>Carboprost = PGF2α</strong> (uterine atony / postpartum hemorrhage; contraindicated in asthma). Contraindicated in patients with prior classical cesarean delivery due to uterine rupture risk.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-labor">β2-Adrenergic Agonist (Tocolytic)</span><strong>Ritodrine / Terbutaline</strong></td>
+          <td><strong>β₂-agonists at uterine smooth muscle</strong>: Stimulates β2-adrenergic receptors → ↑ intracellular cAMP → inhibits myosin light-chain kinase (MLCK) → <strong>relaxes myometrial smooth muscle</strong>.</td>
+          <td><strong>Tocolysis</strong>: <strong>Reduces uterine contractions</strong> to arrest preterm labor and prolong pregnancy for up to 48 hours.</td>
+          <td>• <strong>Tachycardia</strong> (both maternal and fetal reflex/direct tachycardia), palpitations, tremors.<br>• Maternal hyperglycemia, hypokalemia, and pulmonary edema.</td>
+          <td>Mnemonic: <strong>'Ritodrine / Terbutaline Returns fetus to Dreams'</strong> (delays delivery). Used to buy 48 hours to administer antenatal corticosteroids (betamethasone or dexamethasone) to accelerate fetal lung maturation and surfactant synthesis via type II pneumocytes, preventing neonatal respiratory distress syndrome (NRDS).</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-antiandrogens">α1-Adrenergic Antagonist</span><strong>Terazosin / Tamsulosin</strong></td>
+          <td><strong>α₁-adrenergic antagonist</strong>: Relaxes smooth muscle in the prostatic stroma, bladder neck, and capsule.<br>• <strong>Terazosin</strong>: Nonselective α₁A, α₁B, and α₁D antagonist.<br>• <strong>Tamsulosin</strong>: <strong>Selective for α₁A,D receptors</strong> found predominantly in the prostate.</td>
+          <td>• <strong>Treatment of BPH if urinary symptoms are present</strong> (provides rapid relief of lower urinary tract symptoms within days).<br>• <strong>Terazosin</strong> also treats concurrent <strong>hypertension</strong>.</td>
+          <td>• <strong>Hypotension</strong> (especially terazosin due to vascular α1B blockade; first-dose orthostatic syncope/dizziness).<br>• Tamsulosin causes significantly less hypotension, but can cause <strong>retrograde ejaculation</strong> and <strong>intraoperative floppy iris syndrome (IFIS)</strong> during cataract surgery.</td>
+          <td>Board Decision: Patient with <strong>BPH + Hypertension</strong> → Choose <strong>terazosin</strong> or doxazosin. Patient with <strong>BPH + Normotensive</strong> → Choose <strong>tamsulosin</strong> (prostate-selective, avoids hypotension). Patients on tamsulosin must alert their ophthalmologist prior to cataract surgery due to floppy iris risk.</td>
+        </tr>
+        <tr>
+          <td><span class="sec-badge badge-ed">PDE-5 Inhibitor</span><strong>Sildenafil, Vardenafil, Tadalafil</strong></td>
+          <td><strong>Increases cGMP by inhibiting its breakdown by phosphodiesterase-5 (PDE-5)</strong>: Causes prolonged nitric oxide-mediated vascular smooth muscle relaxation in the corpus cavernosum and pulmonary vascular bed → increased blood flow leads to erection.</td>
+          <td>• Treatment of <strong>erectile dysfunction (ED)</strong>.<br>• Can also be used to treat <strong>Raynaud syndrome</strong> or <strong>pulmonary arterial hypertension (PAH)</strong> (sildenafil = Revatio).<br>• Tadalafil also approved for BPH.</td>
+          <td>• <strong>Headache and facial flushing</strong>, dyspepsia, nasal congestion.<br>• <strong>Cyanopsia (blue-tinted vision)</strong> due to retinal PDE-6 inhibition.<br>• <strong>Life-threatening hypotension</strong> in patients taking <strong>nitroglycerin / nitrates</strong>.</td>
+          <td><strong>Lethal Contraindication with Nitrates</strong>: Nitrates stimulate guanylyl cyclase (↑ cGMP synthesis) while PDE-5 inhibitors block cGMP degradation → massive synergistic intracellular cGMP accumulation → profound refractory vasodilation, severe hypotension, and death! Must separate nitrates and PDE-5 inhibitors by at least 24 hours (48 hours for tadalafil).</td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="modal-close" onclick="closeModal()">Close Study Guide</button>
+  </div>
+</div>
+
+<script>
+const drugsData = [
+  {
+    "drug": "Leuprolide",
+    "section_id": "gnrh",
+    "section_name": "GnRH & Hypothalamic",
+    "section_badge": "GnRH Analog",
+    "badge_class": "badge-gnrh",
+    "mechanism": "<strong>GnRH analog</strong>:<br>\u2022 <strong>Pulsatile fashion</strong>: Increases <strong>FSH and LH</strong> (stimulates pituitary gonadotropes).<br>\u2022 <strong>Continuous fashion</strong>: Inhibits <strong>FSH and LH</strong> (downregulates GnRH receptors \u2192 chemical castration / hypogonadism).",
+    "clinical_use": "\u2022 <strong>Pulsatile</strong>: Treatment of <strong>infertility</strong> (induces LH surge & ovulation).<br>\u2022 <strong>Continuous</strong>: Treatment of <strong>prostate cancer</strong>, <strong>uterine fibroids</strong> (leiomyomas), endometriosis, and <strong>precocious puberty</strong>.",
+    "side_effects": "\u2022 <strong>Nausea, vomiting</strong>.<br>\u2022 Transient <strong>tumor flare</strong> during first 1\u20132 weeks of continuous use.<br>\u2022 Antiandrogen/hypoestrogenic effects: <strong>hot flashes, bone loss / osteoporosis</strong>, decreased libido, erectile dysfunction.",
+    "pearls": "<strong>Pulsatile = Puberty / Pregnancy</strong> (stimulates LH/FSH); <strong>Continuous = Castration</strong> (suppresses LH/FSH). When initiating continuous therapy for metastatic prostate cancer, always co-administer an androgen receptor antagonist (e.g., <strong>flutamide</strong>) for the first 1\u20132 weeks to prevent tumor flare (bone pain, urinary obstruction) from the initial LH/testosterone spike."
+  },
+  {
+    "drug": "Finasteride",
+    "section_id": "antiandrogens",
+    "section_name": "Antiandrogens & Prostate",
+    "section_badge": "5\u03b1-Reductase Inhibitor",
+    "badge_class": "badge-antiandrogens",
+    "mechanism": "<strong>5-\u03b1-reductase inhibitor</strong>: Competitively blocks the intracellular conversion of testosterone to the more potent androgen <strong>dihydrotestosterone (DHT)</strong> in the prostate, hair follicles, and peripheral tissues.",
+    "clinical_use": "\u2022 Treatment of <strong>benign prostatic hyperplasia (BPH)</strong> (slowly reduces prostate size and urinary obstruction over 6\u201312 months).<br>\u2022 Treatment of <strong>male pattern baldness</strong> (androgenetic alopecia at lower doses).",
+    "side_effects": "\u2022 <strong>Gynecomastia</strong>, erectile dysfunction, decreased libido, decreased ejaculate volume.<br>\u2022 <strong>Teratogenic</strong>: Category X (inhibits external virilization of male fetuses).",
+    "pearls": "Decreases baseline serum <strong>prostate-specific antigen (PSA) by ~50%</strong> (always double the measured PSA value when screening for prostate cancer). <strong>Teratogenic</strong>: Pregnant women must not even handle crushed tablets due to the risk of ambiguous genitalia / hypospadias in a male fetus."
+  },
+  {
+    "drug": "Flutamide",
+    "section_id": "antiandrogens",
+    "section_name": "Antiandrogens & Prostate",
+    "section_badge": "Androgen Receptor Blocker",
+    "badge_class": "badge-antiandrogens",
+    "mechanism": "<strong>Competitive inhibitor at testosterone and DHT receptors</strong>: Nonsteroidal competitive antagonist at nuclear androgen receptors, blocking androgen uptake and androgen-driven gene transcription in prostatic tissue.",
+    "clinical_use": "Used in combination with <strong>continuous leuprolide</strong> (GnRH agonist) in the treatment of <strong>advanced / metastatic prostate cancer</strong>.",
+    "side_effects": "\u2022 <strong>Gynecomastia</strong>, hot flashes, decreased libido, and impotence.<br>\u2022 <strong>Hepatotoxicity</strong> (black-box warning; requires baseline and periodic liver function tests).",
+    "pearls": "Key role: Prevents the dangerous <strong>initial 'tumor flare'</strong> (acute bone pain, spinal cord compression, bladder outlet obstruction) caused by the transient surge of LH and testosterone during the first 1\u20132 weeks of continuous leuprolide therapy."
+  },
+  {
+    "drug": "Spironolactone",
+    "section_id": "antiandrogens",
+    "section_name": "Antiandrogens & Prostate",
+    "section_badge": "Aldosterone & Androgen Blocker",
+    "badge_class": "badge-antiandrogens",
+    "mechanism": "<strong>Blocks testosterone receptors</strong> and inhibits 17\u03b1-hydroxylase / 17,20-lyase (suppresses androgen synthesis); also acts as a <strong>potassium-sparing diuretic</strong> by competitively blocking <strong>aldosterone receptors</strong> in the renal cortical collecting tubule.",
+    "clinical_use": "\u2022 Used to treat <strong>hirsutism and acne in PCOS</strong> (reduces peripheral androgenic effects).<br>\u2022 Also used in <strong>hypertension, congestive heart failure</strong> (reduces mortality in HFrEF), and ascites in hepatic cirrhosis.",
+    "side_effects": "\u2022 <strong>Gynecomastia</strong>, <strong>amenorrhea / menstrual irregularities</strong> (due to progesterone receptor binding).<br>\u2022 <strong>Hyperkalemia</strong> (blocks aldosterone-mediated K+ secretion).",
+    "pearls": "Classic cause of drug-induced gynecomastia (mnemonic: <em>'Some Drugs Create Awesome Knockers'</em> \u2014 Spironolactone, Digoxin, Cimetidine, Alcohol, Ketoconazole). If gynecomastia or menstrual side effects develop, switch to <strong>eplerenone</strong> (selective aldosterone antagonist with no antiandrogenic effects)."
+  },
+  {
+    "drug": "Clomiphene",
+    "section_id": "serms",
+    "section_name": "SERMs & Estrogen Modulators",
+    "section_badge": "SERM / Ovulation Inducer",
+    "badge_class": "badge-serms",
+    "mechanism": "<strong>Partial agonist / antagonist at estrogen receptors in the hypothalamus</strong>: Prevents estrogen negative feedback \u2192 increases pulsatile <strong>GnRH release</strong> \u2192 leads to increased <strong>LH and FSH</strong> secretion, which induces follicular growth and <strong>triggers ovulation</strong>.",
+    "clinical_use": "First-line agent to <strong>promote ovulation in PCOS and anovulatory infertility</strong> in women desiring pregnancy.",
+    "side_effects": "\u2022 <strong>Hot flashes</strong>, abdominal discomfort.<br>\u2022 <strong>Multiple pregnancies</strong> (twins/triplets due to multiple follicular maturation).<br>\u2022 Visual disturbances (scotomas/blurring) and ovarian enlargement.",
+    "pearls": "Vignette clue: Infertility in a woman with polycystic ovary syndrome (PCOS). Clomiphene tricks the hypothalamic-pituitary axis into sensing hypoestrogenism, sparking endogenous gonadotropin release. <strong>Letrozole</strong> (aromatase inhibitor) is now also widely used with high live-birth rates."
+  },
+  {
+    "drug": "Tamoxifen",
+    "section_id": "serms",
+    "section_name": "SERMs & Estrogen Modulators",
+    "section_badge": "SERM (Breast Antagonist / Endometrial Agonist)",
+    "badge_class": "badge-serms",
+    "mechanism": "<strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>\u2022 Estrogen receptor <strong>antagonist at the breast</strong>.<br>\u2022 Partial estrogen receptor <strong>agonist on endometrial tissue and bone</strong>.",
+    "clinical_use": "Treatment and prevention of <strong>ER-positive (and PR-positive) breast cancer</strong> in both premenopausal and postmenopausal women.",
+    "side_effects": "\u2022 <strong>Increased risk of endometrial hyperplasia and endometrial cancer</strong> (agonist at uterus).<br>\u2022 <strong>Deep venous thrombosis (DVT) and pulmonary embolism (PE)</strong> (hepatic procoagulant synthesis).<br>\u2022 Hot flashes.",
+    "pearls": "Board classic: Any postmenopausal bleeding or abnormal uterine bleeding (AUB) in a patient on tamoxifen demands prompt <strong>endometrial biopsy</strong> to rule out endometrial carcinoma. Agonist action at bone preserves bone mineral density."
+  },
+  {
+    "drug": "Raloxifene",
+    "section_id": "serms",
+    "section_name": "SERMs & Estrogen Modulators",
+    "section_badge": "SERM (Bone Agonist / Endometrial Antagonist)",
+    "badge_class": "badge-serms",
+    "mechanism": "<strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>\u2022 Estrogen receptor <strong>agonist at bone</strong> (inhibits osteoclast resorption).<br>\u2022 Estrogen receptor <strong>antagonist at breast AND endometrium</strong>.",
+    "clinical_use": "Treatment and prevention of <strong>postmenopausal osteoporosis</strong>; also reduces risk of invasive breast cancer in high-risk postmenopausal women.",
+    "side_effects": "\u2022 <strong>Leg cramps</strong>, hot flashes.<br>\u2022 <strong>Deep venous thrombosis (DVT) and pulmonary embolism (PE)</strong> (increased thromboembolism risk).",
+    "pearls": "Mnemonic: <strong>'Raloxifene = Relax in the endometrium'</strong>. Because it is an antagonist at endometrial tissue, it carries <strong>NO increased risk of endometrial cancer</strong>! Favored over tamoxifen when treating postmenopausal osteoporosis, especially in women with intact uteri."
+  },
+  {
+    "drug": "Anastrozole",
+    "section_id": "aromatase_progestins",
+    "section_name": "Aromatase & Progestins",
+    "section_badge": "Aromatase Inhibitor",
+    "badge_class": "badge-aromatase",
+    "mechanism": "<strong>Aromatase inhibitor</strong>: Competitively inhibits the <strong>CYP19A1 aromatase enzyme</strong>, preventing the peripheral conversion of androstenedione to estrone and testosterone to estradiol in adipose tissue.",
+    "clinical_use": "First-line adjuvant treatment of <strong>ER-positive breast cancer in postmenopausal women</strong> (also letrozole and exemestane).",
+    "side_effects": "\u2022 <strong>Osteoporosis / bone fractures</strong> (due to profound systemic hypoestrogenism; monitor with baseline DEXA scans).<br>\u2022 <strong>Arthralgias / joint pain</strong>, hot flashes, vaginal dryness.",
+    "pearls": "Only effective in <strong>postmenopausal</strong> women where estrogen production depends on peripheral aromatization of adrenal androgens. In premenopausal women, ovarian aromatase would easily overcome competitive inhibition through compensatory gonadotropin release."
+  },
+  {
+    "drug": "Mifepristone (RU-486)",
+    "section_id": "aromatase_progestins",
+    "section_name": "Aromatase & Progestins",
+    "section_badge": "Progesterone Receptor Antagonist",
+    "badge_class": "badge-aromatase",
+    "mechanism": "<strong>Competitive progesterone receptor antagonist</strong>: Competitively blocks progesterone receptors PR-A and PR-B, depriving the endometrium of progestational support; also acts as a glucocorticoid receptor antagonist at high doses.",
+    "clinical_use": "\u2022 <strong>Elective medical abortion</strong> (administered in combination with misoprostol through 10 weeks / 70 days gestation).<br>\u2022 Emergency postcoital contraception; hyperglycemia in refractory Cushing syndrome.",
+    "side_effects": "\u2022 <strong>Heavy vaginal bleeding</strong>, severe <strong>abdominal pain / uterine cramping</strong>, nausea, vomiting, anorexia, risk of incomplete abortion.",
+    "pearls": "Medical abortion 1\u20132 punch: <strong>Mifepristone</strong> (blocks progesterone \u2192 decidual necrosis, blastocyst detachment, sensitizes myometrium) followed 24\u201348 hours later by <strong>Misoprostol</strong> (PGE1 analog \u2192 induces strong uterine contractions to expel products of conception)."
+  },
+  {
+    "drug": "Oral Contraceptives",
+    "section_id": "aromatase_progestins",
+    "section_name": "Aromatase & Progestins",
+    "section_badge": "Combined Oral Contraceptive",
+    "badge_class": "badge-aromatase",
+    "mechanism": "<strong>Prevents estrogen surge and thus the LH surge</strong> by maintaining steady negative feedback levels of estrogen and progesterone \u2192 <strong>inhibits ovulation</strong>. Progestins also thicken cervical mucus (blocks sperm) and thin the endometrium.",
+    "clinical_use": "\u2022 <strong>Contraception</strong> (<em>does not protect against STDs</em>).<br>\u2022 Regulate irregular or painful menses (dysmenorrhea/menorrhagia), endometriosis, acne.<br>\u2022 <strong>Protective against ovarian and endometrial cancer</strong>.",
+    "side_effects": "\u2022 <strong>Depression, weight gain, hypertension, deep venous thrombosis (DVT), pulmonary embolism (PE)</strong>, hepatic adenomas.<br>\u2022 <strong>Contraindicated in women >35 years who smoke</strong> or have a history of thromboembolic disease, stroke, migraine with aura, or estrogen-sensitive tumors.",
+    "pearls": "Smoking + age >35 is an <strong>absolute contraindication</strong> due to high cardiovascular / myocardial infarction / stroke risk. Long-term use reduces the risk of <strong>epithelial ovarian cancer and endometrial cancer by >50%</strong>, but slightly increases the risk of benign hepatic adenomas."
+  },
+  {
+    "drug": "Dinoprostone",
+    "section_id": "labor_tocolytics",
+    "section_name": "Uterine Motility & Labor",
+    "section_badge": "Prostaglandin E2 Analog",
+    "badge_class": "badge-labor",
+    "mechanism": "<strong>Prostaglandin E\u2082 analog</strong>: Binds EP prostaglandin receptors to stimulate collagenase breakdown and increase water content in cervical stroma (<strong>cervical ripening</strong>); also stimulates rhythmic myometrial smooth muscle contractions.",
+    "clinical_use": "\u2022 <strong>Makes the cervix favorable and induces labor</strong> (ripens/dilates cervix and promotes uterine contractions at term).<br>\u2022 Can also be used as an <strong>abortive therapy</strong> (evacuation of uterine contents in fetal demise).",
+    "side_effects": "\u2022 <strong>Nausea, abdominal pain / uterine cramping</strong>, diarrhea, fever.<br>\u2022 <strong>Uterine hyperstimulation (tachysystole)</strong> and uterine rupture.",
+    "pearls": "<strong>Dinoprostone = PGE2</strong> (cervical ripening / labor induction). Contrast with <strong>Misoprostol = PGE1</strong> (abortifacient/labor induction) and <strong>Carboprost = PGF2\u03b1</strong> (uterine atony / postpartum hemorrhage; contraindicated in asthma). Contraindicated in patients with prior classical cesarean delivery due to uterine rupture risk."
+  },
+  {
+    "drug": "Ritodrine / Terbutaline",
+    "section_id": "labor_tocolytics",
+    "section_name": "Uterine Motility & Labor",
+    "section_badge": "\u03b22-Adrenergic Agonist (Tocolytic)",
+    "badge_class": "badge-labor",
+    "mechanism": "<strong>\u03b2\u2082-agonists at uterine smooth muscle</strong>: Stimulates \u03b22-adrenergic receptors \u2192 \u2191 intracellular cAMP \u2192 inhibits myosin light-chain kinase (MLCK) \u2192 <strong>relaxes myometrial smooth muscle</strong>.",
+    "clinical_use": "<strong>Tocolysis</strong>: <strong>Reduces uterine contractions</strong> to arrest preterm labor and prolong pregnancy for up to 48 hours.",
+    "side_effects": "\u2022 <strong>Tachycardia</strong> (both maternal and fetal reflex/direct tachycardia), palpitations, tremors.<br>\u2022 Maternal hyperglycemia, hypokalemia, and pulmonary edema.",
+    "pearls": "Mnemonic: <strong>'Ritodrine / Terbutaline Returns fetus to Dreams'</strong> (delays delivery). Used to buy 48 hours to administer antenatal corticosteroids (betamethasone or dexamethasone) to accelerate fetal lung maturation and surfactant synthesis via type II pneumocytes, preventing neonatal respiratory distress syndrome (NRDS)."
+  },
+  {
+    "drug": "Terazosin / Tamsulosin",
+    "section_id": "antiandrogens",
+    "section_name": "Antiandrogens & Prostate",
+    "section_badge": "\u03b11-Adrenergic Antagonist",
+    "badge_class": "badge-antiandrogens",
+    "mechanism": "<strong>\u03b1\u2081-adrenergic antagonist</strong>: Relaxes smooth muscle in the prostatic stroma, bladder neck, and capsule.<br>\u2022 <strong>Terazosin</strong>: Nonselective \u03b1\u2081A, \u03b1\u2081B, and \u03b1\u2081D antagonist.<br>\u2022 <strong>Tamsulosin</strong>: <strong>Selective for \u03b1\u2081A,D receptors</strong> found predominantly in the prostate.",
+    "clinical_use": "\u2022 <strong>Treatment of BPH if urinary symptoms are present</strong> (provides rapid relief of lower urinary tract symptoms within days).<br>\u2022 <strong>Terazosin</strong> also treats concurrent <strong>hypertension</strong>.",
+    "side_effects": "\u2022 <strong>Hypotension</strong> (especially terazosin due to vascular \u03b11B blockade; first-dose orthostatic syncope/dizziness).<br>\u2022 Tamsulosin causes significantly less hypotension, but can cause <strong>retrograde ejaculation</strong> and <strong>intraoperative floppy iris syndrome (IFIS)</strong> during cataract surgery.",
+    "pearls": "Board Decision: Patient with <strong>BPH + Hypertension</strong> \u2192 Choose <strong>terazosin</strong> or doxazosin. Patient with <strong>BPH + Normotensive</strong> \u2192 Choose <strong>tamsulosin</strong> (prostate-selective, avoids hypotension). Patients on tamsulosin must alert their ophthalmologist prior to cataract surgery due to floppy iris risk."
+  },
+  {
+    "drug": "Sildenafil, Vardenafil, Tadalafil",
+    "section_id": "ed_pde5",
+    "section_name": "PDE-5 & Vasodilators",
+    "section_badge": "PDE-5 Inhibitor",
+    "badge_class": "badge-ed",
+    "mechanism": "<strong>Increases cGMP by inhibiting its breakdown by phosphodiesterase-5 (PDE-5)</strong>: Causes prolonged nitric oxide-mediated vascular smooth muscle relaxation in the corpus cavernosum and pulmonary vascular bed \u2192 increased blood flow leads to erection.",
+    "clinical_use": "\u2022 Treatment of <strong>erectile dysfunction (ED)</strong>.<br>\u2022 Can also be used to treat <strong>Raynaud syndrome</strong> or <strong>pulmonary arterial hypertension (PAH)</strong> (sildenafil = Revatio).<br>\u2022 Tadalafil also approved for BPH.",
+    "side_effects": "\u2022 <strong>Headache and facial flushing</strong>, dyspepsia, nasal congestion.<br>\u2022 <strong>Cyanopsia (blue-tinted vision)</strong> due to retinal PDE-6 inhibition.<br>\u2022 <strong>Life-threatening hypotension</strong> in patients taking <strong>nitroglycerin / nitrates</strong>.",
+    "pearls": "<strong>Lethal Contraindication with Nitrates</strong>: Nitrates stimulate guanylyl cyclase (\u2191 cGMP synthesis) while PDE-5 inhibitors block cGMP degradation \u2192 massive synergistic intracellular cGMP accumulation \u2192 profound refractory vasodilation, severe hypotension, and death! Must separate nitrates and PDE-5 inhibitors by at least 24 hours (48 hours for tadalafil)."
+  }
+];
+const rawData = [
+  {
+    "drug": "Leuprolide",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "gnrh",
+    "text": "<strong>GnRH analog</strong>:<br>\u2022 <strong>Pulsatile fashion</strong>: Increases <strong>FSH and LH</strong> (stimulates pituitary gonadotropes).<br>\u2022 <strong>Continuous fashion</strong>: Inhibits <strong>FSH and LH</strong> (downregulates GnRH receptors \u2192 chemical castration / hypogonadism)."
+  },
+  {
+    "drug": "Leuprolide",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "gnrh",
+    "text": "\u2022 <strong>Pulsatile</strong>: Treatment of <strong>infertility</strong> (induces LH surge & ovulation).<br>\u2022 <strong>Continuous</strong>: Treatment of <strong>prostate cancer</strong>, <strong>uterine fibroids</strong> (leiomyomas), endometriosis, and <strong>precocious puberty</strong>."
+  },
+  {
+    "drug": "Leuprolide",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "gnrh",
+    "text": "\u2022 <strong>Nausea, vomiting</strong>.<br>\u2022 Transient <strong>tumor flare</strong> during first 1\u20132 weeks of continuous use.<br>\u2022 Antiandrogen/hypoestrogenic effects: <strong>hot flashes, bone loss / osteoporosis</strong>, decreased libido, erectile dysfunction."
+  },
+  {
+    "drug": "Finasteride",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "antiandrogens",
+    "text": "<strong>5-\u03b1-reductase inhibitor</strong>: Competitively blocks the intracellular conversion of testosterone to the more potent androgen <strong>dihydrotestosterone (DHT)</strong> in the prostate, hair follicles, and peripheral tissues."
+  },
+  {
+    "drug": "Finasteride",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "antiandrogens",
+    "text": "\u2022 Treatment of <strong>benign prostatic hyperplasia (BPH)</strong> (slowly reduces prostate size and urinary obstruction over 6\u201312 months).<br>\u2022 Treatment of <strong>male pattern baldness</strong> (androgenetic alopecia at lower doses)."
+  },
+  {
+    "drug": "Finasteride",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "antiandrogens",
+    "text": "\u2022 <strong>Gynecomastia</strong>, erectile dysfunction, decreased libido, decreased ejaculate volume.<br>\u2022 <strong>Teratogenic</strong>: Category X (inhibits external virilization of male fetuses)."
+  },
+  {
+    "drug": "Flutamide",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "antiandrogens",
+    "text": "<strong>Competitive inhibitor at testosterone and DHT receptors</strong>: Nonsteroidal competitive antagonist at nuclear androgen receptors, blocking androgen uptake and androgen-driven gene transcription in prostatic tissue."
+  },
+  {
+    "drug": "Flutamide",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "antiandrogens",
+    "text": "Used in combination with <strong>continuous leuprolide</strong> (GnRH agonist) in the treatment of <strong>advanced / metastatic prostate cancer</strong>."
+  },
+  {
+    "drug": "Flutamide",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "antiandrogens",
+    "text": "\u2022 <strong>Gynecomastia</strong>, hot flashes, decreased libido, and impotence.<br>\u2022 <strong>Hepatotoxicity</strong> (black-box warning; requires baseline and periodic liver function tests)."
+  },
+  {
+    "drug": "Spironolactone",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "antiandrogens",
+    "text": "<strong>Blocks testosterone receptors</strong> and inhibits 17\u03b1-hydroxylase / 17,20-lyase (suppresses androgen synthesis); also acts as a <strong>potassium-sparing diuretic</strong> by competitively blocking <strong>aldosterone receptors</strong> in the renal cortical collecting tubule."
+  },
+  {
+    "drug": "Spironolactone",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "antiandrogens",
+    "text": "\u2022 Used to treat <strong>hirsutism and acne in PCOS</strong> (reduces peripheral androgenic effects).<br>\u2022 Also used in <strong>hypertension, congestive heart failure</strong> (reduces mortality in HFrEF), and ascites in hepatic cirrhosis."
+  },
+  {
+    "drug": "Spironolactone",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "antiandrogens",
+    "text": "\u2022 <strong>Gynecomastia</strong>, <strong>amenorrhea / menstrual irregularities</strong> (due to progesterone receptor binding).<br>\u2022 <strong>Hyperkalemia</strong> (blocks aldosterone-mediated K+ secretion)."
+  },
+  {
+    "drug": "Clomiphene",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "serms",
+    "text": "<strong>Partial agonist / antagonist at estrogen receptors in the hypothalamus</strong>: Prevents estrogen negative feedback \u2192 increases pulsatile <strong>GnRH release</strong> \u2192 leads to increased <strong>LH and FSH</strong> secretion, which induces follicular growth and <strong>triggers ovulation</strong>."
+  },
+  {
+    "drug": "Clomiphene",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "serms",
+    "text": "First-line agent to <strong>promote ovulation in PCOS and anovulatory infertility</strong> in women desiring pregnancy."
+  },
+  {
+    "drug": "Clomiphene",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "serms",
+    "text": "\u2022 <strong>Hot flashes</strong>, abdominal discomfort.<br>\u2022 <strong>Multiple pregnancies</strong> (twins/triplets due to multiple follicular maturation).<br>\u2022 Visual disturbances (scotomas/blurring) and ovarian enlargement."
+  },
+  {
+    "drug": "Tamoxifen",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "serms",
+    "text": "<strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>\u2022 Estrogen receptor <strong>antagonist at the breast</strong>.<br>\u2022 Partial estrogen receptor <strong>agonist on endometrial tissue and bone</strong>."
+  },
+  {
+    "drug": "Tamoxifen",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "serms",
+    "text": "Treatment and prevention of <strong>ER-positive (and PR-positive) breast cancer</strong> in both premenopausal and postmenopausal women."
+  },
+  {
+    "drug": "Tamoxifen",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "serms",
+    "text": "\u2022 <strong>Increased risk of endometrial hyperplasia and endometrial cancer</strong> (agonist at uterus).<br>\u2022 <strong>Deep venous thrombosis (DVT) and pulmonary embolism (PE)</strong> (hepatic procoagulant synthesis).<br>\u2022 Hot flashes."
+  },
+  {
+    "drug": "Raloxifene",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "serms",
+    "text": "<strong>Selective Estrogen Receptor Modulator (SERM)</strong>:<br>\u2022 Estrogen receptor <strong>agonist at bone</strong> (inhibits osteoclast resorption).<br>\u2022 Estrogen receptor <strong>antagonist at breast AND endometrium</strong>."
+  },
+  {
+    "drug": "Raloxifene",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "serms",
+    "text": "Treatment and prevention of <strong>postmenopausal osteoporosis</strong>; also reduces risk of invasive breast cancer in high-risk postmenopausal women."
+  },
+  {
+    "drug": "Raloxifene",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "serms",
+    "text": "\u2022 <strong>Leg cramps</strong>, hot flashes.<br>\u2022 <strong>Deep venous thrombosis (DVT) and pulmonary embolism (PE)</strong> (increased thromboembolism risk)."
+  },
+  {
+    "drug": "Anastrozole",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "aromatase_progestins",
+    "text": "<strong>Aromatase inhibitor</strong>: Competitively inhibits the <strong>CYP19A1 aromatase enzyme</strong>, preventing the peripheral conversion of androstenedione to estrone and testosterone to estradiol in adipose tissue."
+  },
+  {
+    "drug": "Anastrozole",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "aromatase_progestins",
+    "text": "First-line adjuvant treatment of <strong>ER-positive breast cancer in postmenopausal women</strong> (also letrozole and exemestane)."
+  },
+  {
+    "drug": "Anastrozole",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "aromatase_progestins",
+    "text": "\u2022 <strong>Osteoporosis / bone fractures</strong> (due to profound systemic hypoestrogenism; monitor with baseline DEXA scans).<br>\u2022 <strong>Arthralgias / joint pain</strong>, hot flashes, vaginal dryness."
+  },
+  {
+    "drug": "Mifepristone (RU-486)",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "aromatase_progestins",
+    "text": "<strong>Competitive progesterone receptor antagonist</strong>: Competitively blocks progesterone receptors PR-A and PR-B, depriving the endometrium of progestational support; also acts as a glucocorticoid receptor antagonist at high doses."
+  },
+  {
+    "drug": "Mifepristone (RU-486)",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "aromatase_progestins",
+    "text": "\u2022 <strong>Elective medical abortion</strong> (administered in combination with misoprostol through 10 weeks / 70 days gestation).<br>\u2022 Emergency postcoital contraception; hyperglycemia in refractory Cushing syndrome."
+  },
+  {
+    "drug": "Mifepristone (RU-486)",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "aromatase_progestins",
+    "text": "\u2022 <strong>Heavy vaginal bleeding</strong>, severe <strong>abdominal pain / uterine cramping</strong>, nausea, vomiting, anorexia, risk of incomplete abortion."
+  },
+  {
+    "drug": "Oral Contraceptives",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "aromatase_progestins",
+    "text": "<strong>Prevents estrogen surge and thus the LH surge</strong> by maintaining steady negative feedback levels of estrogen and progesterone \u2192 <strong>inhibits ovulation</strong>. Progestins also thicken cervical mucus (blocks sperm) and thin the endometrium."
+  },
+  {
+    "drug": "Oral Contraceptives",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "aromatase_progestins",
+    "text": "\u2022 <strong>Contraception</strong> (<em>does not protect against STDs</em>).<br>\u2022 Regulate irregular or painful menses (dysmenorrhea/menorrhagia), endometriosis, acne.<br>\u2022 <strong>Protective against ovarian and endometrial cancer</strong>."
+  },
+  {
+    "drug": "Oral Contraceptives",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "aromatase_progestins",
+    "text": "\u2022 <strong>Depression, weight gain, hypertension, deep venous thrombosis (DVT), pulmonary embolism (PE)</strong>, hepatic adenomas.<br>\u2022 <strong>Contraindicated in women >35 years who smoke</strong> or have a history of thromboembolic disease, stroke, migraine with aura, or estrogen-sensitive tumors."
+  },
+  {
+    "drug": "Dinoprostone",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "labor_tocolytics",
+    "text": "<strong>Prostaglandin E\u2082 analog</strong>: Binds EP prostaglandin receptors to stimulate collagenase breakdown and increase water content in cervical stroma (<strong>cervical ripening</strong>); also stimulates rhythmic myometrial smooth muscle contractions."
+  },
+  {
+    "drug": "Dinoprostone",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "labor_tocolytics",
+    "text": "\u2022 <strong>Makes the cervix favorable and induces labor</strong> (ripens/dilates cervix and promotes uterine contractions at term).<br>\u2022 Can also be used as an <strong>abortive therapy</strong> (evacuation of uterine contents in fetal demise)."
+  },
+  {
+    "drug": "Dinoprostone",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "labor_tocolytics",
+    "text": "\u2022 <strong>Nausea, abdominal pain / uterine cramping</strong>, diarrhea, fever.<br>\u2022 <strong>Uterine hyperstimulation (tachysystole)</strong> and uterine rupture."
+  },
+  {
+    "drug": "Ritodrine / Terbutaline",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "labor_tocolytics",
+    "text": "<strong>\u03b2\u2082-agonists at uterine smooth muscle</strong>: Stimulates \u03b22-adrenergic receptors \u2192 \u2191 intracellular cAMP \u2192 inhibits myosin light-chain kinase (MLCK) \u2192 <strong>relaxes myometrial smooth muscle</strong>."
+  },
+  {
+    "drug": "Ritodrine / Terbutaline",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "labor_tocolytics",
+    "text": "<strong>Tocolysis</strong>: <strong>Reduces uterine contractions</strong> to arrest preterm labor and prolong pregnancy for up to 48 hours."
+  },
+  {
+    "drug": "Ritodrine / Terbutaline",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "labor_tocolytics",
+    "text": "\u2022 <strong>Tachycardia</strong> (both maternal and fetal reflex/direct tachycardia), palpitations, tremors.<br>\u2022 Maternal hyperglycemia, hypokalemia, and pulmonary edema."
+  },
+  {
+    "drug": "Terazosin / Tamsulosin",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "antiandrogens",
+    "text": "<strong>\u03b1\u2081-adrenergic antagonist</strong>: Relaxes smooth muscle in the prostatic stroma, bladder neck, and capsule.<br>\u2022 <strong>Terazosin</strong>: Nonselective \u03b1\u2081A, \u03b1\u2081B, and \u03b1\u2081D antagonist.<br>\u2022 <strong>Tamsulosin</strong>: <strong>Selective for \u03b1\u2081A,D receptors</strong> found predominantly in the prostate."
+  },
+  {
+    "drug": "Terazosin / Tamsulosin",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "antiandrogens",
+    "text": "\u2022 <strong>Treatment of BPH if urinary symptoms are present</strong> (provides rapid relief of lower urinary tract symptoms within days).<br>\u2022 <strong>Terazosin</strong> also treats concurrent <strong>hypertension</strong>."
+  },
+  {
+    "drug": "Terazosin / Tamsulosin",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "antiandrogens",
+    "text": "\u2022 <strong>Hypotension</strong> (especially terazosin due to vascular \u03b11B blockade; first-dose orthostatic syncope/dizziness).<br>\u2022 Tamsulosin causes significantly less hypotension, but can cause <strong>retrograde ejaculation</strong> and <strong>intraoperative floppy iris syndrome (IFIS)</strong> during cataract surgery."
+  },
+  {
+    "drug": "Sildenafil, Vardenafil, Tadalafil",
+    "cat": "Mechanism of Action",
+    "cat_slug": "mechanism",
+    "section_id": "ed_pde5",
+    "text": "<strong>Increases cGMP by inhibiting its breakdown by phosphodiesterase-5 (PDE-5)</strong>: Causes prolonged nitric oxide-mediated vascular smooth muscle relaxation in the corpus cavernosum and pulmonary vascular bed \u2192 increased blood flow leads to erection."
+  },
+  {
+    "drug": "Sildenafil, Vardenafil, Tadalafil",
+    "cat": "Clinical Use & Indications",
+    "cat_slug": "clinical-use",
+    "section_id": "ed_pde5",
+    "text": "\u2022 Treatment of <strong>erectile dysfunction (ED)</strong>.<br>\u2022 Can also be used to treat <strong>Raynaud syndrome</strong> or <strong>pulmonary arterial hypertension (PAH)</strong> (sildenafil = Revatio).<br>\u2022 Tadalafil also approved for BPH."
+  },
+  {
+    "drug": "Sildenafil, Vardenafil, Tadalafil",
+    "cat": "Side Effects & Toxicities",
+    "cat_slug": "side-effects",
+    "section_id": "ed_pde5",
+    "text": "\u2022 <strong>Headache and facial flushing</strong>, dyspepsia, nasal congestion.<br>\u2022 <strong>Cyanopsia (blue-tinted vision)</strong> due to retinal PDE-6 inhibition.<br>\u2022 <strong>Life-threatening hypotension</strong> in patients taking <strong>nitroglycerin / nitrates</strong>."
+  }
+];
+const categories = ["Mechanism of Action", "Clinical Use & Indications", "Side Effects & Toxicities"];
+
+let currentSectionFilter = 'all';
+let currentCategoryFilter = 'all';
+let selectedItemId = null;
+let score = 0;
+const totalItems = rawData.length;
+
+// Web Audio API Audio Cues
+function playSuccessSound() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+    osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12); // G5
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
+function playErrorSound() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(160, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 0.22);
+    gain.gain.setValueAtTime(0.22, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.22);
+  } catch(e) {}
+}
+
+function initApp() {
+  initQuizTable();
+}
+
+function initQuizTable() {
+  score = 0;
+  selectedItemId = null;
+  updateScoreUI();
+  
+  const tbody = document.getElementById("table-body");
+  const bank = document.getElementById("active-word-bank");
+  
+  tbody.innerHTML = "";
+  bank.innerHTML = "";
+  
+  // Build Grid Rows
+  drugsData.forEach(d => {
+    const tr = document.createElement("tr");
+    tr.dataset.section = d.section_id;
+    tr.id = "row-" + d.drug.replace(/[^a-zA-Z0-9]/g, '-');
+    
+    const tdSide = document.createElement("td");
+    tdSide.className = "side-header";
+    tdSide.innerHTML = `<span class="sec-badge ${d.badge_class}">${d.section_badge}</span><strong>${d.drug}</strong>`;
+    tr.appendChild(tdSide);
+    
+    categories.forEach(cat => {
+      const td = document.createElement("td");
+      const dz = document.createElement("div");
+      dz.className = "drop-zone";
+      dz.dataset.drug = d.drug;
+      dz.dataset.cat = cat;
+      
+      // Drag events
+      dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("drag-over"); });
+      dz.addEventListener("dragleave", () => { dz.classList.remove("drag-over"); });
+      dz.addEventListener("drop", handleDropEvent);
+      
+      // Click-to-place event
+      dz.addEventListener("click", () => handleCellClick(dz));
+      
+      td.appendChild(dz);
+      tr.appendChild(td);
+    });
+    
+    tbody.appendChild(tr);
+  });
+
+  // Populate Shuffled Items into Word Bank
+  shuffleArray(rawData).forEach((item, idx) => {
+    const div = document.createElement("div");
+    div.className = "draggable-item";
+    div.draggable = true;
+    div.id = `item-${idx}`;
+    div.dataset.drug = item.drug;
+    div.dataset.cat = item.cat;
+    div.dataset.section = item.section_id;
+    
+    let badgeClass = "cat-badge-mechanism";
+    if (item.cat === "Clinical Use & Indications") badgeClass = "cat-badge-clinical-use";
+    if (item.cat === "Side Effects & Toxicities") badgeClass = "cat-badge-side-effects";
+    
+    div.innerHTML = `<span class="card-cat-badge ${badgeClass}">${item.cat}</span><div>${item.text}</div>`;
+    
+    div.addEventListener("dragstart", e => {
+      if (div.classList.contains("locked")) return;
+      div.classList.add("dragging");
+      e.dataTransfer.setData("text/plain", div.id);
+    });
+    div.addEventListener("dragend", () => div.classList.remove("dragging"));
+    
+    // Click selection
+    div.addEventListener("click", e => {
+      e.stopPropagation();
+      selectCard(div);
+    });
+    
+    bank.appendChild(div);
+  });
+
+  updateBankCount();
+  applyFilters();
+}
+
+function selectCard(cardElement) {
+  if (cardElement.classList.contains("locked")) return;
+  
+  if (selectedItemId === cardElement.id) {
+    selectedItemId = null;
+    cardElement.classList.remove("selected");
+    document.querySelectorAll(".drop-zone").forEach(z => z.classList.remove("cell-target"));
+  } else {
+    document.querySelectorAll(".draggable-item").forEach(c => c.classList.remove("selected"));
+    selectedItemId = cardElement.id;
+    cardElement.classList.add("selected");
+    document.querySelectorAll(".drop-zone:not(.has-item)").forEach(z => {
+      if (z.dataset.cat === cardElement.dataset.cat) {
+        z.classList.add("cell-target");
+      } else {
+        z.classList.remove("cell-target");
+      }
+    });
+  }
+}
+
+function handleCellClick(dz) {
+  if (!selectedItemId) return;
+  const draggedElement = document.getElementById(selectedItemId);
+  if (!draggedElement) return;
+  attemptPlacement(draggedElement, dz);
+}
+
+function handleDropEvent(e) {
+  e.preventDefault();
+  const dz = e.currentTarget;
+  dz.classList.remove("drag-over");
+  const itemId = e.dataTransfer.getData("text/plain");
+  const draggedElement = document.getElementById(itemId);
+  if (!draggedElement) return;
+  attemptPlacement(draggedElement, dz);
+}
+
+function attemptPlacement(draggedElement, dz) {
+  if (dz.classList.contains("has-item")) return;
+  
+  if (draggedElement.dataset.drug === dz.dataset.drug && draggedElement.dataset.cat === dz.dataset.cat) {
+    // Correct Match
+    draggedElement.draggable = false;
+    draggedElement.classList.remove("selected");
+    draggedElement.classList.add("locked");
+    draggedElement.parentElement.removeChild(draggedElement);
+    dz.appendChild(draggedElement);
+    dz.classList.add("has-item");
+    dz.classList.remove("cell-target");
+    
+    selectedItemId = null;
+    document.querySelectorAll(".drop-zone").forEach(z => z.classList.remove("cell-target"));
+    
+    playSuccessSound();
+    score++;
+    updateScoreUI();
+    updateBankCount();
+    
+    if (score === totalItems) {
+      setTimeout(() => openModal(), 600);
+    }
+  } else {
+    // Wrong Match - Shake animation & low error sound
+    playErrorSound();
+    draggedElement.classList.remove("shake"); 
+    void draggedElement.offsetWidth; 
+    draggedElement.classList.add("shake");
+    setTimeout(() => draggedElement.classList.remove("shake"), 600);
+  }
+}
+
+function updateScoreUI() {
+  document.getElementById('score').innerText = score;
+  document.getElementById('total').innerText = totalItems;
+  const pct = Math.round((score / totalItems) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function updateBankCount() {
+  const remaining = document.querySelectorAll("#active-word-bank .draggable-item:not(.locked)").length;
+  document.getElementById('bank-count').innerText = `${remaining} items left`;
+}
+
+function switchCategoryTab(cat, btn) {
+  document.querySelectorAll(".bank-tabs .tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentCategoryFilter = cat;
+  applyFilters();
+}
+
+function filterSection(secId, btn) {
+  document.querySelectorAll(".section-filter .sec-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentSectionFilter = secId;
+  
+  // Filter table rows
+  document.querySelectorAll("#table-body tr").forEach(tr => {
+    if (secId === 'all' || tr.dataset.section === secId) {
+      tr.style.display = "";
+    } else {
+      tr.style.display = "none";
+    }
+  });
+  
+  applyFilters();
+}
+
+function filterBankCards() {
+  applyFilters();
+}
+
+function applyFilters() {
+  const query = (document.getElementById('bank-search')?.value || '').toLowerCase();
+  
+  document.querySelectorAll("#active-word-bank .draggable-item").forEach(item => {
+    const matchesCat = (currentCategoryFilter === 'all' || item.dataset.cat === currentCategoryFilter);
+    const matchesSec = (currentSectionFilter === 'all' || item.dataset.section === currentSectionFilter);
+    const matchesQuery = query === '' || item.innerText.toLowerCase().includes(query) || item.dataset.drug.toLowerCase().includes(query);
+    
+    if (matchesCat && matchesSec && matchesQuery) {
+      item.style.display = "";
+    } else {
+      item.style.display = "none";
+    }
+  });
+}
+
+function showAllAnswers() {
+  if (!confirm("Reveal all correct placements on the table?")) return;
+  document.querySelectorAll(".draggable-item:not(.locked)").forEach(item => {
+    const targetZone = document.querySelector(`.drop-zone[data-drug="${item.dataset.drug}"][data-cat="${item.dataset.cat}"]`);
+    if (targetZone) {
+      item.draggable = false;
+      item.classList.remove("selected");
+      item.classList.add("locked");
+      item.parentElement.removeChild(item);
+      targetZone.appendChild(item);
+      targetZone.classList.add("has-item");
+    }
+  });
+  selectedItemId = null;
+  document.querySelectorAll(".drop-zone").forEach(z => z.classList.remove("cell-target"));
+  score = totalItems;
+  updateScoreUI();
+  updateBankCount();
+}
+
+function resetGame() {
+  if (confirm("Restart the table? All placements will be cleared.")) {
+    initQuizTable();
+  }
+}
+
+function shuffleArray(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function openModal() { document.getElementById('explanation-modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('explanation-modal').style.display = 'none'; }
+
+window.onload = initApp;
+</script>
+</body>
+</html>
