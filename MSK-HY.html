@@ -4546,20 +4546,35 @@ function renderMenu() {
     return 0;
   });
 
-  // Global stats
-  let totalQ = 0, totalAnswered = 0, totalCorrect = 0;
+  // Global stats (unique questions across modules)
+  const seenStems = new Map();
   DB.quizzes.forEach(q => {
     if (q.isCustom && !q.keepCustom) return;
-    const p = getProgress(q);
-    totalQ += q.questions.length;
-    totalAnswered += p.answered;
-    totalCorrect += p.correct;
+    q.questions.forEach((qi, idx) => {
+      const key = (qi.question || '').replace(/\s+/g, ' ').trim();
+      const h = q.history && q.history[idx];
+      const isAns = Boolean(h && h.s !== null && h.s !== undefined);
+      const isCor = isAns && h.s === qi.correct;
+      const prev = seenStems.get(key);
+      if (!prev) {
+        seenStems.set(key, { answered: isAns, correct: isCor });
+      } else {
+        if (isAns) prev.answered = true;
+        if (isCor) prev.correct = true;
+      }
+    });
+  });
+  const totalQ = seenStems.size;
+  let totalAnswered = 0, totalCorrect = 0;
+  seenStems.forEach(v => {
+    if (v.answered) totalAnswered++;
+    if (v.correct) totalCorrect++;
   });
   const globalStatsEl = document.getElementById('global-stats');
   if (globalStatsEl) {
     globalStatsEl.innerHTML = `
       <div class="stat-chip"><span>${DB.quizzes.filter(q=>!q.isCustom||q.keepCustom).length}</span>Quizzes</div>
-      <div class="stat-chip"><span>${totalQ}</span>Total Questions</div>
+      <div class="stat-chip"><span>${totalQ}</span>Unique Questions</div>
       <div class="stat-chip"><span>${totalAnswered}</span>Answered</div>
       <div class="stat-chip"><span>${totalQ > 0 ? Math.round(totalAnswered/totalQ*100) : 0}%</span>Completion</div>
       <div class="stat-chip"><span style="color:var(--success-green)">${totalAnswered > 0 ? Math.round(totalCorrect/totalAnswered*100) : 0}%</span>Accuracy</div>
